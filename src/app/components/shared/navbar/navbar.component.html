@@ -1,0 +1,84 @@
+<header
+  id="header"
+  
+  [classList]="
+    ' w3-row w3-col l12 m12 s12 set-height-8 bg-dark border-bottom border-warning border-1 ' "
+>
+  <nav [classList]="'navbar navbar-expand-sm navbar-dark pt-sm-0 '">
+    <div [classList]="'w3-col l12 m12 s12 container-fluid '">
+      <div [classList]="'w3-col l3 m2 s12 '">
+        <a [classList]="'navbar-brand '" routerLink="/public/home">
+          <img
+            src="./assets/img/linki.ico"
+            alt="Linki"
+            [classList]="' img-logo-xmd rounded-3 p-1'"
+          />
+        </a>
+
+        <button
+          [classList]="
+            'navbar-toggler w3-right text-white animated__fadeIn mt-sm-2'
+          "
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#Navbar"
+          (click)="toggleIcon()"
+        >
+          <i [class]="iconClass" [class.active]="'isActive fadeIn '"></i>
+        </button>
+      </div>
+      <div [classList]="'w3-row w3-col l9 m8 s12 '">
+        <div [classList]="'w3-col collapse navbar-collapse '" id="Navbar">
+          <ul [classList]="'w3-col navbar-nav navba p-1 justify-content-end '">
+            @if(!userLoginOn){
+            <li [classList]="'nav-item btn btn-md '">
+              <a
+                [classList]="'nav-link  text-uppercase'"
+                href="/public/home"
+                routerLinkActive="active"
+                >INICIO</a
+              >
+            </li>
+            <li [classList]="'nav-item btn btn-md '">
+              <a
+                [classList]="'nav-link text-warning btn border  '"
+                href="/session/signin"
+                routerLinkActive="active"
+                data-bs-toggle="tooltip"
+                title="Iniciar Sesión!"
+                >Iniciar Sesión</a
+              >
+            </li>
+            } @else{
+            <li [classList]="'nav-item btn btn-md '">
+              <a
+                [classList]="'nav-link '"
+                href="/private/home"
+                routerLinkActive="active"
+                >Inicio</a
+              >
+            </li>
+
+            <li [classList]="'nav-item btn btn-md '">
+              <a
+                [classList]="'nav-link '"
+                href="/map/show"
+                routerLinkActive="active"
+                >Mapa</a
+              >
+            </li>
+
+            <li [classList]="'nav-item btn btn-md '">
+              <a
+                [classList]="'nav-link text-danger btn border '"
+                (click)="f_signOut()"
+                >Cerrar Sesión</a
+              >
+            </li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>

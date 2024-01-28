@@ -1,0 +1,193 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+body {
+    font-family: 'Roboto';
+    color: var(--text-color);
+    margin: 0;
+    --header-color: #D1DFB7;
+    --sidebar-color: #FAE6BE;
+    --text-color: black;
+}
+
+
+/* You can add global styles to this file, and also import other style files */
+
+@function set-height($height) {
+  @return #{$height}vh; // Retorna la altura en vh
+}
+
+// Creación de clases con alturas predefinidas
+@for $i from 1 through 100 {
+  .set-height-#{$i} {
+    height: set-height($i);
+    overflow: hidden;
+  }
+}
+
+// Creación de clases con alturas predefinidas
+@for $i from 1 through 100 {
+  .set-height-s-#{$i} {
+    height: set-height($i);
+    overflow-y: auto; /* Agrega un scroll vertical si es necesario */
+    overflow-x: hidden; /* Agrega un scroll vertical si es necesario */
+  }
+}
+
+
+.img-logo-sm {
+  width: 50px;
+  border-radius: 10px;
+}
+
+.img-logo-xsm {
+  width: 55px;
+  border-radius: 10px;
+}
+
+.img-logo-xxsm {
+  width: 65px;
+  border-radius: 10px;
+}
+
+.img-logo-md {
+  width: 75px;
+  border-radius: 10px;
+}
+
+.img-logo-xmd {
+  width: 85px;
+  border-radius: 10px;
+}
+
+.img-logo-xxmd {
+  width: 95px;
+  border-radius: 10px;
+}
+
+.img-logo-lg {
+  width: 105px;
+  border-radius: 10px;
+}
+
+.img-logo-xlg {
+  width: 115px;
+  border-radius: 10px;
+}
+
+.img-logo-xxlg {
+  width: 150px;
+  border-radius: 10px;
+}
+
+.cursor-pointer{
+  cursor: pointer;
+}
+._center-h {
+  display: flex;
+  justify-content: center; /* Centra los elementos horizontalmente */
+  margin: auto;
+}
+
+._center-h-sb {
+  display: flex;
+  justify-content: space-between; /* Distribuye los elementos con espacio entre ellos */
+  margin: auto;
+}
+
+.center-h-sa {
+  display: flex;
+  justify-content: space-around;
+  margin: auto;
+}
+
+/* scroll fondo */
+::-webkit-scrollbar {
+  background-color: black;
+  border-right: black 1px solid;
+  border-left: black 1px solid;
+  width:5px;
+}
+/* scroll barra */
+::-webkit-scrollbar-thumb {
+  background-color: rgb(163, 160, 160);
+}
+
+._divider-white{
+  border: aliceblue 2px solid;
+  padding-left: 2px;
+  padding-right: 2px;
+  margin-left: auto;
+  margin-right: auto;
+}
+._divider-black{
+  border: rgb(16, 16, 16) 2px solid;
+}
+
+// -----
+// ---- COLORS
+// ----
+
+// -- border
+._color-border-blue {
+  border: rgb(42 94 142) 2px solid;
+}
+
+// -- background
+._bg-img-green{
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  // background-color: rgba(0, 0, 0, 0.8);
+  background-blend-mode: multiply;
+
+background-image: url(/assets/img/bg-green.jpg);
+background-position: 100% 50%;
+
+}
+._bg-img-blue{
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-color: rgb(42 94 142) 2px solid;
+  background-blend-mode: multiply;
+
+// background-image: url(/assets/img/bg-green.jpg);
+background-position: 100% 50%;
+
+}
+._bg-img-white{
+background-position: center;
+background-size: cover;
+background-attachment: fixed;
+background-repeat: no-repeat;
+// background-color: rgba(0, 0, 0, 0.8);
+background-blend-mode: multiply;
+
+background-image: url(/assets/img/bg-white.jpg);
+background-position: 100% 50%;
+
+}
+
+/*
+  Validacion de formularios (Mostrar color segun estado) 
+  ======================================
+  ==========================================================
+  
+  */
+  .ng-valid:not(form).ng-touched {
+    border-left: 5px solid #42a948; /* Green */
+  }
+  
+  .ng-invalid:not(form).ng-touched {
+    border-left: 5px solid #a94442; /* red */
+  }
+  
+  /*
+    Validacion de formularios (Mostrar color segun estado)
+     ======================================
+    ==========================================================
+    
+    */

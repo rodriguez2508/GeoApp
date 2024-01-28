@@ -1,0 +1,135 @@
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  OnInit,
+  Output,
+} from '@angular/core';
+
+import { FormBuilder, FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+
+
+import { SessionService } from '../../../services/session.service';
+import { DataService } from '../../../services/data.service';
+
+
+// ----------------------------------
+// -- Variables Globales
+// ---------------------------------- 
+
+// declare var google: any;
+
+// ----------------------------------
+// -- Variables Globales
+// ---------------------------------- 
+
+
+@Component({
+  selector: 'app-signin',
+  standalone: true,
+  imports: [ReactiveFormsModule],
+  templateUrl: './signin.component.html',
+  styleUrl: './signin.component.scss'
+})
+export class SigninComponent implements OnInit, AfterViewInit {
+
+  // ----------------------------------
+  // -- Variables
+  // ---------------------------------- 
+
+  title_page: string = "Inicio de Sesión";
+  form_login: FormGroup;
+
+  form: any = {
+    username: null,
+    email: null,
+    password: null
+  };
+  isSuccessful = false;
+  isSignUpFailed = false;
+  errorMessage = '';
+
+  // ----------------------------------
+  // -- Variables
+  // ---------------------------------- 
+
+  constructor(private router: Router, private fb: FormBuilder, private sessionService: SessionService, private dataService: DataService) {
+
+    this.form_login = this.f_createLoginForm();
+
+  }
+
+  // ----------------------------------
+  // -- Se ejecuta al iniciar la pagina
+  // ---------------------------------- 
+  ngOnInit(): void {
+
+
+
+  }
+
+  ngAfterViewInit(): void {
+
+
+  }
+
+  onSubmit(): void {
+
+    // -- llamar funcion iniciar sesion
+    this.f_signin();
+  }
+
+  // ----------------------------------
+  // -- crear el formulario Login
+  // ----------------------------------  
+  private f_createLoginForm(): FormGroup {
+    return this.fb.group({
+      'user_name': ['', [Validators.required, Validators.minLength(3)]],
+      'password': ['', [Validators.required, Validators.minLength(6)]],
+    });
+  }
+
+  // ----------------------------------
+  // -- funcion para iniciar sesion  
+  // ---------------------------------- 
+  f_signin() {
+    // Tip: si los datos del formulario son incorrectos
+    if (this.form_login.invalid) {
+      this.form_login.markAllAsTouched();
+
+      return;
+    }
+
+    if (this.sessionService.isAuthenticated()) {
+      // -- mostrar mensaje en la pantalla
+      this.dataService.showMsjInData('Ya existe una sesión abierta en este navegador, asegúrese de que sea de usted.', 'success', '/map/show');
+    }
+    else if (this.sessionService.signin(this.form_login.value)) {
+ 
+      // -- mostrar mensaje en la pantalla
+      this.dataService.showMsjInData('Credenciales verificadas correctamente.', 'success', '/map/show');
+
+    } else {
+
+      // -- mostrar mensaje en la pantalla
+      this.dataService.showMsjInData('Credenciales incorrectas!', 'danger', '');
+
+    }
+
+  }
+ 
+
+
+
+
+  // ----------------------------------
+  // -- para obtener el valor de los campos del form
+  // ---------------------------------- 
+
+  public get f(): any {
+
+    return this.form_login.controls;
+  }
+
+}

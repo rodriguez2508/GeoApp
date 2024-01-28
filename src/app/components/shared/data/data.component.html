@@ -1,0 +1,13 @@
+<div [classList]="'w3-row w3-col '">
+  
+  <p [class.text-danger]="_dataS.MsjCode == 'danger'"
+  [class.text-success]="_dataS.MsjCode == 'success'"
+  [class.text-warning]="_dataS.MsjCode == 'warning'"
+    [classList]="' w3-row w3-col text-center m-0 text-lowercase fw-bolder  '"
+  >
+  @if(_dataS.Msj){
+    <label 
+    [classList]="' w3-col fadeIn '">{{ _dataS.Msj }} </label>
+  } 
+  </p>
+</div>

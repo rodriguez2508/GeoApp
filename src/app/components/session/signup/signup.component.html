@@ -1,0 +1,41 @@
+<section class="w3-row w3-col w3-container">
+  <div class="w3-row w3-col _center-h-sb">
+    <h3>{{ title_page }}</h3>
+  </div>
+  <div class="w3-row w3-col d-flex set-height-s-70">
+    <!-- Inputs y Forms -->
+    <form
+      class="w3-row w3-col d-flex align-content-between"
+      #form
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="w3-row w3-col input-group _center-h">
+        <input
+          #input
+          type="text"
+          name="name"
+          placeholder="Tu nombre"
+          type="text"
+        />
+      </div>
+      <div class="w3-row w3-col input-group _center-h">
+        <button class="btn btn-warning" type="submit">Submit</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="w3-row w3-col set-height-10">
+    <ul [classList]="'w3-col navbar-nav navba p-1 justify-content-end '">
+      <li [classList]="'nav-item btn btn-lg border-0 '">
+        <a
+          [classList]="'nav-link text-dark btn border border-warning '"
+          href="/session/signin"
+          routerLinkActive="active"
+          data-bs-toggle="tooltip"
+          title="Iniciar Sesión!"
+          >Iniciar Sesión</a
+        >
+      </li>
+    </ul>
+  </div>
+</section>

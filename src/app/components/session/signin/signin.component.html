@@ -1,0 +1,85 @@
+<section class="w3-row w3-col w3-container">
+  <div class="w3-row w3-col _center-h-sb">
+    <h3>{{ title_page }}</h3>
+  </div>
+  <div class="w3-row w3-col d-flex set-height-s-70">
+    <!-- Inputs y Forms -->
+    <form
+      class="w3-row w3-col d-flex align-content-between position-relative _he-ov-y-60 p-3 border border-warning rounded-2"
+      [formGroup]="form_login"
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="w3-row w3-col m-auto">
+        <!-- -------------- -->
+        <!-- User -->
+        <!-- -------------- -->
+        <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
+          <input
+            formControlName="user_name"
+            type="text"
+            class="form-control"
+            name="user_name"
+            id="user_name"
+            placeholder="Su nombre "
+            type="text"
+            [class.is-invalid]="f.user_name.invalid && f.user_name.touched"
+          />
+          <label for="user_name">Usuario</label>
+
+          @if(f.user_name.invalid && (f.user_name.dirty || f.user_name.touched)
+          ){ @if(f.user_name.errors?.['required'] ){
+          <div [classList]="'text-danger'">User Name is required.</div>
+          } @if(f.user_name.errors?.['minlength']){
+
+          <div [classList]="'text-danger'">
+            User Name min-required length: 3 | actual lenght:
+            {{ f.user_name.value.length }}
+          </div>
+          } }
+        </div>
+
+        <!-- -------------- -->
+        <!-- Password -->
+        <!-- -------------- -->
+
+        <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
+          <input
+            formControlName="password"
+            type="password"
+            class="form-control"
+            id="password"
+            placeholder="Enter password"
+            [class.is-invalid]="f.password.invalid && f.password.touched"
+          />
+          <label for="password">Password</label>
+
+          @if(f.password.invalid && (f.password.dirty || f.password.touched) ){
+          @if(f.password.errors?.['required'] ){
+          <div [classList]="'text-danger'">Password is required.</div>
+          } @if(f.password.errors?.['minlength']){
+
+          <div [classList]="'text-danger'">
+            Password min-required length: 6 | actual lenght:
+            {{ f.password.value.length }}
+          </div>
+          } }
+        </div>
+
+        <!-- -------------- -->
+        <!-- Botones -->
+        <!-- -------------- -->
+        <div class="w3-row w3-col w3-section">
+          <button class="w3-col l4 m4 btn btn-warning float-end" type="submit">
+            Iniciar
+          </button>
+
+          <button
+            id="btn_LoginGoogle"
+            [classList]="'w3-col btn bg-transparent w3-medium w3-right p-1'"
+          ></button>
+        </div>
+      </div>
+    </form>
+  </div>
+ 
+</section>

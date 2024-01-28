@@ -1,0 +1,35 @@
+<section
+  [classList]="
+    'container-fluid fixed-bottom bg-light pb-2 _center-h-sb set-height-10'
+  "
+>
+  <button class="btn btn-light border border-warning" (click)="mostrarPanel()">
+    <label class="w3-col w3-row w3-hide-small">Users</label>
+    <i class="fa fa-user fa-2x"></i>
+    <span class="badge bg-danger">{{ conected_users.length }}</span>
+  </button>
+  <button type="button" class="btn btn-light border border-warning">
+    <label class="w3-col w3-row w3-hide-small">Message</label>
+    <i class="fa fa-message fa-2x"></i>
+    <span class="badge bg-danger">0</span>
+  </button>
+
+  <button type="button" class="btn btn-light border border-warning">
+    <label class="w3-col w3-row w3-hide-small">Más</label>
+    <i class="fa fa-mobile-button fa-2x"></i>
+    <!-- <span class="badge bg-danger">0</span> -->
+  </button>
+
+</section>
+
+
+<section
+  [classList]="
+    'w3-row w3-col container-fluid panel-nombres bg-light h-auto d-flex justify-content-center '
+  "
+>
+  @if(showPanel ){
+  <app-p-usersonline [conected_users]="conected_users"></app-p-usersonline>
+
+  }
+</section>
