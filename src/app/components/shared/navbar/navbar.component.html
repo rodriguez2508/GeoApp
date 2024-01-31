@@ -1,24 +1,24 @@
 <header
   id="header"
-  
-  [classList]="
-    ' w3-row w3-col l12 m12 s12 set-height-8 bg-dark border-bottom border-warning border-1 ' "
+  [class]="
+    ' w3-row w3-col l12 m12 s12 set-height-8 bg-dark border-bottom border-warning border-1 '
+  "
 >
-  <nav [classList]="'navbar navbar-expand-sm navbar-dark pt-sm-0 '">
-    <div [classList]="'w3-col l12 m12 s12 container-fluid '">
-      <div [classList]="'w3-col l3 m2 s12 '">
-        <a [classList]="'navbar-brand '" routerLink="/public/home">
-          <img
+  <nav [class]="'navbar navbar-expand-sm navbar-dark pt-sm-0 '">
+    <div [class]="'w3-col l12 m12 s12 container-fluid '">
+      <div [class]="'w3-col l3 m2 s12 '">
+        <a [class]="'navbar-brand '" routerLink="/public/home" href="#">
+          <!-- <img
             src="./assets/img/linki.ico"
-            alt="Linki"
-            [classList]="' img-logo-xmd rounded-3 p-1'"
-          />
+            alt=""
+            [class]="' img-logo-xmd rounded-3 p-1'"
+          /> -->
+
+          <label class=" ">{{ titleApp }}</label>
         </a>
 
         <button
-          [classList]="
-            'navbar-toggler w3-right text-white animated__fadeIn mt-sm-2'
-          "
+          [class]="'navbar-toggler w3-right btn text-white border-0 animated__fadeIn ms-sm-2'"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#Navbar"
@@ -26,55 +26,99 @@
         >
           <i [class]="iconClass" [class.active]="'isActive fadeIn '"></i>
         </button>
+
+        <button
+          [class]="'navbar-toggler w3-right btn btn-dark text-white animated__fadeIn ms-sm-2'"
+          type="button"
+          (click)="toggleFullscreen()"
+        >
+          <i [class]="'fa fa-mobile-phone '"></i>
+        </button>
       </div>
-      <div [classList]="'w3-row w3-col l9 m8 s12 '">
-        <div [classList]="'w3-col collapse navbar-collapse '" id="Navbar">
-          <ul [classList]="'w3-col navbar-nav navba p-1 justify-content-end '">
+      <div [class]="'w3-row w3-col l9 m8 s12 '">
+        <!-- -------- -->
+        <!-- -------- -->
+        <!-- -------- -->
+
+        <div [class]="'w3-col collapse navbar-collapse '" id="Navbar">
+          <ul [class]="'w3-col navbar-nav navba p-1 justify-content-end '">
             @if(!userLoginOn){
-            <li [classList]="'nav-item btn btn-md '">
+
+            <!-- -------- -->
+            <!-- -------- NO LOGIN USER -->
+            <!-- -------- -->
+            <li [class]="'nav-item btn btn-md '">
               <a
-                [classList]="'nav-link  text-uppercase'"
-                href="/public/home"
+                [class]="'nav-link  text-uppercase'"
+                routerLink="/public/home"
                 routerLinkActive="active"
+                ariaCurrentWhenActive="page"
                 >INICIO</a
               >
             </li>
-            <li [classList]="'nav-item btn btn-md '">
+            <li [class]="'nav-item btn btn-md '">
               <a
-                [classList]="'nav-link text-warning btn border  '"
-                href="/session/signin"
+                [class]="'nav-link text-warning btn  '"
+                routerLink="/session/signin"
                 routerLinkActive="active"
+                ariaCurrentWhenActive="page"
                 data-bs-toggle="tooltip"
                 title="Iniciar Sesión!"
                 >Iniciar Sesión</a
               >
             </li>
+
+            <!-- -------- -->
+            <!-- -------- NO LOGIN USER -->
+            <!-- -------- -->
             } @else{
-            <li [classList]="'nav-item btn btn-md '">
+
+            <!-- -------- -->
+            <!-- -------- LOGIN USER -->
+            <!-- -------- -->
+            <li [class]="'nav-item btn btn-md '">
               <a
-                [classList]="'nav-link '"
-                href="/private/home"
+                [class]="'nav-link'"
+                routerLink="/private/home"
                 routerLinkActive="active"
+                ariaCurrentWhenActive="page"
                 >Inicio</a
               >
             </li>
-
-            <li [classList]="'nav-item btn btn-md '">
+            <li [class]="'nav-item btn btn-md '">
               <a
-                [classList]="'nav-link '"
-                href="/map/show"
+                [class]="'nav-link '"
+                routerLink="/map/show"
                 routerLinkActive="active"
+                ariaCurrentWhenActive="page"
                 >Mapa</a
               >
             </li>
 
-            <li [classList]="'nav-item btn btn-md '">
-              <a
-                [classList]="'nav-link text-danger btn border '"
+            <div [class]="'w3-hide-medium w3-hide-large w3-col _divider-white w3-section opacity-25'"></div>
+            <li [class]="'nav-item btn btn-sm w3-row '">
+              <button
+              [class]="'w3-col l6 m6 pe-4 btn text-white '"
+              (click)="shareApp('')"
+            >
+              <i [class]="'fa fa-share-alt me-2 float-sm-start'"></i>
+              <label [class]="'w3-small float-sm-start w3-hide-medium w3-hide-large'" for="">Compartir</label>
+            </button>
+
+              <button
+                [class]="'w3-col l6 m6 pe-4 btn text-white'"
                 (click)="f_signOut()"
-                >Cerrar Sesión</a
               >
-            </li>
+                <i [class]="'fa fa-sign-out-alt me-2 float-sm-start'"></i>
+                <label [class]="'w3-small float-sm-start w3-hide-medium w3-hide-large'" for="">Cerrar Sesión</label>
+              </button>
+
+             
+            </li> 
+
+            <!-- -------- -->
+            <!-- -------- LOGIN USER -->
+            <!-- -------- -->
             }
           </ul>
         </div>

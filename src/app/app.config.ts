@@ -4,8 +4,9 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideHttpClient, withFetch } from '@angular/common/http';
+ 
 import { Socket } from 'ngx-socket-io';
-import { environment } from '../environments/environment';
+import { environment } from '../environments/environment'; 
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -26,6 +27,7 @@ export const appConfig: ApplicationConfig = {
         socket.connect();
         return socket;
       }
-    }
+    },  
   ]
-};
+}; 
+

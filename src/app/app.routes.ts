@@ -1,21 +1,20 @@
 import { Routes } from '@angular/router';
-import { SectionMapComponent } from './components/map/section-map/section-map.component';
 import { SessionGuardService } from './services/guard/session-guard.service';
 
 export const routes: Routes = [
 
     { 
         path: 'public',
-        loadChildren: () => import('./components/public/public.module').then((m) => m.PublicModule) },
-
+        loadChildren: () => import('./modules/public-module/public.module').then((m) => m.PublicModule) },
+        
     { 
         path: 'map', 
         canActivate: [SessionGuardService], 
-        loadChildren: () => import('./components/map/map.module').then((m) => m.MapModule) },
+        loadChildren: () => import('./modules/map-module/map.module').then((m) => m.MapModule) },
 
     { 
         path: 'session', 
-        loadChildren: () => import('./components/session/session.module').then((m) => m.SessionModule) },
+        loadChildren: () => import('./modules/session-module/session.module').then((m) => m.SessionModule) },
 
 
     // -----------------------------------

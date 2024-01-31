@@ -10,16 +10,18 @@ import {
   SimpleChanges,
 } from '@angular/core';
 
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { environment } from '../../../../environments/environment';
+
 
 import { DataService } from '../../../services/data.service';
 import { SessionService } from '../../../services/session.service';
-import { Observable, Subscription } from 'rxjs';
+import { ShareAppService } from '../../../services/share-app.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
@@ -29,10 +31,10 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
   userLoginOn: boolean = false;
 
   // userIsAuth: Subscription;
-  titleApp: string = "Linki"
+  appVersion:string = environment.appVersion;
+  titleApp: string = "Linki | "+ this.appVersion;
 
   isClicked: boolean = false;
-  linkActivo: number = 0;
   iconClass = 'fa fa-bars fa-1x text-white';
   isActive = false;
 
@@ -40,35 +42,17 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private dataService: DataService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private shareappService: ShareAppService
   ) {
 
   }
-
-
-  // F_ boton menu cuando la vista es telefono
-  toggleIcon() {
-    this.isActive = !this.isActive;
-    const headerElement = document.getElementById('header');
-
-    if (this.iconClass === 'fa fa-bars fa-1x text-white') {
-      this.iconClass = 'fa fa-times fa-1x text-white';
-      if (headerElement) {
-        headerElement.style.height = 'auto';
-      }
-    } else {
-      this.iconClass = 'fa fa-bars fa-1x text-white';
-      if (headerElement) {
-        headerElement.style.height = '10vh';
-      }
-    }
-  }
-
+  
   ngOnInit(): void {
 
     this.dataService.getUserLoggedIn().subscribe((value) => {
       this.userLoginOn = value;
-      
+
     });
 
   }
@@ -77,7 +61,7 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
 
   }
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
 
 
   }
@@ -85,18 +69,56 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   }
 
+
+
+  // -----------------------------------------
+  // F_ boton menu cuando la vista es telefono
+  // -----------------------------------------
+  toggleIcon() {
+
+    
+    this.isActive = !this.isActive;
+    const headerElement = document.getElementById('header');
+
+    if (headerElement) {
+
+      if (headerElement.style.height == '10vh') {
+        
+        headerElement.style.height = 'auto';
+        this.iconClass = 'fa fa-times fa-1x text-white';
+      } 
+      else{
+
+        headerElement.style.height = 'auto';
+        this.iconClass = 'fa fa-bars fa-1x text-white';
+
+      }
+
+
+
+    } 
+
+
+
+  }
+
+
+
+  // -----------------------------------------
   //  F_ eliminar datos de Sesion
+  // -----------------------------------------
+
   async f_signOut() {
 
-    const resultado = await this.dataService.showQuestion('¿Estás seguro de que deseas continuar?', 'warning', 'info');
+    const resultado = await this.dataService.showQuestion('¿Estás seguro de que deseas continuar?', 'warning', 'question');
     if (resultado) {
- 
+
       // -- funcion para eliminar datos de la sesion
       this.sessionService.signout();
 
       // -- mostrar mensaje en la pantalla
       this.dataService.showMsjInData('Cerrando Sesión...', 'success', '/session/signin');
- 
+
       // window.location.reload();
 
     } else {
@@ -104,5 +126,43 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     }
 
   }
+
+
+
+  // -----------------------------------------
+  //  F_ para abrir a pantalla completa la aplicacion
+  // -----------------------------------------
+  async toggleFullscreen() {
+    const doc = window.document;
+    const docEl = doc.documentElement;
+
+    const requestFullScreen = docEl.requestFullscreen;
+    const cancelFullScreen = doc.exitFullscreen;
+
+    if (!doc.fullscreenElement && !doc.fullscreenElement && !doc.fullscreenElement && !doc.fullscreenElement) {
+      requestFullScreen.call(docEl);
+    } else {
+      cancelFullScreen.call(doc);
+    }
+  }
+
+
+  // -----------------------------------------
+  //  F_ para abrir a pantalla completa la aplicacion
+  // -----------------------------------------
+  shareApp(platform: string) {
+
+    this.shareappService.compartir().then(
+      () => {
+        
+        // -- mostrar mensaje en la pantalla
+        this.dataService.showMsj('Éxito!', 'Contenido compartido con éxito', 'success');
+
+        console.log('Contenido compartido con éxito.')
+      },
+      () => console.error('Error al compartir el contenido.')
+    );
+  }
+
 
 }

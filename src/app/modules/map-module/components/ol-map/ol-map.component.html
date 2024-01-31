@@ -1,0 +1,32 @@
+<div class="w3-row w3-col">
+  <div id="map" class="map">
+    <!-- <div class="position-absolute popover text-white bg-dark" id="popup"></div> -->
+
+    <!-- Popup -->
+    <div id="popup">
+      
+    </div>
+
+    <!-- ... -->
+    <button
+      id="btn_centerPosition"
+      [class]="'btn position-absolute bg-secondary'"
+      type="button"
+      (click)="centerMap()"
+    >
+      <i [class]="'fa fa-search-location'"></i>
+    </button>
+    <!-- ... -->
+
+    <!-- ... -->
+    <button
+      id="btn_clearMarkers"
+      [class]="'btn position-absolute bg-secondary'"
+      type="button"
+      (click)="deleteMarker('destination')"
+    >
+      <i [class]="'fa fa-map-location-dot'"></i>
+    </button>
+    <!-- ... -->
+  </div>
+</div>

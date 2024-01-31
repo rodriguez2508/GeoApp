@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { connectedUsers } from '../../../../interface/connectedUsers.interface';
+import { connectedUsers } from '../../../../../interface/connectedUsers.interface';
 
 @Component({
   selector: 'app-p-usersonline',

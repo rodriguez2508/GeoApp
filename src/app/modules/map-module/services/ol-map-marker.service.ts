@@ -16,7 +16,7 @@ import { Coordinate } from 'ol/coordinate';
 
 
 // --- personal import
-import { Client } from '../../interface/client.interface';
+import { Client } from '../../../interface/client.interface';
 import { fromLonLat } from 'ol/proj';
 import { Overlay } from 'ol';
 // --- personal import
@@ -30,7 +30,7 @@ export const DEFAULT_TEXT = '';
 
 const MARKER_COLOR: { [key: string]: number[] } = {
   'success': [53, 140, 0, 1],
-  'warning': [127, 214, 127, 0.5],
+  'warning': [245, 172, 8] ,
   'danger': [255, 0, 0, 1],
   'info': [127, 255, 127, 0.5],
   'transparent': [255, 255, 255, 0],
@@ -95,12 +95,12 @@ export class OlMapMarkerService {
       type: 'text', // ¿Es necesario tener un tipo aquí?
     });
 
-    // Crear una segunda feature para la sombra
-    const shadow = new Feature({
-      geometry: new Point(fromLonLat(coord)),
-      client: client,
-      type: 'shadow', // ¿Es necesario tener un tipo aquí?
-    });
+    // // Crear una segunda feature para la sombra
+    // const shadow = new Feature({
+    //   geometry: new Point(fromLonLat(coord)),
+    //   client: client,
+    //   type: 'shadow', // ¿Es necesario tener un tipo aquí?
+    // });
 
     // Crear un estilo base para el círculo
     const baseStyle = new Style({
@@ -129,7 +129,7 @@ export class OlMapMarkerService {
     // Agregar las features al array de marcadores
     markers.push(marker);
     markers.push(markerText);
-    markers.push(shadow);
+    // markers.push(shadow);
 
     return markers;
   }
@@ -217,6 +217,25 @@ export class OlMapMarkerService {
     }
 
     return markers[indexToUpdate];
+  }
+
+  removeMarker(markers: Feature[], clientId: string): Feature[] {
+
+    // Buscar el índice del marcador que se va a actualizar
+    const indexToRemove = this.markers.findIndex(marker => marker.get('client').id === clientId && marker.get('type') == 'data');
+    const indexToRemove_text = this.markers.findIndex(marker => marker.get('client').id === clientId && marker.get('type') == 'text');
+    
+
+    console.log(indexToRemove, indexToRemove_text)
+    if (indexToRemove !== -1 ) {
+
+      // console.log(this.markers[indexToRemove])
+      markers.splice(indexToRemove, 1);
+      markers.splice(indexToRemove_text, 1); 
+    }
+
+    return markers;
+
   }
 
 

@@ -1,12 +1,12 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { OlMapComponent } from '../ol-map/ol-map.component';
-import { GeolocService } from '../../../services/geoloc.service';
-import { DataService } from '../../../services/data.service';
-import { SocketioService } from '../../../services/socketio.service';
-import { Client } from '../../../interface/client.interface';
-import { StorageService } from '../../../services/storage.service';
+import { GeolocService } from '../../../../services/geoloc.service';
+import { DataService } from '../../../../services/data.service';
+import { SocketioService } from '../../../../services/socketio.service';
+import { Client } from '../../../../interface/client.interface';
+import { StorageService } from '../../../../services/storage.service';
 import { FooterMapComponent } from './footer-map/footer-map.component';
-import { connectedUsers } from '../../../interface/connectedUsers.interface';
+import { connectedUsers } from '../../../../interface/connectedUsers.interface';
 import { Subscription } from 'rxjs';
 import { OlMapMarkerComponent } from '../ol-map-marker/ol-map-marker.component';
 import { Observable } from 'ol';

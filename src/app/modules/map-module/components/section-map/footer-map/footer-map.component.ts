@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PUsersonlineComponent } from '../p-usersonline/p-usersonline.component';
-import { GeolocService } from '../../../../services/geoloc.service';
-import { DataService } from '../../../../services/data.service';
-import { connectedUsers } from '../../../../interface/connectedUsers.interface';
+import { GeolocService } from '../../../../../services/geoloc.service';
+import { DataService } from '../../../../../services/data.service';
+import { connectedUsers } from '../../../../../interface/connectedUsers.interface';
 
 @Component({
   selector: 'app-footer-map',
