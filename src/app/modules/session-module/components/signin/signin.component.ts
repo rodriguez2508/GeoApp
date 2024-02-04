@@ -7,11 +7,11 @@ import {
 } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 
-import { SessionService } from '../../../services/session.service';
-import { DataService } from '../../../services/data.service';
+import { SessionService } from '../../services/session.service';
+import { DataService } from '../../../../services/data.service';
 
 
 // ----------------------------------
@@ -38,7 +38,10 @@ export class SigninComponent implements OnInit, AfterViewInit {
   // -- Variables
   // ---------------------------------- 
 
-  title_page: string = "Inicio de Sesión";
+
+  _role: string = 'undefined';
+
+  title_page: string = "Iniciar Sesión";
   form_login: FormGroup;
 
   form: any = {
@@ -54,24 +57,23 @@ export class SigninComponent implements OnInit, AfterViewInit {
   // -- Variables
   // ---------------------------------- 
 
-  constructor(private router: Router, private fb: FormBuilder, private sessionService: SessionService, private dataService: DataService) {
+  constructor(private router:Router, private route: ActivatedRoute, private fb: FormBuilder, private sessionService: SessionService, private dataService: DataService) {
+ 
+    this.route.queryParams.subscribe(params => {
+      this._role = params['role'];
+    });
 
     this.form_login = this.f_createLoginForm();
 
   }
 
-  // ----------------------------------
-  // -- Se ejecuta al iniciar la pagina
-  // ---------------------------------- 
   ngOnInit(): void {
 
-
-
+     
   }
 
   ngAfterViewInit(): void {
-
-
+ 
   }
 
   onSubmit(): void {
@@ -85,6 +87,7 @@ export class SigninComponent implements OnInit, AfterViewInit {
   // ----------------------------------  
   private f_createLoginForm(): FormGroup {
     return this.fb.group({
+      'user_type': [this._role, [Validators.required]],
       'user_name': ['', [Validators.required, Validators.minLength(3)]],
       'password': ['', [Validators.required, Validators.minLength(6)]],
     });
@@ -101,14 +104,31 @@ export class SigninComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (this.sessionService.isAuthenticated()) {
-      // -- mostrar mensaje en la pantalla
-      this.dataService.showMsjInData('Ya existe una sesión abierta en este navegador, asegúrese de que sea de usted.', 'success', '/map/show');
-    }
-    else if (this.sessionService.signin(this.form_login.value)) {
- 
-      // -- mostrar mensaje en la pantalla
-      this.dataService.showMsjInData('Credenciales verificadas correctamente.', 'success', '/map/show');
+    // if (this.sessionService.isAuthenticated()) {
+    //   // -- mostrar mensaje en la pantalla
+    //   this.dataService.showMsjInData('Ya existe una sesión abierta en este navegador, asegúrese de que sea de usted.', 'success', '/map/show');
+    // }
+     if (this.sessionService.signin(this.form_login.value)) {
+  
+      if(this.f.user_type.value === 'traveler' ){
+
+        
+        // -- mostrar mensaje en la pantalla
+      this.dataService.showMsjInData('Credenciales Verificadas, espere ...', 'success', '/traverler/travel-request');
+
+      }
+
+      else if(this.f.user_type.value === 'driver' ){
+
+        this.sessionService.logout();
+        
+        // -- mostrar mensaje en la pantalla
+      this.dataService.showMsjInData('La sección CONDUCTOR está en desarrollo.', 'danger', '');
+
+      
+
+      }
+      
 
     } else {
 
@@ -120,7 +140,9 @@ export class SigninComponent implements OnInit, AfterViewInit {
   }
  
 
-
+  goToSignUp(): void {
+    this.router.navigate(['/session/signup'], { queryParams: { role: '' } });
+  }
 
 
   // ----------------------------------
@@ -130,6 +152,10 @@ export class SigninComponent implements OnInit, AfterViewInit {
   public get f(): any {
 
     return this.form_login.controls;
+  }
+
+  get role(): string | undefined {
+    return this._role;
   }
 
 }

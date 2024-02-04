@@ -1,10 +1,13 @@
 import { Routes } from '@angular/router';
-import { SessionGuardService } from './services/guard/session-guard.service';
+import { SessionGuardService } from './modules/session-module/guard/session-guard.service';
+import { PublicRouteGuardService } from './modules/session-module/guard/public-route-guard.service';
 
 export const routes: Routes = [
 
+    
     { 
         path: 'public',
+        canActivate: [PublicRouteGuardService],
         loadChildren: () => import('./modules/public-module/public.module').then((m) => m.PublicModule) },
         
     { 
@@ -14,17 +17,22 @@ export const routes: Routes = [
 
     { 
         path: 'session', 
+        canActivate: [PublicRouteGuardService], 
         loadChildren: () => import('./modules/session-module/session.module').then((m) => m.SessionModule) },
 
 
     // -----------------------------------
     // -----------------------------------
-
     {
         path: '',
-        redirectTo: 'session/signin',
+        redirectTo: 'public/home',
         pathMatch: 'full'
     },
-
-    { path: '**', redirectTo: 'notfound', pathMatch: 'full' },
+    {
+        path: '**',
+        redirectTo: 'public/home',
+        pathMatch: 'full'
+    },
+    
+ 
 ];

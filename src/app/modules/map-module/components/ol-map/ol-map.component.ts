@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, AfterViewInit, Input, ElementRef, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnChanges, AfterViewInit, Input, ElementRef, SimpleChanges, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 
 
@@ -8,7 +8,7 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
-import { OSM } from 'ol/source';
+import { OSM, Vector } from 'ol/source';
 import * as Proj from 'ol/proj';
 import { Coordinate, toStringHDMS } from 'ol/coordinate';
 import {
@@ -28,10 +28,10 @@ import { fromLonLat, toLonLat, transform } from 'ol/proj';
 import { Feature, Overlay } from 'ol';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
+import { Stroke, Style } from 'ol/style';
+import { LineString } from 'ol/geom';
 // -- map OL
 
-import { PopoverModule } from 'ngx-bootstrap/popover';
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 
 // --- personal imports
@@ -40,12 +40,16 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { OlMapMarkerService } from '../../services/ol-map-marker.service';
 import { DataService } from '../../../../services/data.service';
 import { StorageService } from '../../../../services/storage.service';
+import { OpenRouteService } from '../../services/open-route.service';
 // --services
 
 // --interfaces
-import { Client } from '../../../../interface/client.interface';
+import { I_UserMap, I_UserSessionStorage } from '../../../../interface/user.interface';
+import { I_DestinationMarker } from '../../../../interface/marker.interface';
+
 import { connectedUsers } from '../../../../interface/connectedUsers.interface';
-import { DestinationMarker } from '../../../../interface/destinationMarker.interface';
+
+
 // --interfaces
 
 
@@ -55,7 +59,8 @@ export const DEFAULT_HEIGHT = '500px';
 export const DEFAULT_WIDTH = '500px';
 
 export const DEFAULT_ZOOM = 10;
-export const DEFAULT_ONLINE = false;
+export const DEFAULT_SOCKET_STATUS = false;
+export const DEFAULT_LOCATION_STATUS = false;
 
 export const DEFAULT_LAT = 23.0415;
 export const DEFAULT_LON = -81.5775;
@@ -65,16 +70,17 @@ export const DEFAULT_LON = -81.5775;
 @Component({
   selector: 'app-ol-map',
   standalone: true,
-  imports: [PopoverModule, BsDropdownModule],
+  imports: [],
   templateUrl: './ol-map.component.html',
   styleUrl: './ol-map.component.scss'
 })
-export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
+export class OlMapComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
   @Input() lat: number = DEFAULT_LAT;
   @Input() lon: number = DEFAULT_LON;
   @Input() zoom: number = DEFAULT_ZOOM;
-  @Input() online: boolean = DEFAULT_ONLINE;
+  @Input() socket_status: boolean = DEFAULT_SOCKET_STATUS;
+  @Input() location_status: boolean = DEFAULT_LOCATION_STATUS;
   @Input() width: string | number = DEFAULT_WIDTH;
   @Input() height: string | number = DEFAULT_HEIGHT;
 
@@ -89,7 +95,7 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
   // ------------------
   // -- Marcadores
   // ------------------
-
+  lineRoute: Feature = new Feature();
   markers: Feature[] = [];
   private vectorSource = new VectorSource();
   private vectorLayer = new VectorLayer();
@@ -102,7 +108,7 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   target: string = '#map';
   map: Map = new Map();
-  client: Client;
+  client: I_UserMap;
   @Input() conected_users: connectedUsers[] = []; // Asegúrate de inicializar correctamente la lista
 
   // Agregar el control ZoomToExtent al mapa
@@ -116,7 +122,13 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
   private popupEl: any;
   private hasAddedTu: boolean = false;
 
-  constructor(private elementRef: ElementRef, private markerService: OlMapMarkerService, private dataService: DataService, private storageService: StorageService) {
+  constructor(
+    private elementRef: ElementRef,
+    private markerService: OlMapMarkerService,
+    private dataService: DataService,
+    private storageService: StorageService,
+    private openRouteService: OpenRouteService
+  ) {
 
     this.client = storageService.getUser();
 
@@ -128,19 +140,19 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
     this.mapEl = this.elementRef.nativeElement.querySelector('#map');
 
     // -- inicializa el mapa
+    this.setSize();
     this.initMap();
+
   }
 
   ngAfterViewInit(): void {
-
-    this.setSize();
-
     // let client: Client = { id: '1', name: 'cliente 2', markerColor: 'warning' };
     // let client2: Client = { id: '2', name: 'cliente 3', markerColor: 'warning' };
+  }
+
+  ngOnDestroy(): void {
 
 
-
-    this.setMarkersForConnectedUsers();
 
   }
 
@@ -149,18 +161,20 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
   // --------------------------------------------
   ngOnChanges(changes: SimpleChanges): void {
 
+    if (this.map && this.socket_status && this.location_status) {
 
-    if (this.map) {
-      if ('lat' in changes || 'lon' in changes) {
+      if (!this.hasAddedTu) {
+        this.client.user_name += ' (Tú)';
+        this.client.markerColor = 'success';
+        this.initMarker([this.lon, this.lat], this.client);
+        this.hasAddedTu = true;
+      }
+
+      if (('lat' in changes || 'lon' in changes)) {
         // Si cambia alguna de las propiedades lat, lon, o zoom, actualiza el mapa
 
         console.log('this.client  update')
 
-        this.client.markerColor = 'success';
-        if (!this.hasAddedTu) {
-          this.client.name += ' (Tú)';
-          this.hasAddedTu = true;
-        }
         // Actualiza tus marcadores
 
         this.initMarker([this.lon, this.lat], this.client);
@@ -168,12 +182,18 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
 
 
       }
-      else if ('conected_users' in changes) {
-        console.log('connected_user update')
+      else if (('conected_users' in changes)) {
+        console.log('connected_user update', this.conected_users)
+
+        // Eliminar los marcadores que no están en this.conected_users 
+        const indexToRemove = this.markers.findIndex(marker => !this.conected_users.some(user => user.user.id === marker.get('client').id));
+
+        if (indexToRemove !== -1) this.clearMarker(this.markers[indexToRemove].get('client').id);
+
         this.setMarkersForConnectedUsers();
 
-
       }
+
     }
 
 
@@ -183,16 +203,13 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
   // -- Inicializar el mapa
   // --------------------------------------------
 
-  initMap() {
+  private initMap() {
 
-    this.vectorSource.addFeatures(this.markers);
+    // this.vectorSource.addFeatures(this.markers);
 
-    this.vectorLayer = new VectorLayer({
-      source: this.vectorSource,
-    });
-
-    const targetZoom = this.zoom;
-
+    // this.vectorLayer = new VectorLayer({
+    //   source: this.vectorSource,
+    // });
 
     // ----------------------------------
     // controles 
@@ -200,15 +217,10 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
 
     const zoomToExtentControl = new ZoomToExtent({
       extent: this.extent,
-      label: 'Ex',
-
     });
-
-    // Controles 
     const zoomControl = new Zoom();
     const rotateControl = new Rotate();
     const scaleLine = new ScaleLine();
-    // Controles 
 
     // ----------------------------------
     // controles 
@@ -217,29 +229,44 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
       target: this.mapEl,
       layers: [
         new TileLayer({
-          source: new OSM()
+          source: new OSM(),
         }),
         this.vectorLayer
       ],
       view: new View({
+        // projection: 'EPSG:4326',
         center: Proj.fromLonLat([this.lon, this.lat]),
-        minZoom: 10,
+        minZoom: 6,
         maxZoom: 19,
-        zoom: targetZoom
+        zoom: this.zoom
       }),
       controls: [zoomToExtentControl, rotateControl, zoomControl, scaleLine]
     });
 
-
-    // Define un listener para el evento click
+    //  ------------------------------
+    // EVENTO CLICK
+    //  ------------------------------ 
     this.map.on('singleclick', (event) => {
       console.log(`Has hecho clic en las coordenadas (${event.coordinate[0]}, ${event.coordinate[1]}).`);
 
-      //  -- Inicializa el marcador destino 
-      let coord: Coordinate = transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
-      this.initMarkerDestination(coord);
+      //  -- Inicializa el marcador destino  
+      let coord_destination: Coordinate = transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
+      this.initMarkerDestination(coord_destination);
+
+      if (this.location_status) {
+        //  start=8.681495,49.41461&end=8.687872,49.420318
+        //  Establece los puntos inicio y destiino para dibujar la linea
+        const startPoint = [this.lon, this.lat];
+        const endPoint = coord_destination;
+        this.drawRoute(startPoint, endPoint);
+        this.updateMarkers();
+      }
 
     });
+
+    //  ------------------------------
+    // EVENTO CLICK
+    //  ------------------------------ 
   }
 
   // --------------------------------------------
@@ -249,8 +276,10 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
 
     // Agregar el control ZoomToExtent al mapa
 
-    this.center = transform([this.lon, this.lat], 'EPSG:4326', 'EPSG:3857');
-    this.extent = [this.center[0] - 50000, this.center[1] - 50000, this.center[0] + 50000, this.center[1] + 50000];
+    // this.center = transform([this.lon, this.lat], 'EPSG:4326', 'EPSG:3857');
+    // this.extent = [this.center[0] - 50000, this.center[1] - 50000, this.center[0] + 50000, this.center[1] + 50000];
+
+
     this.map.render;
   }
 
@@ -272,6 +301,59 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
       styles.width = coerceCssPixelValue(this.width) || DEFAULT_WIDTH;
     }
   }
+
+
+  // --------------------------------------------
+  // --------------------------------------------
+  // -- DRAW EN EL MAPA 
+  // --------------------------------------------
+  // --------------------------------------------
+
+  private drawRoute(startPoint: Coordinate, endPoint: Coordinate) {
+
+    this.openRouteService.getRoute(startPoint, endPoint).subscribe(
+      {
+        next: (response: any) => {
+
+
+          const coordinates = response.features[0].geometry.coordinates;
+          console.log(response)
+
+          const styleLine = new Style({
+            stroke: new Stroke({
+              color: '#FF0000', // Color Rojo
+              width: 5 // Ancho Grueso
+            })
+          });
+
+          this.lineRoute = new Feature({
+            geometry: new LineString(coordinates).transform('EPSG:4326', 'EPSG:3857'),
+          });
+
+          this.lineRoute.setStyle(styleLine);
+
+          this.updateMarkers(this.lineRoute);
+
+        },
+        error: (error: any) => {
+          // Manejar errores al obtener el estado del socket
+          console.error('Error en la solicitud a GraphHopper:', error);
+
+        },
+        complete: () => {
+          // Realizar acciones adicionales cuando el observable se completa, si es necesario
+        },
+      }
+    );
+
+  }
+  // --------------------------------------------
+  // --------------------------------------------
+  // -- DRAW EN EL MAPA 
+  // --------------------------------------------
+  // --------------------------------------------
+
+
 
 
   // --------------------------------------------
@@ -304,7 +386,7 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
   // --------------------------------------------
   // -- inicializar marcador en el mapa 
   // --------------------------------------------
-  public initMarker(coord: Coordinate, client: Client | DestinationMarker, type: string = '') {
+  public initMarker(coord: Coordinate, client: I_UserMap | I_DestinationMarker, type: string = '') {
 
 
     // Asegúrate de que el servicio y el mapa estén disponibles
@@ -316,7 +398,6 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
       // -- el marcador NO existe en el array
       if (indexToUpdate === -1) {
         this.markers = this.markerService.initMarker(this.markers, coord, client);
-
 
       }
       // -- el marcador existe en el array
@@ -337,9 +418,9 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
   initMarkerDestination(coord: Coordinate) {
 
 
-    let destination: DestinationMarker = {
+    let destination: I_DestinationMarker = {
       id: 'destination',
-      name: 'Destino',
+      user_name: 'Destino',
       markerColor: 'warning',
     };
 
@@ -347,12 +428,16 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
 
   }
 
-  updateMarkers() {
+  updateMarkers(feature: Feature = new Feature()) {
 
     const vectorSource = new VectorSource({
-      features: this.markers
+      features: [feature]
     });
 
+    vectorSource.addFeatures(this.markers);
+
+    this.vectorLayer.getSource()?.clear();
+    this.vectorLayer.getSource()?.refresh();
 
     this.vectorLayer = new VectorLayer({
       source: vectorSource
@@ -366,8 +451,8 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
   // --------------------------------------------
   // -- Remover marcador en el mapa 
   // --------------------------------------------
-  public deleteMarker(clientId: string): void {
-  
+  public clearMarker(clientId: string): void {
+
     // Asegúrate de que el servicio y el mapa estén disponibles
     if (this.markerService && this.map) {
 
@@ -375,14 +460,16 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
       const indexToUpdate = this.markers.findIndex(marker => marker.get('client').id === clientId);
 
       // -- el marcador NO existe en el array
-      if (indexToUpdate === -1) {}
-      else{
-        console.log('init length', this.markers.length)
-        this.markerService.removeMarker(this.markers, clientId);
-        console.log(this.markers.length)
+      if (indexToUpdate !== -1) {
 
+        this.markers = this.markerService.removeMarker(this.markers, clientId);
+
+        this.updateMarkers();
       }
-       
+      else {
+        // this.clearMarker(clientId);
+      }
+
     }
 
 
@@ -392,23 +479,28 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   // Función para pintar marcadores para todos los usuarios conectados
-  public setMarkersForConnectedUsers(update: boolean = false) {
+  public setMarkersForConnectedUsers() {
     // Asegúrate de tener datos en conected_users y de que el servicio y el mapa estén disponibles
     if (this.conected_users.length > 0 && this.markerService && this.map) {
       this.conected_users.forEach((user: connectedUsers) => {
         // Verifica si la posición actual está presente en el usuario antes de intentar pintar el marcador
-        if (user.currentPosition && user.currentPosition.lat && user.currentPosition.long) {
+        if (user.currentPosition.lat && user.currentPosition.long) {
           const coord: Coordinate = [
             user.currentPosition.long,
             user.currentPosition.lat,
           ];
 
-          let client: Client = { id: user.user.id, name: user.user.name, markerColor: 'danger' };
+          this.markers = this.markers.filter(marker => {
+            return this.conected_users.some(user => user.user.id === marker.get('client').id);
+          });
 
-          if (this.client.id == client.id) { }
+          let client: I_UserMap = { id: user.user.id, user_name: user.user.name, markerColor: 'danger' };
+
+          if (this.client.id == client.id) {
+            // this.initMarker([this.lon, this.lat], this.client);
+          }
           else {
 
-            // console.log('connected_user update 2', client)
             this.initMarker(coord, client);
 
           }

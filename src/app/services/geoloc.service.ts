@@ -1,6 +1,5 @@
-import { Injectable } from '@angular/core';
-import { DataService } from './data.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable } from '@angular/core'; 
+import { BehaviorSubject, Observable, Observer } from 'rxjs';
  
 
 
@@ -10,37 +9,42 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class GeolocService {
 
   watchId: number | null = null; 
-  private max_count = new BehaviorSubject<number>(0);
-  count:number= 0;
-  constructor(private dataService: DataService ) { }
+  public locationStatus = new BehaviorSubject<boolean>(false);
+  private max_count = new BehaviorSubject<number>(0); 
+  private count=0;
+  constructor( ) { }
   
   startWatchingPosition(callback: (position: GeolocationPosition) => void): void {
     if ('geolocation' in navigator) {
+
+       
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 10000
+      };
+  
       this.watchId = navigator.geolocation.watchPosition(
-        (position: GeolocationPosition) => {
-          this.set_max_count(0)  
-          
+        position => {
+          this.locationStatus.next(true);
+          this.max_count.next(0);
           callback(position);
         },
-        (error: GeolocationPositionError) => {
-          console.error('Error getting location:', error.message);
-         
+        error => {
+          console.error(`Error getting location: ${error.message}`);
           this.count++;
-          this.set_max_count(this.count); 
-
-          if (this.count >= 15) {
-
-            this.set_max_count(-1) 
-
+          this.locationStatus.next(false);
+          this.max_count.next(this.count);
+  
+          if (this.count >= 10) {
+            this.max_count.next(-1);
             this.stopWatchingPosition();
-
           }
-          
         },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+        options
       );
     } else {
-      console.error('Geolocation is not supported.');
+      console.error('Geolocation is not supported by this browser.');
     }
   }
 
@@ -57,14 +61,13 @@ export class GeolocService {
 
 
   // -----------------------------------
-  public get_max_count(): Observable<number> {
+  public get_locationStatus(): Observable<boolean> {
+
+    return this.locationStatus.asObservable();
+  }
+  public get_maxcountStatus(): Observable<number> {
 
     return this.max_count.asObservable();
-  }
-
-  public set_max_count(value: number) {
-
-    this.max_count.next(value);
   }
 
   // -------------------------------------

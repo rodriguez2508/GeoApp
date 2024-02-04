@@ -83,12 +83,18 @@ dependencies:
   ol-animate:
     specifier: ^1.0.2
     version: 1.0.2
+  ol-ext:
+    specifier: ^4.0.14
+    version: 4.0.14(ol@8.2.0)
   ol-mapbox-style:
     specifier: ^12.1.1
     version: 12.1.1(ol@8.2.0)
   ol-popup:
     specifier: ^5.1.0
     version: 5.1.0(ol@8.2.0)
+  openrouteservice:
+    specifier: ^0.1.2
+    version: 0.1.2
   rxjs:
     specifier: ~7.8.0
     version: 7.8.1
@@ -4264,7 +4270,6 @@ packages:
   /flat@5.0.2:
     resolution: {integrity: sha512-b6suED+5/3rTpUBdG1gupIl8MPFCAMA0QXwmljLhvCUKcUvdE4gWky9zpuGCcXHOsz4J9wPGNWq6OKpmIzz3hQ==}
     hasBin: true
-    dev: true
 
   /flatted@3.2.9:
     resolution: {integrity: sha512-36yxDn5H7OFZQla0/jFJmbIKTdZAQHngCedGxiMmpNfEZM0sdEeT+WczLQrjK6D7o2aiyLYDnkw0R3JK0Qv1RQ==}
@@ -5838,6 +5843,14 @@ packages:
     resolution: {integrity: sha512-ekTT95rU7zjNV8XzSeWqQUvd78vMvil9dbgnc48qs3EGyLZojr4Ub/B5Xd+fPbpCk7kbqti/+fcSXrTQmWFSXw==}
     dev: false
 
+  /ol-ext@4.0.14(ol@8.2.0):
+    resolution: {integrity: sha512-ooTz4D2eXrZ5EdAQZvG0zXh4Jc0cEQDQVTcVu0MdoOpswq550NQbLuA8jRILWesWbpNh/7AnntnLPqmoizI2uA==}
+    peerDependencies:
+      ol: '>= 5.3.0'
+    dependencies:
+      ol: 8.2.0
+    dev: false
+
   /ol-mapbox-style@12.1.1(ol@8.2.0):
     resolution: {integrity: sha512-jjIQO2BiO/GTjJO/2Idw0WQQAGorPXewZ5wEuusXM8BRXZHIa3mmDZDWoBWtb0H4VHB9RpLsTbRMj5Dquo9Etg==}
     peerDependencies:
@@ -5906,6 +5919,13 @@ packages:
       is-docker: 2.2.1
       is-wsl: 2.2.0
     dev: true
+
+  /openrouteservice@0.1.2:
+    resolution: {integrity: sha512-9X09HITxuorJ8orhi9ht66bNacH11qxfd4HyBavjkGEHkrE3rYK26S5GUEoS1lZMWESyn4c5EFRAKaAXLXH1sg==}
+    engines: {node: '>=18'}
+    dependencies:
+      flat: 5.0.2
+    dev: false
 
   /openurl@1.1.1:
     resolution: {integrity: sha512-d/gTkTb1i1GKz5k3XE3XFV/PxQ1k45zDqGP2OA7YhgsaLoqm6qRvARAZOFer1fcXritWlGBRCu/UgeS4HAnXAA==}

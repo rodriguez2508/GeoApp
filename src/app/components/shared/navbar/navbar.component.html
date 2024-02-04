@@ -7,14 +7,14 @@
   <nav [class]="'navbar navbar-expand-sm navbar-dark pt-sm-0 '">
     <div [class]="'w3-col l12 m12 s12 container-fluid '">
       <div [class]="'w3-col l3 m2 s12 '">
-        <a [class]="'navbar-brand '" routerLink="/public/home" href="#">
+        <a [class]="'navbar-brand '" href="#">
           <!-- <img
             src="./assets/img/linki.ico"
             alt=""
             [class]="' img-logo-xmd rounded-3 p-1'"
           /> -->
 
-          <label class=" ">{{ titleApp }}</label>
+          <label class="fw-bolder">{{ titleApp }}</label>
         </a>
 
         <button
@@ -41,6 +41,7 @@
         <!-- -------- -->
 
         <div [class]="'w3-col collapse navbar-collapse '" id="Navbar">
+ 
           <ul [class]="'w3-col navbar-nav navba p-1 justify-content-end '">
             @if(!userLoginOn){
 
@@ -49,22 +50,23 @@
             <!-- -------- -->
             <li [class]="'nav-item btn btn-md '">
               <a
-                [class]="'nav-link  text-uppercase'"
+                [class]="'nav-link fw-bold border-bottom border-secondary'"
                 routerLink="/public/home"
                 routerLinkActive="active"
                 ariaCurrentWhenActive="page"
-                >INICIO</a
+                >Inicio</a
               >
             </li>
             <li [class]="'nav-item btn btn-md '">
               <a
-                [class]="'nav-link text-warning btn  '"
+                [class]="'nav-link fw-bold border-bottom border-secondary '"
                 routerLink="/session/signin"
+                
                 routerLinkActive="active"
                 ariaCurrentWhenActive="page"
                 data-bs-toggle="tooltip"
-                title="Iniciar Sesión!"
-                >Iniciar Sesión</a
+                title="Mostrar opciones de sesión!"
+                >Sesión</a
               >
             </li>
 
@@ -78,7 +80,7 @@
             <!-- -------- -->
             <li [class]="'nav-item btn btn-md '">
               <a
-                [class]="'nav-link'"
+                [class]="'nav-link fw-bold border-bottom border-secondary'"
                 routerLink="/private/home"
                 routerLinkActive="active"
                 ariaCurrentWhenActive="page"
@@ -87,7 +89,7 @@
             </li>
             <li [class]="'nav-item btn btn-md '">
               <a
-                [class]="'nav-link '"
+                [class]="'nav-link fw-bold border-bottom border-secondary '"
                 routerLink="/map/show"
                 routerLinkActive="active"
                 ariaCurrentWhenActive="page"
@@ -95,7 +97,7 @@
               >
             </li>
 
-            <div [class]="'w3-hide-medium w3-hide-large w3-col _divider-white w3-section opacity-25'"></div>
+             
             <li [class]="'nav-item btn btn-sm w3-row '">
               <button
               [class]="'w3-col l6 m6 pe-4 btn text-white '"

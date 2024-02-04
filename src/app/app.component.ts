@@ -5,7 +5,7 @@ import { ChildrenOutletContexts, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/shared/navbar/navbar.component';
 import { DataComponent } from './components/shared/data/data.component';
 import { DataService } from './services/data.service';
-import { SessionService } from './services/session.service';
+import { SessionService } from './modules/session-module/services/session.service';
 
 @Component({
   selector: 'app-root',

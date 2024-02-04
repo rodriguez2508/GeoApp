@@ -8,13 +8,13 @@ import {
 
 import { Observable } from 'rxjs';
 
-import { DataService } from '../data.service';
-import { SessionService } from '../session.service';
+import { DataService } from '../../../services/data.service';
+import { SessionService } from '../services/session.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SessionGuardService {
+export class PublicRouteGuardService {
 
   constructor(
     private data: DataService,
@@ -34,9 +34,9 @@ export class SessionGuardService {
 
     if (!Boolean(this.sessionService.isAuthenticated())) {
      
-      return this.router.navigate(['/session/signin']); 
+      return true;
     }
 
-    return true;
+    return this.router.navigate(['/map/show']);
   }
 }

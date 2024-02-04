@@ -1,37 +1,37 @@
+import { ErrorLocationComponent } from './../../../../components/errors/error-location/error-location.component';
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { OlMapComponent } from '../ol-map/ol-map.component';
 import { GeolocService } from '../../../../services/geoloc.service';
 import { DataService } from '../../../../services/data.service';
 import { SocketioService } from '../../../../services/socketio.service';
-import { Client } from '../../../../interface/client.interface';
+import { I_UserSessionStorage } from '../../../../interface/user.interface';
 import { StorageService } from '../../../../services/storage.service';
-import { FooterMapComponent } from './footer-map/footer-map.component';
+import { FooterMapComponent } from '../shared/footer-map/footer-map.component';
 import { connectedUsers } from '../../../../interface/connectedUsers.interface';
-import { Subscription } from 'rxjs';
-import { OlMapMarkerComponent } from '../ol-map-marker/ol-map-marker.component';
-import { Observable } from 'ol';
 
 @Component({
   selector: 'app-section-map',
   standalone: true,
-  imports: [OlMapComponent, FooterMapComponent],
+  imports: [OlMapComponent, ErrorLocationComponent, FooterMapComponent],
   templateUrl: './section-map.component.html',
   styleUrl: './section-map.component.scss'
 })
 export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  title_page = "Simple Map Viewer"
+  title_page = "Bienvenido";
   lat: number = 23.0415;
   lon: number = -81.5775;
-  zoom: number = 10;
-  online: boolean = false;
+  zoom: number = 14;
+  socket_status: boolean = false;
+  location_status: boolean = false;
   max_count: number = 0;
 
   conected_users: connectedUsers[] = [];
-  client: Client;
+  client: I_UserSessionStorage;
+  type_user:string = '';
 
   constructor(private geolocService: GeolocService, private dataService: DataService, private socketioService: SocketioService, private storageService: StorageService) {
-
+ 
 
     this.client = storageService.getUser();
   }
@@ -42,6 +42,21 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   ngAfterViewInit(): void {
 
+    // this.first_iteration = 1;
+    
+    this.type_user = this.client.user_type==='traverler'? 'Conductor': 'Viajero';
+
+  }
+  ngOnInit() {
+
+    // -------------------------------------------
+    // -- obtener localizacion  
+    // -------------------------------------------
+    this.getLocation();
+
+
+    this.socketioService.connect();
+
     // -------------------------------------------
     // -- obtener estado del socket 
     // -------------------------------------------
@@ -50,17 +65,7 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
     // -- obtener lista de usuarios conectados
     // -------------------------------------------
     this.getConnectedUsers();
-
-  }
-  ngOnInit() {
-
-    this.socketioService.connect();
-
-
-    // -------------------------------------------
-    // -- obtener localizacion  
-    // -------------------------------------------
-    this.getLocation();
+    
 
   }
 
@@ -71,9 +76,13 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
   // -------------------------------------------
   // -- obtener localizacion del usuario
   // -------------------------------------------
-  getLocation() {
+  async getLocation() {
 
-    this.geolocService.get_max_count().subscribe((value) => {
+    this.geolocService.get_locationStatus().subscribe((value) => {
+
+      this.location_status = value;
+    });
+    this.geolocService.get_maxcountStatus().subscribe((value) => {
 
       this.max_count = value;
     });
@@ -81,18 +90,19 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Aquí puedes manejar la nueva posición del usuario 
 
-      if (this.lat != position.coords.latitude || this.lon != position.coords.longitude) {
+      if (Math.floor(this.lat * 10000) !== Math.floor(position.coords.latitude * 10000) || Math.floor(this.lon * 1000) !== Math.floor(position.coords.longitude * 1000)) {
+      // if (this.lat != position.coords.latitude || this.lon != position.coords.longitude) {
         this.lat = position.coords.latitude;
         this.lon = position.coords.longitude;
 
 
-        let user_ = { id: this.client.id, name: this.client.name };
+        let user_ = { id: this.client.id, name: this.client.user_name };
         let position_ = { lat: this.lat, long: this.lon };
 
         // -- Enviar los datos del usuario al servidor
         this.socketioService.sendUserData(user_, position_);
 
-        console.log('Posición Atualizada -> Latitude: ' + position.coords.latitude + ', Longitude: ' + position.coords.longitude);
+        console.log('Pos.Update -> Latitude: ' + position.coords.latitude + ', Longitude: ' + position.coords.longitude);
       }
     });
 
@@ -106,23 +116,24 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
   async getSocketStatus() {
     this.socketioService.get_socketStatus().subscribe({
       next: (status: boolean) => {
-        this.online = status;
+        this.socket_status = status;
         console.log('Socket status updated:', status);
 
         // Si el socket está en línea, enviar los datos del usuario al servidor
         if (status) {
 
-          let user = { id: this.client.id, name: this.client.name };
+          let user = { id: this.client.id, name: this.client.user_name };
           let position = { lat: this.lat, long: this.lon };
 
           // -- Enviar los datos del usuario al servidor
-          this.socketioService.sendUserData(user, position);
+          // this.socketioService.sendUserData(user, position);
         }
       },
       error: (error: any) => {
         // Manejar errores al obtener el estado del socket
         console.error('Error getting socket status:', error);
-        this.online = false;
+        
+        this.socket_status = false;
       },
       complete: () => {
         // Realizar acciones adicionales cuando el observable se completa, si es necesario

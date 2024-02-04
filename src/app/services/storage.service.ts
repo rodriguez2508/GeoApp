@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { I_UserSessionStorage } from '../interface/user.interface';
 
 const USER_KEY = 'auth-user';
 
@@ -15,13 +16,15 @@ export class StorageService {
     window.sessionStorage.clear();
   }
 
-  public saveUser(user: any): void {
+  public saveUser(user: I_UserSessionStorage): void {
+ 
     window.sessionStorage.removeItem(USER_KEY);
     window.sessionStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
   public getUser(): any {
     const user = window.sessionStorage.getItem(USER_KEY);
+     
     if (user) {
       return JSON.parse(user);
     }
@@ -40,7 +43,7 @@ export class StorageService {
 
     // // Verifica si se está ejecutando el código en un navegador
     // if (this.isBrowser()) {
-
+    //   return window.sessionStorage.getItem(USER_KEY) !== null;
     // } else {
     //   // Devuelve false en caso de que no se esté ejecutando el código en un navegador
     //   return false;

@@ -16,7 +16,7 @@ import { Coordinate } from 'ol/coordinate';
 
 
 // --- personal import
-import { Client } from '../../../interface/client.interface';
+import { I_UserSessionStorage, I_UserMap } from '../../../interface/user.interface';
 import { fromLonLat } from 'ol/proj';
 import { Overlay } from 'ol';
 // --- personal import
@@ -30,7 +30,7 @@ export const DEFAULT_TEXT = '';
 
 const MARKER_COLOR: { [key: string]: number[] } = {
   'success': [53, 140, 0, 1],
-  'warning': [245, 172, 8] ,
+  'warning': [245, 172, 8],
   'danger': [255, 0, 0, 1],
   'info': [127, 255, 127, 0.5],
   'transparent': [255, 255, 255, 0],
@@ -72,7 +72,7 @@ export class OlMapMarkerService {
   // -- Inicializar marcador en el mapa 
   // --------------------------------------------
   initMarker(markers: Feature[], coord: Coordinate,
-    client: Client): Feature[] {
+    client: I_UserMap): Feature[] {
 
     // Buscar el índice del marcador 
     const indexToUpdate = markers.findIndex(marker => marker.get('client').id === client.id);
@@ -114,7 +114,7 @@ export class OlMapMarkerService {
 
     const text = new Style({
       text: new Text({
-        text: client.name,
+        text: client.user_name,
         font: 'bold 17px arial',
         offsetY: 20,
         offsetX: 10,
@@ -138,14 +138,14 @@ export class OlMapMarkerService {
   // --------------------------------------------
   // -- Actualizar marcador en el mapa 
   // --------------------------------------------
-  public updateMarkers(markers: Feature[], coord: Coordinate, client: Client): Feature[] {
+  public updateMarkers(markers: Feature[], coord: Coordinate, client: I_UserMap): Feature[] {
 
     // Buscar el índice del marcador que se va a actualizar
     const indexToUpdate = markers.findIndex(marker => marker.get('client').id === client.id);
- 
+
     if (indexToUpdate === -1) {
 
-      
+
       return this.initMarker(markers, coord, client);
     }
 
@@ -167,15 +167,15 @@ export class OlMapMarkerService {
 
         marker.setGeometry(new Point(fromLonLat(coord)));
         marker.setStyle(baseStyle);
- 
+
         return marker;
 
       }
       else if (marker.get('client').id === client.id && marker.get('type') == 'text') {
- 
+
         const text = new Style({
           text: new Text({
-            text: client.name,
+            text: client.user_name,
             font: 'bold 17px arial',
             offsetY: 20,
             offsetX: 10,
@@ -190,15 +190,6 @@ export class OlMapMarkerService {
         return marker;
 
       }
-      else if (marker.get('client').id === client.id && marker.get('type') == 'shadow') {
-
-        marker.setGeometry(new Point(fromLonLat(coord)));
-        // marker.setStyle(baseStyle);
-
-
-        return marker;
-
-      }
       return marker;
     });
 
@@ -207,7 +198,7 @@ export class OlMapMarkerService {
   }
 
 
-  findMarker(markers: Feature[], client: Client): Feature {
+  findMarker(markers: Feature[], client: I_UserMap): Feature {
 
     // Buscar el índice del marcador que se va a actualizar
     const indexToUpdate = markers.findIndex(marker => marker.get('client').id === client.id);
@@ -222,17 +213,14 @@ export class OlMapMarkerService {
   removeMarker(markers: Feature[], clientId: string): Feature[] {
 
     // Buscar el índice del marcador que se va a actualizar
-    const indexToRemove = this.markers.findIndex(marker => marker.get('client').id === clientId && marker.get('type') == 'data');
-    const indexToRemove_text = this.markers.findIndex(marker => marker.get('client').id === clientId && marker.get('type') == 'text');
-    
+    const indexToRemove = markers.findIndex(marker => marker.get('client').id === clientId && marker.get('type') == 'data');
+    if (indexToRemove !== -1) markers.splice(indexToRemove, 1); 
 
-    console.log(indexToRemove, indexToRemove_text)
-    if (indexToRemove !== -1 ) {
 
-      // console.log(this.markers[indexToRemove])
-      markers.splice(indexToRemove, 1);
-      markers.splice(indexToRemove_text, 1); 
-    }
+    const indexToRemove_text = markers.findIndex(marker => marker.get('client').id === clientId && marker.get('type') == 'text');
+    if (indexToRemove_text !== -1) markers.splice(indexToRemove_text, 1); 
+    // if (indexToRemove_text !== -1) 
+
 
     return markers;
 

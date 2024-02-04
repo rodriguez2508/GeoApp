@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "geoloc-f": {
+    "linki-f": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/geoloc-f",
+            "outputPath": "dist/linki-f",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -82,10 +82,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "geoloc-f:build:production"
+              "buildTarget": "linki-f:build:production"
             },
             "development": {
-              "buildTarget": "geoloc-f:build:development"
+              "buildTarget": "linki-f:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -93,7 +93,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "geoloc-f:build"
+            "buildTarget": "linki-f:build"
           }
         },
         "test": {

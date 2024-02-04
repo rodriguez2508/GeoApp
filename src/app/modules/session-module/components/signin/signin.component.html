@@ -2,14 +2,40 @@
   <div class="w3-row w3-col _center-h-sb">
     <h3>{{ title_page }}</h3>
   </div>
-  <div class="w3-row w3-col d-flex set-height-s-70">
+  <div class="w3-row w3-col d-flex _center-h-sb">
     <!-- Inputs y Forms -->
     <form
-      class="w3-row w3-col d-flex align-content-between position-relative _he-ov-y-60 p-3 border border-warning rounded-2"
+      class="w3-row w3-col l8 m8 set-height-s-70 d-flex align-content-between p-3 border border-warning rounded-2"
       [formGroup]="form_login"
       (ngSubmit)="onSubmit()"
     >
       <div class="w3-row w3-col m-auto">
+        <!-- -------------- -->
+        <!-- Tipo de Usuario -->
+        <!-- -------------- -->
+        <div class="w3-row w3-col mb-3 mt-3 w3-section _center-h">
+          <div class="w3-row w3-col l5 m5 s5 mb-3 mt-3 w3-section border-bottom border-dark  me-1 _center-h">
+            <input
+              type="radio"
+              formControlName="user_type"
+              id="traveler"
+              name="user_type"
+              value="traveler"
+            />
+            <label for="traveler" class=" text-uppercase fw-bold text-center ps-2 _center-h"><i class="fa fa-person fa-2 pe-1"></i>  Viajero</label>
+          </div>
+          <div class="w3-row w3-col l5 m5 s5 mb-3 mt-3 w3-section border-bottom border-dark  _center-h">
+            <input
+              type="radio"
+              formControlName="user_type"
+              id="driver"
+              name="user_type"
+              value="driver"
+            />
+            <label for="driver" class=" text-uppercase fw-bold text-center ps-2 _center-h"><i class="fa fa-car-alt fa-1 pe-1"></i>  Conductor</label>
+          </div>
+        </div>
+
         <!-- -------------- -->
         <!-- User -->
         <!-- -------------- -->
@@ -51,15 +77,15 @@
             placeholder="Enter password"
             [class.is-invalid]="f.password.invalid && f.password.touched"
           />
-          <label for="password">Password</label>
+          <label for="password">Contraseña</label>
 
           @if(f.password.invalid && (f.password.dirty || f.password.touched) ){
           @if(f.password.errors?.['required'] ){
-          <div [classList]="'text-danger'">Password is required.</div>
+          <div [classList]="'text-danger'">Contraseña is required.</div>
           } @if(f.password.errors?.['minlength']){
 
           <div [classList]="'text-danger'">
-            Password min-required length: 6 | actual lenght:
+            Contraseña min-required length: 6 | actual lenght:
             {{ f.password.value.length }}
           </div>
           } }
@@ -72,14 +98,13 @@
           <button class="w3-col l4 m4 btn btn-warning float-end" type="submit">
             Iniciar
           </button>
-
-          <button
-            id="btn_LoginGoogle"
-            [classList]="'w3-col btn bg-transparent w3-medium w3-right p-1'"
-          ></button>
+          <button class="w3-col l4 m4 btn border-warning me-1 float-start">
+            <a (click)="goToSignUp()" routerLinkActive="router-link-active">
+              <i class="fa fa-user-circle"></i> Registrarse</a
+            >
+          </button>
         </div>
       </div>
     </form>
   </div>
- 
 </section>

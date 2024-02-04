@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Observer, Subject, fromEvent, repeat, takeUntil } from 'rxjs';
 
-import { Client } from '../interface/client.interface';
 import { Socket } from 'ngx-socket-io';
 import { connectedUsers } from '../interface/connectedUsers.interface';
 

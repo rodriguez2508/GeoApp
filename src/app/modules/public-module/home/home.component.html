@@ -1,1 +1,34 @@
-<p>home works!</p>
+<section class="w3-row w3-col w3-container">
+  <div class="w3-row w3-col _center-h-sb">
+    <h3>{{ title_page }}</h3>
+  </div>
+  <div class="w3-row w3-col d-flex _center-h-sb">
+    <div
+      class="w3-row w3-col l8 m8 set-height-s-70 d-flex align-content-between p-3 border border-warning rounded-2"
+    >
+    
+      <!-- -------------- -->
+      <!-- Botones -->
+      <!-- -------------- -->
+
+      <div class="w3-row w3-col m-auto fw-bold text-uppercase">
+        <p class=" _center-h ">Iniciar como</p>
+        <div class="w3-row w3-col w3-section _center-h">
+          <button class="w3-col l4 m4 s5 me-2 btn btn-lg btn-warning cursor-pointer " (click)="goToTravelerLogin()">
+             <i class="fa fa-person fa-2x"></i> 
+             <label class="w-100">Viajero</label>
+          </button>
+
+           <!-- -------------- -->
+          <!-- <div class="w3-col _divider-black w3-section opacity-25"></div> -->
+           <!-- -------------- -->
+          
+           <button class="w3-col l4 m4 s5 me-2 btn btn-lg  btn-warning cursor-pointer " (click)="goToDriverLogin()">
+            <i class="fa fa-car-alt fa-2x"></i> 
+            <label class="w-100">Conductor</label>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

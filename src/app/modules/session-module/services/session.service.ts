@@ -1,3 +1,4 @@
+ 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Injectable } from '@angular/core';
@@ -10,9 +11,15 @@ import { v4 as uuidv4 } from 'uuid';
 // import * as jwt from 'jsonwebtoken';
 import * as jws from 'jws';
 
-import { Client } from './../interface/client.interface';
-import { DataService } from './data.service';
-import { StorageService } from './storage.service';
+// -- Interfaces
+import { I_UserSessionStorage } from '../../../interface/user.interface';
+import { I_SignIn, I_SignUp } from '../../../interface/session.interface';
+// -- Interfaces
+// -- Services
+import { DataService } from '../../../services/data.service';
+import { StorageService } from '../../../services/storage.service'; 
+// -- Services
+ 
 
 
 const AUTH_API = 'http://localhost:8080/api/auth/';
@@ -27,14 +34,6 @@ const httpOptions = {
   providedIn: 'root',
 })
 
-// const newId = uuidv4();
-
-//     let userData:Client = {
-//       id: newId,
-//       name: credentials.user,
-//       online: true
-
-//     };
 export class SessionService {
 
   constructor(private http: HttpClient, private dataService: DataService, private storageService: StorageService) { }
@@ -43,14 +42,14 @@ export class SessionService {
   // ----------------------------------
   // -- funcion para iniciar sesion  
   // ----------------------------------
-  signin(credentials: any): boolean {
+  signin(credentials: I_SignIn): boolean {
 
     const newId = uuidv4();
 
-    let userData: Client = {
+    const userData: I_UserSessionStorage = {
       id: newId,
-      name: credentials.user_name,
-      markerColor:'transparent'
+      user_name: credentials.user_name,
+      user_type: credentials.user_type,
 
     };
 
@@ -83,10 +82,29 @@ export class SessionService {
   }
 
 
+
   // ----------------------------------
   // -- funcion para registrarse  
   // ----------------------------------
-  signup(credentials: any) {
+  signup(credentials: I_SignUp): boolean {
+
+    // --Datos del usuario recivido del for
+    let userData: I_SignUp = {
+
+      user_type: credentials.user_type,
+      ci: credentials.ci,
+      email: credentials.email,
+      name: credentials.name,
+      phone: credentials.phone,
+      code: credentials.code,
+      password: credentials.password,
+      password_rpt: credentials.password_rpt,
+
+    };
+
+    // -- Verificar que las datos sean correctas 
+
+    return this.signin({ user_name: userData.name, password: userData.password, user_type: userData.user_type });
 
   }
 
@@ -109,21 +127,15 @@ export class SessionService {
   public isAuthenticated(): boolean {
     // const token: string = this.f_getToken();
 
-    if (this.storageService.isLoggedIn()) {
+    const isLoggedIn = this.storageService.isLoggedIn();
+    // -- asignar true a la sesion actual del usuario
+    this.dataService.setUserLoggedIn(isLoggedIn);
+    return isLoggedIn;
 
-      // -- asignar true a la sesion actual del usuario
-      this.dataService.setUserLoggedIn(true);
-
-      return true;
-    }
-
-    // -- asignar false a la sesion actual del usuario
-    this.dataService.setUserLoggedIn(false);
-    return false;
   }
 
 
-  private f_createToken(user: Client): string {
+  private f_createToken(user: I_UserSessionStorage): string {
 
     // // Set your secret key for signing the token
     // const secret = 'session';

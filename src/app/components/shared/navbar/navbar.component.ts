@@ -15,7 +15,7 @@ import { environment } from '../../../../environments/environment';
 
 
 import { DataService } from '../../../services/data.service';
-import { SessionService } from '../../../services/session.service';
+import { SessionService } from '../../../modules/session-module/services/session.service';
 import { ShareAppService } from '../../../services/share-app.service';
 
 @Component({
@@ -29,14 +29,15 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   datosUsuario: any;
   userLoginOn: boolean = false;
-
-  // userIsAuth: Subscription;
+ 
   appVersion:string = environment.appVersion;
-  titleApp: string = "Linki | "+ this.appVersion;
-
-  isClicked: boolean = false;
+  appName:string = environment.appName;
+  titleApp: string = this.appName +" | "+ this.appVersion;
+ 
   iconClass = 'fa fa-bars fa-1x text-white';
   isActive = false;
+
+  pageInit:number= 0;
 
   constructor(
     private router: Router,
@@ -48,10 +49,11 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   }
   
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
 
-    this.dataService.getUserLoggedIn().subscribe((value) => {
-      this.userLoginOn = value;
+   await this.dataService.getUserLoggedIn().subscribe((value) => {
+      
+       this.userLoginOn = value;
 
     });
 
@@ -63,6 +65,7 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
   ngAfterViewInit() {
 
+    this.pageInit = 1;
 
   }
   ngOnDestroy(): void {
@@ -117,7 +120,7 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.sessionService.signout();
 
       // -- mostrar mensaje en la pantalla
-      this.dataService.showMsjInData('Cerrando Sesión...', 'success', '/session/signin');
+      this.dataService.showMsjInData('Cerrando Sesión...', 'success', '/');
 
       // window.location.reload();
 

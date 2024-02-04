@@ -3,9 +3,9 @@
     <!-- <div class="position-absolute popover text-white bg-dark" id="popup"></div> -->
 
     <!-- Popup -->
-    <div id="popup">
-      
-    </div>
+    <div id="popup"></div>
+
+    @if(location_status){
 
     <!-- ... -->
     <button
@@ -18,12 +18,14 @@
     </button>
     <!-- ... -->
 
+    }
+
     <!-- ... -->
     <button
       id="btn_clearMarkers"
       [class]="'btn position-absolute bg-secondary'"
       type="button"
-      (click)="deleteMarker('destination')"
+      (click)="clearMarker('destination')"
     >
       <i [class]="'fa fa-map-location-dot'"></i>
     </button>

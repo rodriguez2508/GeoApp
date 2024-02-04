@@ -1,5 +1,5 @@
 {
-  "name": "geoloc-f",
+  "name": "linki-f",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:geoloc-f": "node dist/geoloc-f/server/server.mjs"
+    "serve:ssr:linki-f": "node dist/linki-f/server/server.mjs"
   },
   "private": true,
   "dependencies": {
@@ -37,8 +37,10 @@
     "ngx-socket-io": "^4.6.1",
     "ol": "^8.2.0",
     "ol-animate": "^1.0.2",
+    "ol-ext": "^4.0.14",
     "ol-mapbox-style": "^12.1.1",
     "ol-popup": "^5.1.0",
+    "openrouteservice": "^0.1.2",
     "rxjs": "~7.8.0",
     "socket.io-client": "^4.7.4",
     "sweetalert2": "^11.10.3",

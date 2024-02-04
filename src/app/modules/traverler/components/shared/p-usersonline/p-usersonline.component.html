@@ -1,0 +1,12 @@
+<div class="panel panel-default">
+  <h4 class="panel-heading">Connected Users</h4>
+  <ul class="list-group w3-ul">
+    @for (item of conected_users; track $index) {
+
+    <li class="list-group-item ">
+      <label>{{ item.user.name }} | LAT: {{ item.currentPosition.lat }} LON: {{ item.currentPosition.long }}</label>
+    </li>
+
+    }
+  </ul>
+</div>

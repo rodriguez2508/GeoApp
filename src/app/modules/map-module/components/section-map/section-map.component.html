@@ -1,46 +1,42 @@
 <section class="w3-row w3-col">
-  @if(max_count == -1){
-  <label class="w3-col w3-container border-bottom border-dark">
-    Por favor, ha alcanzado el límite de intentos, es necesario actualizar.
-    <i class="fa fa-face-sad-tear"></i>
-    <button
-      class="btn border border-warning rounded-2"
-      (click)="reload_location()"
-    >Actualizar Ubicación</button>
-  </label>
-  } @else if(max_count <= 15 && max_count != 0 ){
-  <label class="w3-col w3-container border-bottom border-dark">
+  @if(!location_status && max_count < 10){
+  <label (click)="reload_location()"class="w3-col w3-container border-bottom border-dark ">
     obteniendo ubicación..
     <span class="btn btn-primary spinner-border spinner-border-sm"></span>
   </label>
-  } @else{ } @if(!online){
+  } @else if(max_count >= 10) {
+    <label class="w3-col w3-container border-bottom border-dark me-3 ">
+      error al buscar su  ubicación
+      <span class="btn btn-warning " (click)="reload_location()">Reintentar</span>
+    </label>
+  } @if(!socket_status){
   <label class="w3-col w3-container border-bottom border-dark text-success">
     conectando al servidor...
     <span class="btn btn-primary spinner-border spinner-border-sm"></span>
   </label>
   }
 
-  <!-- -------------- -->
-  <!-- title page -->
-  <!-- -------------- -->
-  <div class="w3-row w3-col _center-h-sb">
-    <h3>{{ title_page }}</h3>
-  </div>
 
   <!-- -------------- -->
   <!-- content page -->
   <!-- -------------- -->
-  <div class="w3-row w3-col set-height-s-70 border border-dark">
+  <div class="w3-row w3-col set-height-s-78 border border-dark">
+     
+    <!-- -------------- -->
+    <!-- TRUE LOCATION page -->
+    <!-- -------------- -->
     <app-ol-map
       [lat]="lat"
       [lon]="lon"
       [zoom]="zoom"
       [width]="'100%'"
-      [height]="'70vh'"
-      [online]="online"
+      [height]="'78vh'"
+      [socket_status]="socket_status"
+      [location_status]="location_status"
       [conected_users]="conected_users"
     >
     </app-ol-map>
+ 
   </div>
 </section>
 
