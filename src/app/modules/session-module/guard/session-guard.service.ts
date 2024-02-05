@@ -8,7 +8,7 @@ import {
 
 import { Observable } from 'rxjs';
 
-import { DataService } from '../../../services/data.service';
+import { DataService } from '../../../services/data/data.service';
 import { SessionService } from '../services/session.service';
 
 @Injectable({

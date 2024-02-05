@@ -9,7 +9,7 @@ import { I_SignUp } from '../../../../interface/session.interface';
 
 // -- Services
 import { SessionService } from '../../services/session.service';
-import { DataService } from '../../../../services/data.service';
+import { DataService } from '../../../../services/data/data.service';
 // -- Services
 
 @Component({

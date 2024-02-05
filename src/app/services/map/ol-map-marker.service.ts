@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 
+// -- ol map
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import Feature from 'ol/Feature';
@@ -9,32 +10,15 @@ import Text from 'ol/style/Text';
 import Fill from 'ol/style/Fill';
 import Stroke from 'ol/style/Stroke';
 import Style from 'ol/style/Style';
-import * as Proj from 'ol/proj';
-import Map from 'ol/Map';
 import { Coordinate } from 'ol/coordinate';
+import { fromLonLat } from 'ol/proj';  
+// -- ol map
+// -- interfaces
+import { I_UserMap } from '../../interface/user.interface';
+// -- interfaces
 
-
-
-// --- personal import
-import { I_UserSessionStorage, I_UserMap } from '../../../interface/user.interface';
-import { fromLonLat } from 'ol/proj';
-import { Overlay } from 'ol';
-// --- personal import
-
-// --- CONSTANT
-export const DEFAULT_LAT = 23.0415;
-export const DEFAULT_LON = -81.5775;
-
-export const DEFAULT_ANCHOR = [0.5, 1];
-export const DEFAULT_TEXT = '';
-
-const MARKER_COLOR: { [key: string]: number[] } = {
-  'success': [53, 140, 0, 1],
-  'warning': [245, 172, 8],
-  'danger': [255, 0, 0, 1],
-  'info': [127, 255, 127, 0.5],
-  'transparent': [255, 255, 255, 0],
-};
+// --- CONSTANT 
+import { DEFAULT_ANCHOR, DEFAULT_ICON, DEFAULT_LAT, DEFAULT_LON, DEFAULT_TEXT, MARKER_COLOR } from '../../modules/traveler/data/data-map';
 // --- CONSTANT
 
 @Injectable({
@@ -54,7 +38,7 @@ export class OlMapMarkerService {
   lat: number = DEFAULT_LAT;
   lon: number = DEFAULT_LON;
   anchor: number[] = DEFAULT_ANCHOR;
-  icon: string = 'assets/img/dot.png';
+  icon: string = DEFAULT_ICON;
   text: string = DEFAULT_TEXT;
 
   private vectorSource = new VectorSource();
@@ -62,9 +46,6 @@ export class OlMapMarkerService {
     source: this.vectorSource,
   });
   constructor() {
-
-
-
   }
 
 

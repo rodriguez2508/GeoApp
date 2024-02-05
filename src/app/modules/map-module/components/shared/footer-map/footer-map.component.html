@@ -6,7 +6,7 @@
   <button class="btn btn-light border border-warning" (click)="mostrarPanel()">
     <label class="w3-col w3-row w3-hide-small">Users</label>
     <i class="fa fa-user fa-2x"></i>
-    <span class="badge bg-danger">{{ conected_users.length }}</span>
+    <span class="badge bg-danger">{{ connected_users.length }}</span>
   </button>
   <button type="button" class="btn btn-light border border-warning">
     <label class="w3-col w3-row w3-hide-small">Message</label>
@@ -29,7 +29,7 @@
   "
 >
   @if(showPanel ){
-  <app-p-usersonline [conected_users]="conected_users"></app-p-usersonline>
+  <app-p-usersonline [connected_users]="connected_users"></app-p-usersonline>
 
   }
 </section>

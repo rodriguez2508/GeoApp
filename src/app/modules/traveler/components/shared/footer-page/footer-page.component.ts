@@ -1,0 +1,71 @@
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+
+// --components
+import { PUsersonlineComponent } from '../p-usersonline/p-usersonline.component';
+// --components
+// -- Interfaces
+import { I_ConnectedUser } from '../../../../../interface/user.interface';
+// -- Interfaces
+// -- services
+import { GeolocService } from '../../../../../services/geolocation/geoloc.service';
+import { DataService } from '../../../../../services/data/data.service';
+// -- services
+
+@Component({
+  selector: 'app-footer-page',
+  standalone: true,
+  imports: [PUsersonlineComponent],
+  templateUrl: './footer-page.component.html',
+  styleUrl: './footer-page.component.scss'
+})
+export class FooterPageComponent implements OnInit, OnChanges {
+ 
+  @Input() connected_users: I_ConnectedUser[] = [];  
+  connected_TravelerUsers: I_ConnectedUser[] = [];
+  connected_DriverUsers: I_ConnectedUser[] = []; 
+
+  userLoginOn: boolean = false;
+
+  panelDisplayed = false;
+
+
+  // private connectedUsers: { [id: string]: any } = {};  
+
+  constructor(private geolocService: GeolocService, private dataService:DataService, ){
+    
+  }
+
+  ngOnInit(): void {
+
+    // -- para verificar si el usuario tiene la sesion activa
+    this.dataService.getUserLoggedIn().subscribe((value) => {
+      this.userLoginOn = value;
+      
+    });
+ 
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+ 
+    if ('connected_users' in changes) {
+      this.getAndUpdateConnectedTravelerUsers();
+      this.getAndUpdateConnectedDriverUsers();
+    }
+  }
+
+  getConnectedUsersByType(userType: string): I_ConnectedUser[] {
+    return this.connected_users.filter((user: I_ConnectedUser) => user.user.user_type === userType);
+  }
+
+  getAndUpdateConnectedTravelerUsers(): void {
+    this.connected_TravelerUsers = this.getConnectedUsersByType('traveler');
+  }
+
+  getAndUpdateConnectedDriverUsers(): void {
+    this.connected_DriverUsers = this.getConnectedUsersByType('driver');
+  }
+  showPanel(): void {
+    this.panelDisplayed = !this.panelDisplayed;
+  }
+
+}

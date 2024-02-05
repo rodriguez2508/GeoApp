@@ -14,9 +14,11 @@ import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/r
 import { environment } from '../../../../environments/environment';
 
 
-import { DataService } from '../../../services/data.service';
+import { DataService } from '../../../services/data/data.service';
 import { SessionService } from '../../../modules/session-module/services/session.service';
 import { ShareAppService } from '../../../services/share-app.service';
+import { StorageService } from '../../../services/storage/storage.service';
+import { I_UserSessionStorage } from '../../../interface/user.interface';
 
 @Component({
   selector: 'app-navbar',
@@ -27,8 +29,11 @@ import { ShareAppService } from '../../../services/share-app.service';
 })
 export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
 
-  datosUsuario: any;
+  _role: string = 'undefined';
+  client: any;
+ 
   userLoginOn: boolean = false;
+  userData: I_UserSessionStorage = {id:'', user_name:'', user_type:''};
  
   appVersion:string = environment.appVersion;
   appName:string = environment.appName;
@@ -40,18 +45,32 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
   pageInit:number= 0;
 
   constructor(
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
+    private router:Router, 
+    private route: ActivatedRoute,
     private dataService: DataService,
     private sessionService: SessionService,
-    private shareappService: ShareAppService
+    private shareappService: ShareAppService, 
+    private storageService: StorageService
   ) {
+
+    this.route.queryParams.subscribe(params => {
+      
+    }); 
+
+    console.log(this.client)
+
 
   }
   
   async ngOnInit(): Promise<void> {
 
-   await this.dataService.getUserLoggedIn().subscribe((value) => {
+   this.dataService.getUserData().subscribe((value) => {
+      
+       this.userData = value;
+
+    });
+
+    this.dataService.getUserLoggedIn().subscribe((value) => {
       
        this.userLoginOn = value;
 
@@ -167,5 +186,8 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     );
   }
 
-
+  get role(): string | undefined {
+    return this._role;
+  }
+  
 }

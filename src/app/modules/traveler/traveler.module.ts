@@ -1,14 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { TraverlerRoutingModule } from './traverler-routing.module';
+import { TravelerRoutingModule } from './traveler-routing.module';
 
 
 @NgModule({
   declarations: [],
   imports: [
     CommonModule,
-    TraverlerRoutingModule
+    TravelerRoutingModule
   ]
 })
-export class TraverlerModule { }
+export class TravelerModule { }

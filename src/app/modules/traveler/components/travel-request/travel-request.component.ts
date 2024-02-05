@@ -1,27 +1,28 @@
-import { ErrorLocationComponent } from './../../../../components/errors/error-location/error-location.component';
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
-// --services
+// -- Components
+import { MapPageComponent } from '../shared/map-page/map-page.component';
+import { FooterPageComponent } from '../shared/footer-page/footer-page.component'; 
+// -- Components
+// -- Interfaces
+import { I_ConnectedUser, I_UserSessionStorage } from '../../../../interface/user.interface';
+// -- Interfaces
+// -- Services
 import { GeolocService } from '../../../../services/geolocation/geoloc.service';
 import { DataService } from '../../../../services/data/data.service';
-import { SocketioService } from '../../../../services/socketio.service'; 
+import { SocketioService } from '../../../../services/socketio.service';
 import { StorageService } from '../../../../services/storage/storage.service';
-// --services
-// --components
-import { OlMapComponent } from '../ol-map/ol-map.component';
-import { FooterMapComponent } from '../shared/footer-map/footer-map.component'; 
-// --components
-// --interface
-import { I_UserSessionStorage, I_ConnectedUser } from '../../../../interface/user.interface';
-// --interface
+// -- Services
+
 @Component({
-  selector: 'app-section-map',
+  selector: 'app-travel-request',
   standalone: true,
-  imports: [OlMapComponent, ErrorLocationComponent, FooterMapComponent],
-  templateUrl: './section-map.component.html',
-  styleUrl: './section-map.component.scss'
+  imports: [FooterPageComponent, MapPageComponent],
+  templateUrl: './travel-request.component.html',
+  styleUrl: './travel-request.component.scss'
 })
-export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
+export class TravelRequestComponent {
+
 
   title_page = "Bienvenido";
   lat: number = 23.0415;
@@ -31,16 +32,19 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
   location_status: boolean = false;
   max_count: number = 0;
 
-  
   connected_users: I_ConnectedUser[] = [];
   userData: I_UserSessionStorage = {id:'', user_name:'', user_type:''};
   
   type_user:string = '';
 
   constructor(private geolocService: GeolocService, private dataService: DataService, private socketioService: SocketioService, private storageService: StorageService) {
+  
     this.dataService.getUserData().subscribe((value) => { 
       this.userData = value; 
    });
+    // this.client = storageService.getUser();
+    
+
   }
   ngOnDestroy(): void {
 
@@ -176,7 +180,6 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
   }
-
 
 
 }

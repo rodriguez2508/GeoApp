@@ -23,7 +23,7 @@
   <div class="w3-row w3-col set-height-s-78 border border-dark">
      
     <!-- -------------- -->
-    <!-- TRUE LOCATION page -->
+    <!-- MAP page -->
     <!-- -------------- -->
     <app-ol-map
       [lat]="lat"
@@ -33,7 +33,7 @@
       [height]="'78vh'"
       [socket_status]="socket_status"
       [location_status]="location_status"
-      [conected_users]="conected_users"
+      [connected_users]="connected_users"
     >
     </app-ol-map>
  
@@ -42,5 +42,5 @@
 
 <!-- Footer -->
 <section class="w3-row">
-  <app-footer-map [conected_users]="conected_users"></app-footer-map>
+  <app-footer-map [connected_users]="connected_users"></app-footer-map>
 </section>

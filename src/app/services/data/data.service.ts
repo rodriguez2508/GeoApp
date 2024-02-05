@@ -6,8 +6,8 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 
 
-import { I_UserSessionStorage } from '../interface/user.interface';
-import { StorageService } from './storage.service';
+import { I_UserSessionStorage } from '../../interface/user.interface';
+import { StorageService } from '../storage/storage.service';
 
 
 const API_URL = 'http://localhost:8080/api/test/';
@@ -19,6 +19,11 @@ const API_URL = 'http://localhost:8080/api/test/';
 export class DataService {
  
   private userLoggedInSubject = new BehaviorSubject<boolean>(false);
+  private userDataSubject = new BehaviorSubject<I_UserSessionStorage>({
+    id: '',
+    user_name: '',
+    user_type:'',
+  });
 
 
   Msj: string = '';
@@ -37,6 +42,7 @@ export class DataService {
   setUserLoggedIn(value: boolean) {
 
     this.userLoggedInSubject.next(value);
+    this.userDataSubject.next(this.storageService.getUser());
   }
 
   // -------------------------------------
@@ -45,6 +51,17 @@ export class DataService {
   getUserLoggedIn(): Observable<boolean> {
  
     return this.userLoggedInSubject.asObservable();
+
+  }
+
+  setUserData(value: I_UserSessionStorage) { 
+
+    this.userDataSubject.next(value);
+  }
+
+  getUserData(): Observable<I_UserSessionStorage> {
+ 
+    return this.userDataSubject.asObservable();
 
   }
 

@@ -1,6 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { connectedUsers } from '../../../../../interface/connectedUsers.interface';
 
+
+// --interface
+import { I_ConnectedUser } from '../../../../../interface/user.interface';
+// --interface
 @Component({
   selector: 'app-p-usersonline',
   standalone: true,
@@ -10,7 +13,7 @@ import { connectedUsers } from '../../../../../interface/connectedUsers.interfac
 })
 export class PUsersonlineComponent {
 
-  @Input() conected_users: connectedUsers[] = []; 
+  @Input() connected_users: I_ConnectedUser[] = []; 
   
   
    

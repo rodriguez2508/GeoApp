@@ -11,7 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 
 import { SessionService } from '../../services/session.service';
-import { DataService } from '../../../../services/data.service';
+import { DataService } from '../../../../services/data/data.service';
 
 
 // ----------------------------------
@@ -114,13 +114,13 @@ export class SigninComponent implements OnInit, AfterViewInit {
 
         
         // -- mostrar mensaje en la pantalla
-      this.dataService.showMsjInData('Credenciales Verificadas, espere ...', 'success', '/traverler/travel-request');
+      this.dataService.showMsjInData('Credenciales Verificadas, espere ...', 'success', '/traveler/travel-request');
 
       }
 
       else if(this.f.user_type.value === 'driver' ){
 
-        this.sessionService.logout();
+        this.sessionService.signout() ;
         
         // -- mostrar mensaje en la pantalla
       this.dataService.showMsjInData('La sección CONDUCTOR está en desarrollo.', 'danger', '');

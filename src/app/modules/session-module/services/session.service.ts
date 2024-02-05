@@ -16,8 +16,8 @@ import { I_UserSessionStorage } from '../../../interface/user.interface';
 import { I_SignIn, I_SignUp } from '../../../interface/session.interface';
 // -- Interfaces
 // -- Services
-import { DataService } from '../../../services/data.service';
-import { StorageService } from '../../../services/storage.service'; 
+import { DataService } from '../../../services/data/data.service';
+import { StorageService } from '../../../services/storage/storage.service'; 
 // -- Services
  
 
@@ -66,6 +66,7 @@ export class SessionService {
 
         // -- asignar true a la sesion actual del usuario
         this.dataService.setUserLoggedIn(true);
+        this.dataService.setUserData(userData);
 
         this.storageService.saveUser(userData);
 
@@ -127,7 +128,7 @@ export class SessionService {
   public isAuthenticated(): boolean {
     // const token: string = this.f_getToken();
 
-    const isLoggedIn = this.storageService.isLoggedIn();
+    const isLoggedIn = this.storageService.isLoggedIn(); 
     // -- asignar true a la sesion actual del usuario
     this.dataService.setUserLoggedIn(isLoggedIn);
     return isLoggedIn;

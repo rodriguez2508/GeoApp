@@ -40,3 +40,12 @@ export interface I_UserMap {
   user_name: string;
   markerColor:string;
 }
+
+export interface I_ConnectedUser {
+  id: string;
+  user: I_UserSessionStorage;
+  currentPosition: {
+    lat: number;
+    long: number;
+  };
+}

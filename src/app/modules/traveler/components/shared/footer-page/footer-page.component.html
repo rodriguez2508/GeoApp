@@ -3,10 +3,10 @@
     'container-fluid fixed-bottom bg-light pb-2 _center-h-sb set-height-10'
   "
 >
-  <button class="btn btn-light border border-warning" (click)="mostrarPanel()">
-    <label class="w3-col w3-row w3-hide-small">Users</label>
-    <i class="fa fa-user fa-2x"></i>
-    <span class="badge bg-danger">{{ conected_users.length }}</span>
+  <button class="btn btn-light border border-warning" (click)="showPanel()">
+    <label class="w3-col w3-row w3-hide-small">Conductores</label>
+    <i class="fa fa-car-alt fa-2x"></i>
+    <span class="badge bg-danger">{{ connected_DriverUsers.length }}</span>
   </button>
   <button type="button" class="btn btn-light border border-warning">
     <label class="w3-col w3-row w3-hide-small">Message</label>
@@ -28,8 +28,12 @@
     'w3-row w3-col container-fluid panel-nombres bg-light h-auto d-flex justify-content-center '
   "
 >
-  @if(showPanel ){
-  <app-p-usersonline [conected_users]="conected_users"></app-p-usersonline>
+  @if(panelDisplayed ){
+  <app-p-usersonline 
+  [connected_users]="connected_users"
+  [connected_DriverUsers]="connected_DriverUsers"
+  [connected_TravelerUsers]="connected_TravelerUsers"
+  ></app-p-usersonline>
 
   }
 </section>

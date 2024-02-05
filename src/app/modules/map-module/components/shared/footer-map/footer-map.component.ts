@@ -1,8 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PUsersonlineComponent } from '../p-usersonline/p-usersonline.component';
-import { GeolocService } from '../../../../../services/geoloc.service';
-import { DataService } from '../../../../../services/data.service';
-import { connectedUsers } from '../../../../../interface/connectedUsers.interface';
+
+// -- services
+import { GeolocService } from '../../../../../services/geolocation/geoloc.service';
+import { DataService } from '../../../../../services/data/data.service';
+// -- services
+// -- interface
+import { I_ConnectedUser } from '../../../../../interface/user.interface';
+// -- interface
 
 @Component({
   selector: 'app-footer-map',
@@ -13,9 +18,9 @@ import { connectedUsers } from '../../../../../interface/connectedUsers.interfac
 })
 export class FooterMapComponent implements OnInit {
  
-  @Input() conected_users: connectedUsers[] = [];  
+  @Input() connected_users: I_ConnectedUser[] = [];  
  
-  conected_users_lenght: number = 0;
+  connected_users_lenght: number = 0;
 
   userLoginOn: boolean = false;
 

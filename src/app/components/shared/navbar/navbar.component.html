@@ -17,8 +17,26 @@
           <label class="fw-bolder">{{ titleApp }}</label>
         </a>
 
+        <!-- ---------------- -->
+        <!-- Verificar tipo de usuario conectado -->
+        <!-- ---------------- -->
+        @if(userData.user_type == 'traveler'){
+
+        <i class="fa fa-person fa-1x text-white"></i>
+
+        }@else if (userData.user_type == 'driver') {
+
+        <i class="fa fa-driver fa-1x text-white"></i>
+
+        }@else if (userData.user_type == 'admin') { }
+        @else {
+          <i class="fa fa-driver fa-1x text-white"></i>
+        }
+
         <button
-          [class]="'navbar-toggler w3-right btn text-white border-0 animated__fadeIn ms-sm-2'"
+          [class]="
+            'navbar-toggler w3-right btn text-white border-0 animated__fadeIn ms-sm-2'
+          "
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#Navbar"
@@ -28,7 +46,9 @@
         </button>
 
         <button
-          [class]="'navbar-toggler w3-right btn btn-dark text-white animated__fadeIn ms-sm-2'"
+          [class]="
+            'navbar-toggler w3-right btn btn-dark text-white animated__fadeIn ms-sm-2'
+          "
           type="button"
           (click)="toggleFullscreen()"
         >
@@ -41,7 +61,6 @@
         <!-- -------- -->
 
         <div [class]="'w3-col collapse navbar-collapse '" id="Navbar">
- 
           <ul [class]="'w3-col navbar-nav navba p-1 justify-content-end '">
             @if(!userLoginOn){
 
@@ -61,7 +80,6 @@
               <a
                 [class]="'nav-link fw-bold border-bottom border-secondary '"
                 routerLink="/session/signin"
-                
                 routerLinkActive="active"
                 ariaCurrentWhenActive="page"
                 data-bs-toggle="tooltip"
@@ -78,6 +96,13 @@
             <!-- -------- -->
             <!-- -------- LOGIN USER -->
             <!-- -------- -->
+
+            <!-- ---------------- -->
+            <!-- Verificar tipo de usuario conectado -->
+            <!-- ---------------- -->
+
+            @if(userData.user_type =='traveler' ){
+
             <li [class]="'nav-item btn btn-md '">
               <a
                 [class]="'nav-link fw-bold border-bottom border-secondary'"
@@ -87,36 +112,60 @@
                 >Inicio</a
               >
             </li>
+
             <li [class]="'nav-item btn btn-md '">
               <a
                 [class]="'nav-link fw-bold border-bottom border-secondary '"
-                routerLink="/map/show"
+                routerLink="travel-request"
                 routerLinkActive="active"
                 ariaCurrentWhenActive="page"
-                >Mapa</a
+                >Mapa Traveler
+              </a>
+            </li>
+
+            }@else if (userData.user_type  == 'driver') {
+
+            <li [class]="'nav-item btn btn-md '">
+              <a
+                [class]="'nav-link fw-bold border-bottom border-secondary '"
+                routerLink=""
+                routerLinkActive="active"
+                ariaCurrentWhenActive="page"
+                >Mapa Driver</a
               >
             </li>
 
-             
+            }@else if (userData.user_type  == 'admin') { }
+
             <li [class]="'nav-item btn btn-sm w3-row '">
               <button
-              [class]="'w3-col l6 m6 pe-4 btn text-white '"
-              (click)="shareApp('')"
-            >
-              <i [class]="'fa fa-share-alt me-2 float-sm-start'"></i>
-              <label [class]="'w3-small float-sm-start w3-hide-medium w3-hide-large'" for="">Compartir</label>
-            </button>
+                [class]="'w3-col l6 m6 pe-4 btn text-white '"
+                (click)="shareApp('')"
+              >
+                <i [class]="'fa fa-share-alt me-2 float-sm-start'"></i>
+                <label
+                  [class]="
+                    'w3-small float-sm-start w3-hide-medium w3-hide-large'
+                  "
+                  for=""
+                  >Compartir</label
+                >
+              </button>
 
               <button
                 [class]="'w3-col l6 m6 pe-4 btn text-white'"
                 (click)="f_signOut()"
               >
                 <i [class]="'fa fa-sign-out-alt me-2 float-sm-start'"></i>
-                <label [class]="'w3-small float-sm-start w3-hide-medium w3-hide-large'" for="">Cerrar Sesión</label>
+                <label
+                  [class]="
+                    'w3-small float-sm-start w3-hide-medium w3-hide-large'
+                  "
+                  for=""
+                  >Cerrar Sesión</label
+                >
               </button>
-
-             
-            </li> 
+            </li>
 
             <!-- -------- -->
             <!-- -------- LOGIN USER -->

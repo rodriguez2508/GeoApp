@@ -21,6 +21,13 @@ export const routes: Routes = [
         loadChildren: () => import('./modules/session-module/session.module').then((m) => m.SessionModule) },
 
 
+        { 
+            path: 'traveler', 
+            canActivate: [SessionGuardService], 
+            loadChildren: () => import('./modules/traveler/traveler.module').then((m) => m.TravelerModule) },
+    
+
+            
     // -----------------------------------
     // -----------------------------------
     {
