@@ -2,15 +2,14 @@
     <div id="map" class="map">
       <!-- <div class="position-absolute popover text-white bg-dark" id="popup"></div> -->
   
-      <!-- Popup -->
-      <div id="popup"></div>
+     
   
       @if(location_status){
   
       <!-- ... -->
       <button
         id="btn_centerPosition"
-        [class]="'btn position-absolute bg-secondary'"
+        [class]="'btn position-absolute bg-light border border-secondary'"
         type="button"
         (click)="centerMap()"
       >
@@ -23,13 +22,40 @@
       <!-- ... -->
       <button
         id="btn_clearMarkers"
-        [class]="'btn position-absolute bg-secondary'"
+        [class]="'btn position-absolute bg-light border border-secondary'"
         type="button"
         (click)="clearMarker('destination')"
       >
-        <i [class]="'fa fa-map-location-dot'"></i>
+        <i [class]="'fa fa-broom '"></i>
       </button>
       <!-- ... -->
+
+      <!-- ... -->
+      <button
+        id="btn_menu"
+        [class]="'btn position-absolute bg-light border border-secondary'"
+        type="button"
+        (click)="showFooterOnButton()"
+      >
+        <i [class]="'fa fa-bars-staggered'"></i>
+      </button>
+      <!-- ... -->
+
     </div>
+
+     <!-- Popup -->
+     <div id="popup"></div>
+
+
+     @if(footerDisplayed){
+
+      <app-footer-page
+     [connected_users]="connected_users"
+     [methodToShowFooter]="methodToShowFooter" 
+      ></app-footer-page>
+
+     }
+    
+     
   </div>
   

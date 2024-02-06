@@ -1,10 +1,11 @@
 <section class="w3-row w3-col">
-    @if(!location_status && max_count < 10){
-    <label (click)="reload_location()"class="w3-col w3-container border-bottom border-dark text-primary ">
+    @if(!location_status && max_count < 5){
+    <label class="w3-col w3-container border-bottom border-dark text-primary ">
       obteniendo ubicación..
-      <span class="btn btn-primary spinner-border spinner-border-sm"></span>
+      <span class="btn btn-sm btn-primary spinner-border spinner-border-sm"></span> 
+      <span class="btn btn-sm border border-danger w3-small float-end" (click)="reload_location()"><i class="fa fa-arrow-left-rotate"></i></span>
     </label>
-    } @else if(max_count >= 10) {
+    } @else if(max_count >= 5) {
       <label class="w3-col w3-container border-bottom border-dark me-3 ">
         error al buscar su  ubicación
         <span class="btn btn-warning " (click)="reload_location()">Reintentar</span>
@@ -12,7 +13,7 @@
     } @if(!socket_status){
     <label class="w3-col w3-container border-bottom border-dark text-success">
       conectando al servidor...
-      <span class="btn btn-primary spinner-border spinner-border-sm"></span>
+      <span class="btn btn-sm btn-primary spinner-border spinner-border-sm"></span>
     </label>
     }
   
@@ -20,7 +21,7 @@
     <!-- -------------- -->
     <!-- content page -->
     <!-- -------------- -->
-    <div class="w3-row w3-col set-height-s-78 border border-dark">
+    <div class="w3-row w3-col set-height-s-90 border border-dark">
        
       <!-- -------------- -->
       <!-- Body page -->
@@ -30,7 +31,7 @@
       [lon]="lon"
       [zoom]="zoom"
       [width]="'100%'"
-      [height]="'78vh'"
+      [height]="'90vh'"
       [socket_status]="socket_status"
       [location_status]="location_status"
       [connected_users]="connected_users"
@@ -41,7 +42,7 @@
   </section>
   
   <!-- Footer -->
-  <section class="w3-row">
-    <app-footer-page [connected_users]="connected_users"></app-footer-page>
-  </section>
+  <!-- <section class="w3-row ">
+   
+  </section> -->
   

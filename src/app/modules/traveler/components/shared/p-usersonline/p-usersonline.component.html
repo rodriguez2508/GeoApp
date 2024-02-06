@@ -1,12 +1,21 @@
-<div class="panel panel-default">
-  <h4 class="panel-heading">Connected Users</h4>
-  <ul class="list-group w3-ul">
-    @for (item of connected_DriverUsers; track $index) {
+<div
+  [classList]="
+    'w3-row w3-col container-fluid panel bg-light h-auto d-flex justify-content-center set-height-s-30 '
+  "
+>
+  <div class="panel panel-default">
+    <h4 class="panel-heading">Connected Users</h4>
+    <ul class="list-group w3-ul">
+      @for (item of connected_DriverUsers; track $index) {
 
-    <li class="list-group-item ">
-      <label>{{ item.user.user_name }} | LAT: {{ item.currentPosition.lat }} LON: {{ item.currentPosition.long }}</label>
-    </li>
+      <li class="list-group-item">
+        <label
+          >{{ item.user.user_name }} | LAT: {{ item.currentPosition.lat }} LON:
+          {{ item.currentPosition.long }}</label
+        >
+      </li>
 
-    }
-  </ul>
+      }
+    </ul>
+  </div>
 </div>

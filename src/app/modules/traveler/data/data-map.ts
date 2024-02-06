@@ -1,5 +1,5 @@
 
-export const DEFAULT_HEIGHT = '500px';
+export const DEFAULT_HEIGHT = 'auto';
 export const DEFAULT_WIDTH = '500px';
 
 export const DEFAULT_ZOOM = 10;

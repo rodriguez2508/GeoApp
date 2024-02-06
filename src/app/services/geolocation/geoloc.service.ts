@@ -17,10 +17,9 @@ export class GeolocService {
   startWatchingPosition(callback: (position: GeolocationPosition) => void): void {
     if ('geolocation' in navigator) {
 
-       
       const options = {
         enableHighAccuracy: true,
-        timeout: 15000,
+        timeout: 30000,
         maximumAge: 10000
       };
   
@@ -35,8 +34,8 @@ export class GeolocService {
           this.count++;
           this.locationStatus.next(false);
           this.max_count.next(this.count);
-  
-          if (this.count >= 10) {
+          console.log('max_count', this.count)
+          if (this.count >= 5) {
             this.max_count.next(-1);
             this.stopWatchingPosition();
           }

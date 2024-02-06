@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
-import { Subject } from 'rxjs'; 
+import { Subject } from 'rxjs';
 
 // -- Openlayers 
 import 'ol/ol.css';
@@ -28,7 +28,7 @@ import { Feature, Overlay } from 'ol';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import { Stroke, Style } from 'ol/style';
-import { LineString } from 'ol/geom'; 
+import { LineString } from 'ol/geom';
 // -- Openlayers
 // --interfaces
 import { I_DestinationMarker } from '../../../../../interface/marker.interface';
@@ -43,6 +43,7 @@ import { StorageService } from '../../../../../services/storage/storage.service'
 // -- services
 // -- constant
 import { DEFAULT_HEIGHT, DEFAULT_LAT, DEFAULT_LOCATION_STATUS, DEFAULT_LON, DEFAULT_SOCKET_STATUS, DEFAULT_WIDTH, DEFAULT_ZOOM } from '../../../data/data-map';
+import { FooterPageComponent } from '../footer-page/footer-page.component';
 // -- constant
 
 
@@ -50,7 +51,7 @@ import { DEFAULT_HEIGHT, DEFAULT_LAT, DEFAULT_LOCATION_STATUS, DEFAULT_LON, DEFA
 @Component({
   selector: 'app-map-page',
   standalone: true,
-  imports: [],
+  imports: [FooterPageComponent],
   templateUrl: './map-page.component.html',
   styleUrl: './map-page.component.scss'
 })
@@ -85,12 +86,12 @@ export class MapPageComponent {
 
 
   // -- 
- 
+
   map: Map = new Map();
 
-  @Input() userData: I_UserSessionStorage = {id:'', user_name:'', user_type:''};  
-  @Input() connected_users: I_ConnectedUser[] = [];  
-  client:I_UserMap;
+  @Input() userData: I_UserSessionStorage = { id: '', user_name: '', user_type: '' };
+  @Input() connected_users: I_ConnectedUser[] = [];
+  client: I_UserMap;
   // Agregar el control ZoomToExtent al mapa
   center = transform([this.lon, this.lat], 'EPSG:4326', 'EPSG:3857');
   extent = [this.center[0] - 50000, this.center[1] - 50000, this.center[0] + 50000, this.center[1] + 50000];
@@ -102,6 +103,10 @@ export class MapPageComponent {
   private popupEl: any;
   private hasAddedTu: boolean = false;
 
+  footerDisplayed = false;
+  methodToShowFooter: string = '';
+
+
   constructor(
     private elementRef: ElementRef,
     private markerService: OlMapMarkerService,
@@ -110,7 +115,7 @@ export class MapPageComponent {
     private openRouteService: OpenRouteService
   ) {
 
-    this.client = {id:this.userData.id, user_name:this.userData.user_name, markerColor:'success'}; 
+    this.client = { id: this.userData.id, user_name: this.userData.user_name, markerColor: 'success' };
   }
 
   ngOnInit(): void {
@@ -124,11 +129,11 @@ export class MapPageComponent {
   }
 
   ngAfterViewInit(): void {
-     this.client = {id:this.userData.id, user_name:this.userData.user_name, markerColor:'success'};
+    this.client = { id: this.userData.id, user_name: this.userData.user_name, markerColor: 'success' };
   }
 
   ngOnDestroy(): void {
-  
+
   }
 
   // --------------------------------------------
@@ -137,7 +142,7 @@ export class MapPageComponent {
   ngOnChanges(changes: SimpleChanges): void {
 
     if (('client' in changes)) {
-      this.client = {id:this.userData.id, user_name:this.userData.user_name, markerColor:'success'};
+      this.client = { id: this.userData.id, user_name: this.userData.user_name, markerColor: 'success' };
     }
 
     // --------------------
@@ -159,7 +164,7 @@ export class MapPageComponent {
 
         // Actualiza tus marcadores
 
-        this.initMarker([this.lon, this.lat], this.client); 
+        this.initMarker([this.lon, this.lat], this.client);
 
 
       }
@@ -235,6 +240,8 @@ export class MapPageComponent {
       this.initMarkerDestination(coord_destination);
 
       if (this.location_status) {
+
+        this.showFooterOnMap();
         // //  start=8.681495,49.41461&end=8.687872,49.420318
         // //  Establece los puntos inicio y destiino para dibujar la linea
         // const startPoint = [this.lon, this.lat];
@@ -499,6 +506,35 @@ export class MapPageComponent {
   // --------------------------------------------
   // --------------------------------------------
 
+  // --------------------------------------------
+  // --------------------------------------------
+  // -- FOOTER 
+  // --------------------------------------------
+  // --------------------------------------------
+
+  showFooterOnMap() {
+  
+    
+    this.footerDisplayed = true;
+    this.methodToShowFooter = 'map' ;
+  }
+  showFooterOnButton() { 
+    this.footerDisplayed = !this.footerDisplayed ; 
+    if(this.footerDisplayed) 
+    this.methodToShowFooter = 'button' ;
+
+  }
+  hideFooter() { 
+    this.footerDisplayed = false;  
+  }
+
+
+
+  // --------------------------------------------
+  // --------------------------------------------
+  // -- FOOTER 
+  // --------------------------------------------
+  // --------------------------------------------
 
 }
 

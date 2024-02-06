@@ -9,20 +9,25 @@ import { I_ConnectedUser } from '../../../../../interface/user.interface';
 // -- services
 import { GeolocService } from '../../../../../services/geolocation/geoloc.service';
 import { DataService } from '../../../../../services/data/data.service';
+import { PMapComponent } from '../p-map/p-map.component';
 // -- services
 
 @Component({
   selector: 'app-footer-page',
   standalone: true,
-  imports: [PUsersonlineComponent],
+  imports: [PUsersonlineComponent, PMapComponent],
   templateUrl: './footer-page.component.html',
   styleUrl: './footer-page.component.scss'
 })
 export class FooterPageComponent implements OnInit, OnChanges {
  
-  @Input() connected_users: I_ConnectedUser[] = [];  
+  @Input() connected_users: I_ConnectedUser[] = [];   
+  @Input() methodToShowFooter: string = ''; 
+  @Input() address: string = '';  
+  
   connected_TravelerUsers: I_ConnectedUser[] = [];
   connected_DriverUsers: I_ConnectedUser[] = []; 
+  
 
   userLoginOn: boolean = false;
 
@@ -51,6 +56,7 @@ export class FooterPageComponent implements OnInit, OnChanges {
       this.getAndUpdateConnectedTravelerUsers();
       this.getAndUpdateConnectedDriverUsers();
     }
+
   }
 
   getConnectedUsersByType(userType: string): I_ConnectedUser[] {
@@ -65,7 +71,10 @@ export class FooterPageComponent implements OnInit, OnChanges {
     this.connected_DriverUsers = this.getConnectedUsersByType('driver');
   }
   showPanel(): void {
+
     this.panelDisplayed = !this.panelDisplayed;
+    this.methodToShowFooter = this.panelDisplayed ? 'button' : 'map'; 
+       
   }
 
 }

@@ -1,13 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import url('https://fonts.googleapis.com/css?family=Roboto');
+
+html,
 body {
-    font-family: 'Roboto';
-    color: var(--text-color);
-    margin: 0;
-    --header-color: #D1DFB7;
-    --sidebar-color: #FAE6BE;
-    --text-color: black;
+
+  height: 100%;
+
+  font-family: 'Roboto';
+  color: var(--text-color);
+  margin: 0;
+  --header-color: #D1DFB7;
+  --sidebar-color: #FAE6BE;
+  --text-color: black;
 }
 
 
@@ -29,8 +34,10 @@ body {
 @for $i from 1 through 100 {
   .set-height-s-#{$i} {
     height: set-height($i);
-    overflow-y: auto; /* Agrega un scroll vertical si es necesario */
-    overflow-x: hidden; /* Agrega un scroll vertical si es necesario */
+    overflow-y: auto;
+    /* Agrega un scroll vertical si es necesario */
+    overflow-x: hidden;
+    /* Agrega un scroll vertical si es necesario */
   }
 }
 
@@ -80,18 +87,21 @@ body {
   border-radius: 10px;
 }
 
-.cursor-pointer{
+.cursor-pointer {
   cursor: pointer;
 }
+
 ._center-h {
   display: flex;
-  justify-content: center; /* Centra los elementos horizontalmente */
+  justify-content: center;
+  /* Centra los elementos horizontalmente */
   margin: auto;
 }
 
 ._center-h-sb {
   display: flex;
-  justify-content: space-between; /* Distribuye los elementos con espacio entre ellos */
+  justify-content: space-between;
+  /* Distribuye los elementos con espacio entre ellos */
   margin: auto;
 }
 
@@ -106,21 +116,23 @@ body {
   background-color: black;
   border-right: black 1px solid;
   border-left: black 1px solid;
-  width:5px;
+  width: 5px;
 }
+
 /* scroll barra */
 ::-webkit-scrollbar-thumb {
   background-color: rgb(163, 160, 160);
 }
 
-._divider-white{
+._divider-white {
   border: aliceblue 2px solid;
   padding-left: 2px;
   padding-right: 2px;
   margin-left: auto;
   margin-right: auto;
 }
-._divider-black{
+
+._divider-black {
   border: rgb(16, 16, 16) 2px solid;
 }
 
@@ -134,7 +146,7 @@ body {
 }
 
 // -- background
-._bg-img-green{
+._bg-img-green {
   background-position: center;
   background-size: cover;
   background-attachment: fixed;
@@ -142,11 +154,12 @@ body {
   // background-color: rgba(0, 0, 0, 0.8);
   background-blend-mode: multiply;
 
-background-image: url(/assets/img/bg-green.jpg);
-background-position: 100% 50%;
+  background-image: url(/assets/img/bg-green.jpg);
+  background-position: 100% 50%;
 
 }
-._bg-img-blue{
+
+._bg-img-blue {
   background-position: center;
   background-size: cover;
   background-attachment: fixed;
@@ -154,20 +167,21 @@ background-position: 100% 50%;
   background-color: rgb(42 94 142) 2px solid;
   background-blend-mode: multiply;
 
-// background-image: url(/assets/img/bg-green.jpg);
-background-position: 100% 50%;
+  // background-image: url(/assets/img/bg-green.jpg);
+  background-position: 100% 50%;
 
 }
-._bg-img-white{
-background-position: center;
-background-size: cover;
-background-attachment: fixed;
-background-repeat: no-repeat;
-// background-color: rgba(0, 0, 0, 0.8);
-background-blend-mode: multiply;
 
-background-image: url(/assets/img/bg-white.jpg);
-background-position: 100% 50%;
+._bg-img-white {
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  // background-color: rgba(0, 0, 0, 0.8);
+  background-blend-mode: multiply;
+
+  background-image: url(/assets/img/bg-white.jpg);
+  background-position: 100% 50%;
 
 }
 
@@ -177,15 +191,17 @@ background-position: 100% 50%;
   ==========================================================
   
   */
-  .ng-valid:not(form).ng-touched {
-    border-left: 5px solid #42a948; /* Green */
-  }
-  
-  .ng-invalid:not(form).ng-touched {
-    border-left: 5px solid #a94442; /* red */
-  }
-  
-  /*
+.ng-valid:not(form).ng-touched {
+  border-left: 5px solid #42a948;
+  /* Green */
+}
+
+.ng-invalid:not(form).ng-touched {
+  border-left: 5px solid #a94442;
+  /* red */
+}
+
+/*
     Validacion de formularios (Mostrar color segun estado)
      ======================================
     ==========================================================
