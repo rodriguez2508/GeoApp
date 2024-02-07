@@ -106,6 +106,11 @@ export class MapPageComponent {
   footerDisplayed = false;
   methodToShowFooter: string = '';
 
+  address: string = 'buscando..';
+  distance: string = '0';
+
+  connected_TravelerUsers: I_ConnectedUser[] = [];
+  connected_DriverUsers: I_ConnectedUser[] = [];
 
   constructor(
     private elementRef: ElementRef,
@@ -145,6 +150,7 @@ export class MapPageComponent {
       this.client = { id: this.userData.id, user_name: this.userData.user_name, markerColor: 'success' };
     }
 
+
     // --------------------
     // Controla los cambios en las coordenadas y usuarios activos
     // --------------------
@@ -169,12 +175,15 @@ export class MapPageComponent {
 
       }
       else if (('connected_users' in changes)) {
-        console.log('connected_user update', this.connected_users)
+        // console.log('connected_user update', this.connected_DriverUsers)
+
+        this.getAndUpdateConnectedTravelerUsers();
+        this.getAndUpdateConnectedDriverUsers();
 
         // Eliminar los marcadores que no están en this.connected_users 
-        const indexToRemove = this.markers.findIndex(marker => !this.connected_users.some(user => user.user.id === marker.get('client').id));
+        const indexToRemove = this.markers.findIndex(marker => !this.connected_DriverUsers.some(user => user.user.id === marker.get('client').id));
 
-        if (indexToRemove !== -1) this.clearMarker(this.markers[indexToRemove].get('client').id);
+        if (indexToRemove !== -1 && this.markers[indexToRemove].get('client').id != 'destination') this.clearMarker(this.markers[indexToRemove].get('client').id);
 
         this.setMarkersForConnectedUsers();
 
@@ -238,10 +247,20 @@ export class MapPageComponent {
       //  -- Inicializa el marcador destino  
       let coord_destination: Coordinate = transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
       this.initMarkerDestination(coord_destination);
+      
+      // console.log('name street', this.openRouteService.getStreetInformation(coord_destination))
+       
 
       if (this.location_status) {
 
         this.showFooterOnMap();
+
+        if(this.footerDisplayed){
+
+          this.getAddress(coord_destination);
+
+        }
+
         // //  start=8.681495,49.41461&end=8.687872,49.420318
         // //  Establece los puntos inicio y destiino para dibujar la linea
         // const startPoint = [this.lon, this.lat];
@@ -335,6 +354,35 @@ export class MapPageComponent {
     );
 
   }
+  
+  private getAddress(coord: Coordinate) {
+
+    this.openRouteService.getStreetInformation(coord).subscribe(
+      {
+        next: (response: any) => {
+
+         const address = response.features[0]?.properties?.name + ', '+ response.features[0]?.properties?.region;
+         const distance = response.features[0]?.properties?.distance;
+          // console.log(response.features)
+         this.address = address;
+         this.distance = distance;
+ 
+
+        },
+        error: (error: any) => {
+          // Manejar errores al obtener el estado del socket
+          console.error('Error en la solicitud a ORS:', error);
+         this.address = 'Error de conexión.';
+         this.distance = '0';
+
+        },
+        complete: () => {
+          // Realizar acciones adicionales cuando el observable se completa, si es necesario
+        },
+      }
+    ); 
+
+  }
   // --------------------------------------------
   // --------------------------------------------
   // -- DRAW EN EL MAPA 
@@ -408,8 +456,8 @@ export class MapPageComponent {
 
     let destination: I_DestinationMarker = {
       id: 'destination',
-      user_name: 'Destino',
-      markerColor: 'warning',
+      user_name: '',
+      markerColor: 'danger',
     };
 
     this.initMarker(coord, destination);
@@ -462,15 +510,12 @@ export class MapPageComponent {
 
 
   }
-  clearAllMarkers() {
-
-  }
 
   // Función para pintar marcadores para todos los usuarios conectados
   public setMarkersForConnectedUsers() {
     // Asegúrate de tener datos en connected_users y de que el servicio y el mapa estén disponibles
-    if (this.connected_users.length > 0 && this.markerService && this.map) {
-      this.connected_users.forEach((user: I_ConnectedUser) => {
+    if (this.connected_DriverUsers.length > 0 && this.markerService && this.map) {
+      this.connected_DriverUsers.forEach((user: I_ConnectedUser) => {
         // Verifica si la posición actual está presente en el usuario antes de intentar pintar el marcador
         if (user.currentPosition.lat && user.currentPosition.long) {
           const coord: Coordinate = [
@@ -479,10 +524,10 @@ export class MapPageComponent {
           ];
 
           this.markers = this.markers.filter(marker => {
-            return this.connected_users.some(user => user.user.id === marker.get('client').id);
+            return this.connected_DriverUsers.some(user => user.user.id === marker.get('client').id);
           });
 
-          let client: I_UserMap = { id: user.user.id, user_name: user.user.user_name, markerColor: 'danger' };
+          let client: I_UserMap = { id: user.user.id, user_name: user.user.user_name, markerColor: 'warning' };
 
           if (this.client.id == client.id) {
             this.initMarker([this.lon, this.lat], this.client);
@@ -513,22 +558,38 @@ export class MapPageComponent {
   // --------------------------------------------
 
   showFooterOnMap() {
-  
+
+    this.footerDisplayed = !this.footerDisplayed;
+    if (!this.footerDisplayed) {
+      this.clearMarker('destination');
+      this.address = 'Buscando...';
+      this.distance = '0';
+    }
+    this.methodToShowFooter = 'map';
+
     
-    this.footerDisplayed = true;
-    this.methodToShowFooter = 'map' ;
   }
-  showFooterOnButton() { 
-    this.footerDisplayed = !this.footerDisplayed ; 
-    if(this.footerDisplayed) 
-    this.methodToShowFooter = 'button' ;
+  showFooterOnButton() {
+    this.footerDisplayed = !this.footerDisplayed;
+    if (this.footerDisplayed)
+      this.methodToShowFooter = 'button';
 
   }
-  hideFooter() { 
-    this.footerDisplayed = false;  
+  hideFooter() {
+    this.footerDisplayed = false;
   }
 
+  getConnectedUsersByType(userType: string): I_ConnectedUser[] {
+    return this.connected_users.filter((user: I_ConnectedUser) => user.user.user_type === userType);
+  }
 
+  getAndUpdateConnectedTravelerUsers(): void {
+    this.connected_TravelerUsers = this.getConnectedUsersByType('traveler');
+  }
+
+  getAndUpdateConnectedDriverUsers(): void {
+    this.connected_DriverUsers = this.getConnectedUsersByType('driver');
+  }
 
   // --------------------------------------------
   // --------------------------------------------

@@ -1,7 +1,7 @@
 <header
   id="header"
   [class]="
-    ' w3-row w3-col l12 m12 s12 set-height-8 bg-dark border-bottom border-warning border-1 '
+    ' position-absolute w3-row w3-col l12 m12 s12 set-height-8 bg-dark border-bottom border-warning border-1 '
   "
 >
   <nav [class]="'navbar navbar-expand-sm navbar-dark pt-sm-0 '">
@@ -30,37 +30,55 @@
 
         }@else if (userData.user_type == 'admin') { }
         @else {
-          <i class="fa fa-driver fa-1x text-white"></i>
+          <i class="fa fa-user fa-1x text-white"></i>
         }
 
         <button
           [class]="
-            'navbar-toggler w3-right btn text-white border-0 animated__fadeIn ms-sm-2'
+            'navbar-toggler w3-right text-white boborder-0 animated__fadeIn ms-1'
           "
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#Navbar"
           (click)="toggleIcon()"
         >
-          <i [class]="iconClass" [class.active]="'isActive fadeIn '"></i>
+        @switch (isActive) {
+          @case (true) {
+            <i [class]="'fa fa-times fa-1x text-white fadeIn'" ></i> 
+          }
+          @default {
+            <i [class]="'fa fa-bars fa-1x text-white fadeIn '" ></i> 
+          }
+        }
         </button>
 
         <button
+                [class]="'navbar-toggler w3-right btn btn-dark text-white animated__fadeIn '"
+                (click)="shareApp('')"
+              >
+                <i [class]="'fa fa-share-alt me-2 float-sm-start'"></i>
+                <!-- <label
+                  [class]="
+                    'w3-small float-sm-start w3-hide-medium w3-hide-large'
+                  "
+                  for=""
+                  >Compartir</label
+                > -->
+              </button>
+        <!-- <button
           [class]="
-            'navbar-toggler w3-right btn btn-dark text-white animated__fadeIn ms-sm-2'
+            'navbar-toggler w3-right btn btn-dark text-white animated__fadeIn me-sm-2'
           "
           type="button"
           (click)="toggleFullscreen()"
         >
           <i [class]="'fa fa-mobile-phone '"></i>
-        </button>
+        </button> -->
       </div>
       <div [class]="'w3-row w3-col l9 m8 s12 '">
         <!-- -------- -->
         <!-- -------- -->
         <!-- -------- -->
 
-        <div [class]="'w3-col collapse navbar-collapse '" id="Navbar">
+        <div [class]="'w3-col w3-section '" id="Navbar">
           <ul [class]="'w3-col navbar-nav navba p-1 justify-content-end '">
             @if(!userLoginOn){
 
@@ -69,6 +87,7 @@
             <!-- -------- -->
             <li [class]="'nav-item btn btn-md '">
               <a
+              (click)="toggleIcon()"
                 [class]="'nav-link fw-bold border-bottom border-secondary'"
                 routerLink="/public/home"
                 routerLinkActive="active"
@@ -78,6 +97,7 @@
             </li>
             <li [class]="'nav-item btn btn-md '">
               <a
+                (click)="toggleIcon()"
                 [class]="'nav-link fw-bold border-bottom border-secondary '"
                 routerLink="/session/signin"
                 routerLinkActive="active"
@@ -105,6 +125,7 @@
 
             <li [class]="'nav-item btn btn-md '">
               <a
+              (click)="toggleIcon()"
                 [class]="'nav-link fw-bold border-bottom border-secondary'"
                 routerLink="/private/home"
                 routerLinkActive="active"
@@ -115,8 +136,9 @@
 
             <li [class]="'nav-item btn btn-md '">
               <a
+              (click)="toggleIcon()"
                 [class]="'nav-link fw-bold border-bottom border-secondary '"
-                routerLink="travel-request"
+                routerLink="/traveler/travel-request"
                 routerLinkActive="active"
                 ariaCurrentWhenActive="page"
                 >Mapa Traveler
@@ -127,6 +149,7 @@
 
             <li [class]="'nav-item btn btn-md '">
               <a
+              (click)="toggleIcon()"
                 [class]="'nav-link fw-bold border-bottom border-secondary '"
                 routerLink=""
                 routerLinkActive="active"
@@ -138,22 +161,10 @@
             }@else if (userData.user_type  == 'admin') { }
 
             <li [class]="'nav-item btn btn-sm w3-row '">
-              <button
-                [class]="'w3-col l6 m6 pe-4 btn text-white '"
-                (click)="shareApp('')"
-              >
-                <i [class]="'fa fa-share-alt me-2 float-sm-start'"></i>
-                <label
-                  [class]="
-                    'w3-small float-sm-start w3-hide-medium w3-hide-large'
-                  "
-                  for=""
-                  >Compartir</label
-                >
-              </button>
+              
 
               <button
-                [class]="'w3-col l6 m6 pe-4 btn text-white'"
+                [class]="'w3-col btn text-white'"
                 (click)="f_signOut()"
               >
                 <i [class]="'fa fa-sign-out-alt me-2 float-sm-start'"></i>

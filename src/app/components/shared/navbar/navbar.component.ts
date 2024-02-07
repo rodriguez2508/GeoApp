@@ -31,48 +31,47 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   _role: string = 'undefined';
   client: any;
- 
+
   userLoginOn: boolean = false;
-  userData: I_UserSessionStorage = {id:'', user_name:'', user_type:''};
- 
-  appVersion:string = environment.appVersion;
-  appName:string = environment.appName;
-  titleApp: string = this.appName +" | "+ this.appVersion;
- 
-  iconClass = 'fa fa-bars fa-1x text-white';
+  userData: I_UserSessionStorage = { id: '', user_name: '', user_type: '' };
+
+  appVersion: string = environment.appVersion;
+  appName: string = environment.appName;
+  titleApp: string = this.appName + " | " + this.appVersion;
+
   isActive = false;
 
-  pageInit:number= 0;
+  pageInit: number = 0;
 
   constructor(
-    private router:Router, 
+    private router: Router,
     private route: ActivatedRoute,
     private dataService: DataService,
     private sessionService: SessionService,
-    private shareappService: ShareAppService, 
+    private shareappService: ShareAppService,
     private storageService: StorageService
   ) {
 
     this.route.queryParams.subscribe(params => {
-      
-    }); 
+
+    });
 
     console.log(this.client)
 
 
   }
-  
+
   async ngOnInit(): Promise<void> {
 
-   this.dataService.getUserData().subscribe((value) => {
-      
-       this.userData = value;
+    this.dataService.getUserData().subscribe((value) => {
+
+      this.userData = value;
 
     });
 
     this.dataService.getUserLoggedIn().subscribe((value) => {
-      
-       this.userLoginOn = value;
+
+      this.userLoginOn = value;
 
     });
 
@@ -98,31 +97,13 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
   // -----------------------------------------
   toggleIcon() {
 
-    
+
     this.isActive = !this.isActive;
-    const headerElement = document.getElementById('header');
-
-    if (headerElement) {
-
-      if (headerElement.style.height == '10vh') {
-        
-        headerElement.style.height = 'auto';
-        this.iconClass = 'fa fa-times fa-1x text-white';
-      } 
-      else{
-
-        headerElement.style.height = 'auto';
-        this.iconClass = 'fa fa-bars fa-1x text-white';
-
-      }
-
-
-
-    } 
-
-
-
-  }
+    const headerElement = document.getElementById('header'); 
+    if(headerElement != null)
+    headerElement.style.height = this.isActive ? '100vh' : '8vh';
+    
+}
 
 
 
@@ -132,22 +113,22 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   async f_signOut() {
 
-    const resultado = await this.dataService.showQuestion('¿Estás seguro de que deseas continuar?', 'warning', 'question');
-    if (resultado) {
+  const resultado = await this.dataService.showQuestion('¿Estás seguro de que deseas continuar?', 'warning', 'question');
+  if (resultado) {
 
-      // -- funcion para eliminar datos de la sesion
-      this.sessionService.signout();
+    // -- funcion para eliminar datos de la sesion
+    this.sessionService.signout();
 
-      // -- mostrar mensaje en la pantalla
-      this.dataService.showMsjInData('Cerrando Sesión...', 'success', '/');
+    // -- mostrar mensaje en la pantalla
+    this.dataService.showMsjInData('Cerrando Sesión...', 'success', '/');
 
-      // window.location.reload();
+    // window.location.reload();
 
-    } else {
-      // Hacer algo si se cancela
-    }
-
+  } else {
+    // Hacer algo si se cancela
   }
+
+}
 
 
 
@@ -155,39 +136,39 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
   //  F_ para abrir a pantalla completa la aplicacion
   // -----------------------------------------
   async toggleFullscreen() {
-    const doc = window.document;
-    const docEl = doc.documentElement;
+  const doc = window.document;
+  const docEl = doc.documentElement;
 
-    const requestFullScreen = docEl.requestFullscreen;
-    const cancelFullScreen = doc.exitFullscreen;
+  const requestFullScreen = docEl.requestFullscreen;
+  const cancelFullScreen = doc.exitFullscreen;
 
-    if (!doc.fullscreenElement && !doc.fullscreenElement && !doc.fullscreenElement && !doc.fullscreenElement) {
-      requestFullScreen.call(docEl);
-    } else {
-      cancelFullScreen.call(doc);
-    }
+  if (!doc.fullscreenElement && !doc.fullscreenElement && !doc.fullscreenElement && !doc.fullscreenElement) {
+    requestFullScreen.call(docEl);
+  } else {
+    cancelFullScreen.call(doc);
   }
+}
 
 
-  // -----------------------------------------
-  //  F_ para abrir a pantalla completa la aplicacion
-  // -----------------------------------------
-  shareApp(platform: string) {
+// -----------------------------------------
+//  F_ para abrir a pantalla completa la aplicacion
+// -----------------------------------------
+shareApp(platform: string) {
 
-    this.shareappService.compartir().then(
-      () => {
-        
-        // -- mostrar mensaje en la pantalla
-        this.dataService.showMsj('Éxito!', 'Contenido compartido con éxito', 'success');
+  this.shareappService.compartir().then(
+    () => {
 
-        console.log('Contenido compartido con éxito.')
-      },
-      () => console.error('Error al compartir el contenido.')
-    );
-  }
+      // -- mostrar mensaje en la pantalla
+      this.dataService.showMsj('Éxito!', 'Contenido compartido con éxito', 'success');
+
+      console.log('Contenido compartido con éxito.')
+    },
+    () => console.error('Error al compartir el contenido.')
+  );
+}
 
   get role(): string | undefined {
-    return this._role;
-  }
+  return this._role;
+}
   
 }

@@ -15,7 +15,7 @@ export class PMapComponent implements OnChanges, AfterViewInit {
 
   @Input() connected_users: I_ConnectedUser[] = [];
   @Input() connected_TravelerUsers: I_ConnectedUser[] = [];
-  @Input() connected_DriverUsers: I_ConnectedUser[] = []; 
+  @Input() connected_DriverUsers: I_ConnectedUser[] = [];
 
   constructor(){
 

@@ -23,7 +23,8 @@ export class FooterPageComponent implements OnInit, OnChanges {
  
   @Input() connected_users: I_ConnectedUser[] = [];   
   @Input() methodToShowFooter: string = ''; 
-  @Input() address: string = '';  
+  @Input() address: string = 'Buscando...';  
+  @Input() distance: string = '0';  
   
   connected_TravelerUsers: I_ConnectedUser[] = [];
   connected_DriverUsers: I_ConnectedUser[] = []; 
@@ -56,6 +57,11 @@ export class FooterPageComponent implements OnInit, OnChanges {
       this.getAndUpdateConnectedTravelerUsers();
       this.getAndUpdateConnectedDriverUsers();
     }
+    if ('distance' in changes) {
+      this.distance = parseFloat(this.distance) < 1 ? parseFloat(this.distance)*1000 + ' m': parseFloat(this.distance) +' km' ;
+    }
+    
+
 
   }
 

@@ -5,48 +5,18 @@
     [connected_DriverUsers]="connected_DriverUsers"
     [connected_TravelerUsers]="connected_TravelerUsers"
   ></app-p-usersonline>
-
-  <div class="w3-col m9 s9 d-flex align-content-between set-height-10">
-    <button
-      class="btn btn-sm btn-light p-0 border border-warning"
-      (click)="showPanel()"
-    >
-      <label class="w3-col m-0 p-0 w3-small">Conductores</label>
-      <i class="fa fa-car-alt fa-2x"></i>
-
-      @switch (connected_DriverUsers.length) { @case (0) {
-      <span class="badge text-dark border border-danger">{{
-        connected_DriverUsers.length
-      }}</span>
-      } @default {
-      <span class="badge bg-danger">{{ connected_DriverUsers.length }}</span>
-      } }
-    </button>
-    <button
-      type="button"
-      class="btn btn-sm btn-light p-0 border border-warning"
-    >
-      <label class="w3-col m-0 p-0 w3-small">Mis Sitios</label>
-      <i class="fa fa-flag fa-2x"></i>
-      <span class="badge text-dark border border-danger">0</span>
-    </button>
-    <button
-      type="button"
-      class="btn btn-sm btn-light p-0 border border-warning"
-    >
-      <label class="w3-col m-0 p-0 w3-small">Buscar</label>
-      <i class="fa fa-search fa-2x"></i>
-    </button>
-  </div>
+ 
 
   } @case ('map') {
-  <app-p-map></app-p-map>
 
-  <div class="w3-col m9 s9 d-flex align-content-between set-height-10">
-    <h4 class="">Dirección:</h4>
-    <p>{{address}}</p>
+  <div class="w3-row w3-col w3-container"> 
+    <h4 class=" w3-col">{{address}}</h4>
+    <p class=" w3-col">{{distance}}</p>
 
 
   </div>
+
+  <app-p-map></app-p-map>
+
   } }
 </section>

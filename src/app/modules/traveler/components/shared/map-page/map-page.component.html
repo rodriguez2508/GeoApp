@@ -1,61 +1,72 @@
 <div class="w3-row w3-col">
-    <div id="map" class="map">
-      <!-- <div class="position-absolute popover text-white bg-dark" id="popup"></div> -->
-  
-     
-  
-      @if(location_status){
-  
-      <!-- ... -->
-      <button
-        id="btn_centerPosition"
-        [class]="'btn position-absolute bg-light border border-secondary'"
-        type="button"
-        (click)="centerMap()"
-      >
-        <i [class]="'fa fa-search-location'"></i>
-      </button>
-      <!-- ... -->
-  
-      }
-  
-      <!-- ... -->
-      <button
+  <div id="map" class="map">
+    <!-- <div class="position-absolute popover text-white bg-dark" id="popup"></div> -->
+
+    @if(location_status && !footerDisplayed){
+
+    <!-- ... -->
+    <button
+      id="btn_centerPosition"
+      [class]="'btn position-absolute bg-light border border-secondary'"
+      type="button"
+      (click)="centerMap()"
+    >
+      <i [class]="'fa fa-location-crosshairs w3-xlarge'"></i>
+    </button>
+    <!-- ... -->
+
+    <!-- ... -->
+    <button
+      id="btn_navigation"
+      type="button"
+      class="btn btn-md position-absolute bg-warning bg-opacity-50 w3-round-xxlarge text-dark border border-secondary"
+    >
+      <!-- <label class="w3-col m-0 p-0 w3-small">Navegar</label> -->
+      <i class="fa fa-route w3-xlarge"></i>
+    </button>
+
+    <!-- ... -->
+
+    @if(socket_status){
+    <button
+      class="btn btn-md position-absolute bg-warning bg-opacity-50 w3-round-xxlarge text-dark border border-secondary"
+      id="btn_show_drivers"
+    >
+      <i class="fa fa-car-on w3-xlarge"></i>
+      @switch (connected_DriverUsers.length) { @case (0) {
+      <span class="badge text-dark border border-danger">{{
+        connected_DriverUsers.length
+      }}</span>
+      } @default {
+      <span class="badge bg-danger">{{ connected_DriverUsers.length }}</span>
+      } }
+    </button>
+
+    } }
+
+    <!-- ... -->
+    <!-- <button
         id="btn_clearMarkers"
         [class]="'btn position-absolute bg-light border border-secondary'"
         type="button"
         (click)="clearMarker('destination')"
       >
         <i [class]="'fa fa-broom '"></i>
-      </button>
-      <!-- ... -->
-
-      <!-- ... -->
-      <button
-        id="btn_menu"
-        [class]="'btn position-absolute bg-light border border-secondary'"
-        type="button"
-        (click)="showFooterOnButton()"
-      >
-        <i [class]="'fa fa-bars-staggered'"></i>
-      </button>
-      <!-- ... -->
-
-    </div>
-
-     <!-- Popup -->
-     <div id="popup"></div>
-
-
-     @if(footerDisplayed){
-
-      <app-footer-page
-     [connected_users]="connected_users"
-     [methodToShowFooter]="methodToShowFooter" 
-      ></app-footer-page>
-
-     }
-    
-     
+      </button> -->
+    <!-- ... -->
   </div>
-  
+
+  <!-- Popup -->
+  <div id="popup"></div>
+
+  @if(footerDisplayed){
+
+  <app-footer-page
+    [connected_users]="connected_users"
+    [methodToShowFooter]="methodToShowFooter"
+    [address]="address"
+    [distance]="distance"
+  ></app-footer-page>
+
+  }
+</div>

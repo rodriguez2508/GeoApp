@@ -1,18 +1,19 @@
 
 #btn_centerPosition{
-    bottom: 100px;
-    right: 4vh;
-    z-index: 1;
-  }
-  
-  #btn_clearMarkers{
     bottom: 54px;
     right: 4vh;
     z-index: 1;
   }
+   
 
-  #btn_menu{
+  #btn_navigation{
     bottom: 10px;
-    right: 4vh;
-    z-index: 1031;
+    right: 4vh; 
+    z-index: 1;
+  }
+  
+  #btn_show_drivers{
+    top: 80px;
+    right: 4vh; 
+    z-index: 1;
   }
