@@ -35,33 +35,27 @@
 
         <button
           [class]="
-            'navbar-toggler w3-right text-white boborder-0 animated__fadeIn ms-1'
+            'navbar-toggler w3-right btn btn-md bg-warning text-dark border border-secondary animated__fadeIn ms-1'
           "
           type="button"
           (click)="toggleIcon()"
         >
         @switch (isActive) {
           @case (true) {
-            <i [class]="'fa fa-times fa-1x text-white fadeIn'" ></i> 
+            <i [class]="'fa fa-times fa-1x  fadeIn'" ></i> 
           }
           @default {
-            <i [class]="'fa fa-bars fa-1x text-white fadeIn '" ></i> 
+            <i [class]="'fa fa-bars fa-1x fadeIn '" ></i> 
           }
         }
         </button>
 
         <button
-                [class]="'navbar-toggler w3-right btn btn-dark text-white animated__fadeIn '"
+                [class]="'navbar-toggler w3-right btn btn-md bg-warning text-dark border border-secondary animated__fadeIn '"
                 (click)="shareApp('')"
               >
-                <i [class]="'fa fa-share-alt me-2 float-sm-start'"></i>
-                <!-- <label
-                  [class]="
-                    'w3-small float-sm-start w3-hide-medium w3-hide-large'
-                  "
-                  for=""
-                  >Compartir</label
-                > -->
+                <i [class]="'fa fa-share-alt me-2 '"></i>
+               
               </button>
         <!-- <button
           [class]="
@@ -73,13 +67,16 @@
           <i [class]="'fa fa-mobile-phone '"></i>
         </button> -->
       </div>
-      <div [class]="'w3-row w3-col l9 m8 s12 '">
+      <div [class]="'w3-row w3-col w3-section l9 m8 s12 '">
         <!-- -------- -->
         <!-- -------- -->
         <!-- -------- -->
 
         <div [class]="'w3-col w3-section '" id="Navbar">
-          <ul [class]="'w3-col navbar-nav navba p-1 justify-content-end '">
+
+          @if(isActive){
+            
+          <ul [class]="'w3-col w3-section navbar-nav p-1 justify-content-end '">
             @if(!userLoginOn){
 
             <!-- -------- -->
@@ -183,6 +180,8 @@
             <!-- -------- -->
             }
           </ul>
+
+        }
         </div>
       </div>
     </div>

@@ -160,6 +160,7 @@ export class MapPageComponent {
         this.client.user_name += ' (Tú)';
         this.client.markerColor = 'success';
         this.initMarker([this.lon, this.lat], this.client);
+        this.centerMap();
         this.hasAddedTu = true;
       }
 
@@ -177,13 +178,13 @@ export class MapPageComponent {
       else if (('connected_users' in changes)) {
         // console.log('connected_user update', this.connected_DriverUsers)
 
-        this.getAndUpdateConnectedTravelerUsers();
+        // this.getAndUpdateConnectedTravelerUsers();
         this.getAndUpdateConnectedDriverUsers();
 
         // Eliminar los marcadores que no están en this.connected_users 
         const indexToRemove = this.markers.findIndex(marker => !this.connected_DriverUsers.some(user => user.user.id === marker.get('client').id));
 
-        if (indexToRemove !== -1 && this.markers[indexToRemove].get('client').id != 'destination') this.clearMarker(this.markers[indexToRemove].get('client').id);
+        if (indexToRemove !== -1 && this.markers[indexToRemove].get('client').id != 'destination' && this.markers[indexToRemove].get('client').id != this.client.id) this.clearMarker(this.markers[indexToRemove].get('client').id);
 
         this.setMarkersForConnectedUsers();
 
@@ -235,27 +236,27 @@ export class MapPageComponent {
         maxZoom: 19,
         zoom: this.zoom
       }),
-      controls: [zoomToExtentControl, rotateControl, zoomControl, scaleLine]
+      controls: [rotateControl, zoomControl, scaleLine]
     });
 
     //  ------------------------------
     // EVENTO CLICK
     //  ------------------------------ 
     this.map.on('singleclick', (event) => {
-      console.log(`Has hecho clic en las coordenadas (${event.coordinate[0]}, ${event.coordinate[1]}).`);
+      // console.log(`Has hecho clic en las coordenadas (${event.coordinate[0]}, ${event.coordinate[1]}).`);
 
-      //  -- Inicializa el marcador destino  
+      //  -- Inicializa el marcador destino
       let coord_destination: Coordinate = transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
       this.initMarkerDestination(coord_destination);
-      
+
       // console.log('name street', this.openRouteService.getStreetInformation(coord_destination))
-       
+
 
       if (this.location_status) {
 
         this.showFooterOnMap();
 
-        if(this.footerDisplayed){
+        if (this.footerDisplayed) {
 
           this.getAddress(coord_destination);
 
@@ -354,33 +355,63 @@ export class MapPageComponent {
     );
 
   }
-  
+
   private getAddress(coord: Coordinate) {
+
 
     this.openRouteService.getStreetInformation(coord).subscribe(
       {
         next: (response: any) => {
 
-         const address = response.features[0]?.properties?.name + ', '+ response.features[0]?.properties?.region;
-         const distance = response.features[0]?.properties?.distance;
+          // const displayName = response.name;
+          // const address = response.address;
+
+          // console.log(' n:', response);
+          // console.log('Nombre de la ubicación:', displayName);
+          // console.log('Dirección detallada:', address);
+
+          console.log(response.address)
+          console.log(response.address.road)
+
+          let road = response.address.road; 
+          let neighbourhood = response.address.neighbourhood; 
+          let suburb = response.address.suburb ; 
+          let city = response.address.city; 
+           
+          const address = `${road=== undefined?'':road+','} ${neighbourhood === undefined?'':neighbourhood+','} ${city}`;
+
+          // const distance = response.features[0]?.properties?.distance;
+
           // console.log(response.features)
-         this.address = address;
-         this.distance = distance;
- 
+          this.address = address;
+          // this.distance = distance;
+
+          // ---------
+          // let street = response.features[0]?.properties?.street + ', ';
+          // let name = response.features[0]?.properties?.name != response.features[0]?.properties?.street ? response.features[0]?.properties?.name + ', ' : '';
+
+          // const address = street + name + response.features[0]?.properties?.region;
+
+          // const distance = response.features[0]?.properties?.distance;
+
+          // console.log(response.features)
+          // this.address = address;
+          // this.distance = distance;
+
 
         },
         error: (error: any) => {
           // Manejar errores al obtener el estado del socket
-          console.error('Error en la solicitud a ORS:', error);
-         this.address = 'Error de conexión.';
-         this.distance = '0';
+          // console.error('Error en la solicitud a ORS:', error);
+          this.address = 'Error de conexión.';
+          this.distance = '0';
 
         },
         complete: () => {
           // Realizar acciones adicionales cuando el observable se completa, si es necesario
         },
       }
-    ); 
+    );
 
   }
   // --------------------------------------------
@@ -523,20 +554,23 @@ export class MapPageComponent {
             user.currentPosition.lat,
           ];
 
+
           this.markers = this.markers.filter(marker => {
             return this.connected_DriverUsers.some(user => user.user.id === marker.get('client').id);
           });
 
+          this.initMarker([this.lon, this.lat], this.client);
+
           let client: I_UserMap = { id: user.user.id, user_name: user.user.user_name, markerColor: 'warning' };
 
-          if (this.client.id == client.id) {
-            this.initMarker([this.lon, this.lat], this.client);
-          }
-          else {
+          // if (this.client.id == client.id) {
 
-            this.initMarker(coord, client);
+          // }
+          // else {
 
-          }
+          this.initMarker(coord, client);
+
+          // }
 
         }
       });
@@ -563,15 +597,20 @@ export class MapPageComponent {
     if (!this.footerDisplayed) {
       this.clearMarker('destination');
       this.address = 'Buscando...';
-      this.distance = '0';
+      // this.distance = '0';
     }
     this.methodToShowFooter = 'map';
 
-    
+
   }
   showFooterOnButton() {
     this.footerDisplayed = !this.footerDisplayed;
-    if (this.footerDisplayed)
+    this.address = 'Seleccione un lugar..';
+    if (!this.footerDisplayed) {
+      this.clearMarker('destination');
+      this.address = '';
+      // this.distance = '0';
+    } 
       this.methodToShowFooter = 'button';
 
   }

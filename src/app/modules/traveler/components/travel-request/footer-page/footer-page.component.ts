@@ -1,7 +1,9 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 // --components
-import { PUsersonlineComponent } from '../p-usersonline/p-usersonline.component';
+import { PUsersonlineComponent } from '../../shared/p-usersonline/p-usersonline.component';
+import { PMapComponent } from '../p-map/p-map.component';
+import { PSearchComponent } from '../p-search/p-search.component';
 // --components
 // -- Interfaces
 import { I_ConnectedUser } from '../../../../../interface/user.interface';
@@ -9,13 +11,12 @@ import { I_ConnectedUser } from '../../../../../interface/user.interface';
 // -- services
 import { GeolocService } from '../../../../../services/geolocation/geoloc.service';
 import { DataService } from '../../../../../services/data/data.service';
-import { PMapComponent } from '../p-map/p-map.component';
 // -- services
 
 @Component({
   selector: 'app-footer-page',
   standalone: true,
-  imports: [PUsersonlineComponent, PMapComponent],
+  imports: [PUsersonlineComponent, PMapComponent, PSearchComponent],
   templateUrl: './footer-page.component.html',
   styleUrl: './footer-page.component.scss'
 })
@@ -23,7 +24,7 @@ export class FooterPageComponent implements OnInit, OnChanges {
  
   @Input() connected_users: I_ConnectedUser[] = [];   
   @Input() methodToShowFooter: string = ''; 
-  @Input() address: string = 'Buscando...';  
+  @Input() address: string = '';  
   @Input() distance: string = '0';  
   
   connected_TravelerUsers: I_ConnectedUser[] = [];

@@ -60,8 +60,9 @@ export class OpenRouteService {
 
     // return this.http.get(apiUrl, { headers, params });
 
-
-    return this.http.get(apiUrl);
+    console.log('coord lat', coord[1], coord[0])
+    return this.http.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coord[1]}&lon=${coord[0]}`);
+    // return this.http.get(apiUrl);
 
   }
 }

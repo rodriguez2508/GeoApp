@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 
 // -- Components
-import { MapPageComponent } from '../shared/map-page/map-page.component';
-import { FooterPageComponent } from '../shared/footer-page/footer-page.component'; 
+import { MapPageComponent } from './map-page/map-page.component';
+import { FooterPageComponent } from './footer-page/footer-page.component'; 
 // -- Components
 // -- Interfaces
 import { I_ConnectedUser, I_UserSessionStorage } from '../../../../interface/user.interface';
@@ -17,14 +17,14 @@ import { StorageService } from '../../../../services/storage/storage.service';
 @Component({
   selector: 'app-travel-request',
   standalone: true,
-  imports: [FooterPageComponent, MapPageComponent],
+  imports: [FooterPageComponent, MapPageComponent, ],
   templateUrl: './travel-request.component.html',
   styleUrl: './travel-request.component.scss'
 })
 export class TravelRequestComponent {
 
 
-  title_page = "Bienvenido";
+  title_page = "Crear Oferta de Viaje";
   lat: number = 23.0415;
   lon: number = -81.5775;
   zoom: number = 14;
@@ -94,7 +94,7 @@ export class TravelRequestComponent {
       this.location_status = value;
     });
     this.geolocService.get_maxcountStatus().subscribe((value) => {
-
+      console.log(this.max_count);
       this.max_count = value;
     });
     this.geolocService.startWatchingPosition((position: GeolocationPosition) => {

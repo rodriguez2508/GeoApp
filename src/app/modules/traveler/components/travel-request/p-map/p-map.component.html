@@ -1,0 +1,37 @@
+<div class="w3-row w3-col w3-container bg-dark "> 
+  <h4 class="w3-col l10 m10 s10 text-warning ">{{address}}</h4>
+  <i class="w3-col l2 m2 s2 fa fa-2x fa-location-dot mt-3 text-center text-warning"></i>
+  <!-- <p class=" w3-col">{{distance}}</p> -->
+
+
+</div>
+
+
+
+<div
+  [classList]="
+    'w3-row w3-col panel bg-dark h-auto border-top border-warning'
+  "
+>
+  <div class=" w3-row w3-col ">
+    
+    <div class="w3-row w3-col _center-h">
+      <button
+        type="button"
+        class="w3-col m6 s6 btn btn-lg text-secondary rounded-0 p-0 w3-left"
+      >
+        <label class="w3-col w3-section m-0 p-0 w3-large">Guardar Destino</label>
+        <i class="fa fa-flag fa-2x"></i>
+      </button>
+
+      <button
+        type="button"
+        class="w3-col m6 s6 btn btn-sm text-warning p-0 w3-right"
+      >
+        <label class="w3-col w3-section m-0 p-0 w3-large">Nuevo Viaje</label>
+        <i class="fa fa-route fa-2x"></i>
+      </button>
+
+    </div>
+  </div>
+</div>
