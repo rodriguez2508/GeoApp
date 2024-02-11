@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
 // --components
 import { PUsersonlineComponent } from '../../shared/p-usersonline/p-usersonline.component';
@@ -35,7 +35,8 @@ export class FooterPageComponent implements OnInit, OnChanges {
 
   userLoginOn: boolean = false;
 
-  panelDisplayed = false;
+  // @Output panelDisplayed = false;
+  @Output() panelDisplayed = new EventEmitter<boolean>(false);
 
 
   // private connectedUsers: { [id: string]: any } = {};  
@@ -79,11 +80,14 @@ export class FooterPageComponent implements OnInit, OnChanges {
   getAndUpdateConnectedDriverUsers(): void {
     this.connected_DriverUsers = this.getConnectedUsersByType('driver');
   }
-  showPanel(): void {
+  // showPanel(): void {
 
-    this.panelDisplayed = !this.panelDisplayed;
-    this.methodToShowFooter = this.panelDisplayed ? 'button' : 'map'; 
+  //   this.panelDisplayed = !this.panelDisplayed;
+  //   this.methodToShowFooter = this.panelDisplayed ? 'button' : 'map'; 
        
+  // }
+  hideFooter(event:boolean){
+    this.panelDisplayed.emit(event);
   }
 
 }

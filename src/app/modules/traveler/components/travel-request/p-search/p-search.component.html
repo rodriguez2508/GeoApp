@@ -1,57 +1,7 @@
-<!-- <div class="w3-row w3-col bg-dark">
-   
-  <div class="w3-col">
-    <i class="w3-col l1 m1 s1 fa fa-dot-circle fa-2x text-success p-2"></i>
-    <div class="w3-col l10 m10 s10 w3-right container">
-      <p class="w3-col w3-xsmall text-secondary">Desde</p>
-      <h6 class="w3-col w3-xsmall text-light">27.12.1.1</h6>
-    </div>
-  </div> 
-  <div class="w3-col border-top border-secondary">
-    <i class="w3-col l1 m1 s1 fa fa-flag fa-2x text-warning opacity-25 p-2"></i>
-    <div class="w3-col l10 m10 s10 w3-right container">
-      <p class="w3-col w3-xsmall text-secondary">Hasta</p>
-      <h6 class="w3-col w3-xsmall text-light">27.12.1.1</h6>
-    </div>
-  </div> -->
-<!--  -->
 
-<!-- <div class="w3-col border-top border-bottom border-secondary pt-1">
-    <div class="custom-control custom-radio mb-0  w3-col m6 s6 _center-h">
-      <input
-        type="radio"
-        name="vehicleType"
-        value="car"
-        id="car"
-        class="custom-control-input"
-        required
-      />
-      <span class="custom-control-indicator"></span>
-      <label for="car" class="custom-control-description btn w-100">
-        <i class="fa fa-car fa-2x"></i>
-      </label>
-    </div>
+<div (click)="hideFooter()" class=" w3-animate-opacity w3-row w3-col position-relative set-height-100 " style="background-color: #212223b0;"></div>
 
-    <div class="custom-control custom-radio ml-2 w3-col m6 s6 _center-h">
-      <input
-        type="radio"
-        name="vehicleType"
-        value="motorcycle"
-        id="motorcycle"
-        class="custom-control-input"
-        checked
-      />
-      <span class="custom-control-indicator"></span>
-      <label for="motorcycle" class="custom-control-description btn w-100">
-        <i class="fa fa-motorcycle fa-2x"></i>
-      </label>
-    </div>
-  </div> -->
-
-<!--  -->
-<!-- </div> -->
-
-<div class="w3-row w3-col w3-container w3-section bg-dark">
+<div class="w3-row w3-col w3-container pb-3 bg-dark">
   <h4 class="w3-col l10 m10 s10 text-secondary">{{ address }}</h4>
   <i
     class="w3-col l2 m2 s2 fa fa-2x fa-location-dot mt-3 text-center text-warning"
@@ -100,22 +50,25 @@
 >
   <div class="w3-row w3-col">
     <div class="w3-row w3-col _center-h">
+      
+
       <button
         type="button"
-        class="w3-col m6 s6 btn btn-lg text-secondary rounded-0 p-0 w3-left"
+        class="w3-col m6 s6 btn btn-sm text-success p-0 w3-right"
       >
-        <label class="w3-col w3-section m-0 p-0 w3-large"
-          >Buscar</label
-        >
-        <i class="fa fa-search fa-2x"></i>
+        <label class="w3-col w3-section m-0 p-0 w3-large">Seleccionar</label>
+        <i class="fa fa-check-circle fa-2x"></i>
       </button>
 
       <button
         type="button"
-        class="w3-col m6 s6 btn btn-sm text-warning p-0 w3-right"
+        class="w3-col m6 s6 btn btn-lg text-secondary rounded-0 p-0 w3-left"
+        (click)="hideFooter()"
       >
-        <label class="w3-col w3-section m-0 p-0 w3-large">Nuevo Viaje</label>
-        <i class="fa fa-route fa-2x"></i>
+        <label class="w3-col w3-section m-0 p-0 w3-large"
+          >Cancelar</label
+        >
+        <i class="fa fa-cancel fa-2x"></i>
       </button>
     </div>
   </div>

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
 // --interfaces
 import { I_ConnectedUser } from '../../../../../interface/user.interface';
@@ -15,6 +15,7 @@ export class PSearchComponent implements OnChanges, AfterViewInit {
   
   @Input() address: string = '';  
   @Input() distance: string = '0';  
+  @Output() footerDisplayed = new EventEmitter<boolean>(false);
 
   constructor(){
 
@@ -29,6 +30,10 @@ export class PSearchComponent implements OnChanges, AfterViewInit {
    
   onSubmit(){
 
+  }
+
+  hideFooter(){
+    this.footerDisplayed.emit(false);
   }
  
 }

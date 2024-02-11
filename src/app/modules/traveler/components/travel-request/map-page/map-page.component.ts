@@ -85,7 +85,7 @@ export class MapPageComponent {
  
   // --
   coord: Coordinate = [this.lon, this.lat];
-  coord_destination: Coordinate = []; 
+  coord_destination: Coordinate = [0, 0]; 
 
   // ------------------
   // -- Marcadores
@@ -109,6 +109,8 @@ export class MapPageComponent {
   };
   @Input() connected_users: I_ConnectedUser[] = [];
   client: I_UserMap;
+
+
   // Agregar el control ZoomToExtent al mapa
   center = transform(this.coord, 'EPSG:4326', 'EPSG:3857');
   extent = [
@@ -615,17 +617,7 @@ export class MapPageComponent {
       this.coord_destination = [0, 0];
     }
     this.methodToShowFooter = 'map';
-  }
-  showFooterOnButton() {
-    this.footerDisplayed = !this.footerDisplayed;
-    this.address = 'Definir destino';
-    if (!this.footerDisplayed) {
-      this.clearMarker('destination');
-      this.address = '';
-      // this.distance = '0';
-    }
-    this.methodToShowFooter = 'button';
-  }
+  } 
 
   getConnectedUsersByType(userType: string): I_ConnectedUser[] {
     return this.connected_users.filter(

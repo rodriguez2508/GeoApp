@@ -26,7 +26,7 @@
             name="placeOrigin"
             id="placeOrigin"
             placeholder="Lugar de origen "
-            type="text" 
+            type="text"
             [class.is-invalid]="f.placeOrigin.invalid && f.placeOrigin.touched"
           />
           <label
@@ -41,9 +41,12 @@
           <div [classList]="'text-danger'">Origen is required.</div>
           } @if(f.placeOrigin.errors?.['minlength']){ } }
 
-          <h4 [class]="address_coord == '' ? 'text-secondary ' : '' + ' w3-col '">
+          <h4
+            (click)="goToMap()"
+            [class]="address_coord == '' ? 'text-secondary ' : '' + ' w3-col '"
+          >
             {{ address_coord !== "" ? address_coord : "Definir su ubicación" }}
-            <i (click)="goToMap()" class="fa fa-map-location w3-right"></i>
+            <i class="fa fa-map-location w3-right"></i>
           </h4>
         </div>
 
@@ -51,17 +54,16 @@
         <!-- Lugar destino del viajero -->
         <!-- -------------- -->
         <div class="w3-row w3-col form-control">
-          <input 
+          <input
             formControlName="placeDestination"
             type="text"
-            
             class="form-control"
             name="placeDestination"
             id="placeDestination"
             placeholder="Lugar de destino "
             type="text"
             hidden
-            [value]="coord_destination[0]+','+coord_destination[1]"
+            [value]="coord_destination[0] + ',' + coord_destination[1]"
             [class.is-invalid]="
               f.placeDestination.invalid && f.placeDestination.touched
             "
@@ -75,9 +77,9 @@
 
           @if(f.placeDestination.invalid && (f.placeDestination.dirty ||
           f.placeDestination.touched) ){
-            @if(f.placeDestination.errors?.['coordInvalid'] ){
-              <div [classList]="'text-danger'">Destino is required.</div>
-              } @if(f.placeDestination.errors?.['required'] ){
+          @if(f.placeDestination.errors?.['coordInvalid'] ){
+          <div [classList]="'text-danger'">Destino is required.</div>
+          } @if(f.placeDestination.errors?.['required'] ){
           <div [classList]="'text-danger'">Destino is required.</div>
           } @if(f.placeDestination.errors?.['minlength']){
 
@@ -87,14 +89,21 @@
           </div>
           } }
 
-          <h4 [class]="address_coord_destination == '' ? 'text-secondary ' : '' + ' w3-col '">
+          <h4
+            (click)="showFooterOnButton()"
+            [class]="
+              address_coord_destination == ''
+                ? 'text-secondary '
+                : '' + ' w3-col '
+            "
+          >
             {{
               address_coord_destination !== ""
                 ? address_coord_destination
                 : "Definir destino"
             }}
             @if(address_coord_destination == ''){
-            <i class="fa fa-plus w3-right"></i>}
+            <i class="fa fa-pen-alt w3-right text-dark"></i>}
           </h4>
         </div>
 
@@ -106,7 +115,6 @@
           <p class="border-top border-secondary">Tipo de Conductor (*)</p>
 
           <div class="w3-row w3-col d-flex overflow-x-auto">
-
             <!-- Tipo Moto -->
             <div
               class="custom-control custom-radio ml-2 w3-col m6 s6 _center-h"
@@ -117,7 +125,8 @@
                 name="vehicleType"
                 value="motorcycle"
                 id="motorcycle"
-                class="custom-control-input" [checked]="checkAllvehicleType"
+                class="custom-control-input"
+                [checked]="checkAllvehicleType"
               />
               <span class="custom-control-indicator"></span>
               <label
@@ -139,14 +148,15 @@
                 name="vehicleType"
                 value="car"
                 id="car"
-                class="custom-control-input" [checked]="checkAllvehicleType"
+                class="custom-control-input"
+                [checked]="checkAllvehicleType"
               />
               <span class="custom-control-indicator"></span>
               <label for="car" class="custom-control-description btn w-100">
                 <i class="fa fa-car fa-2"></i>
               </label>
             </div>
-  
+
             <!-- Tipo Camion -->
             <div
               class="custom-control custom-radio ml-2 w3-col m6 s6 _center-h"
@@ -157,7 +167,8 @@
                 name="vehicleType"
                 value="truck"
                 id="truck"
-                class="custom-control-input" [checked]="checkAllvehicleType"
+                class="custom-control-input"
+                [checked]="checkAllvehicleType"
               />
               <span class="custom-control-indicator"></span>
               <label for="truck" class="custom-control-description btn w-100">
@@ -175,7 +186,8 @@
                 name="vehicleType"
                 value="van"
                 id="van"
-                class="custom-control-input"[checked]="checkAllvehicleType"
+                class="custom-control-input"
+                [checked]="checkAllvehicleType"
               />
               <span class="custom-control-indicator"></span>
               <label for="van" class="custom-control-description btn w-100">
@@ -187,12 +199,11 @@
             <div
               class="custom-control custom-radio ml-2 w3-col m6 s6 _center-h"
             >
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 class="custom-control-input"
                 id="other"
                 (change)="checkedAllvehicleType()"
-                
               />
               <!-- <span class="custom-control-indicator"></span> -->
               <label
@@ -209,7 +220,9 @@
         <!-- cantidad de acompañantes -->
         <!-- -------------- -->
         <div class="w3-col pt-1">
-          <p class="border-top border-secondary">Cantidad de acompañantes (*)</p>
+          <p class="border-top border-secondary">
+            Cantidad de acompañantes (*)
+          </p>
 
           <div class="w3-row w3-col d-flex overflow-x-auto">
             <!-- Tipo 1 personas-->
@@ -302,7 +315,10 @@
                 required
               />
               <span class="custom-control-indicator"></span>
-              <label for="p-n" class="custom-control-description btn btn-sm w-100">
+              <label
+                for="p-n"
+                class="custom-control-description btn btn-sm w-100"
+              >
                 otra cantidad
               </label>
             </div>
@@ -318,7 +334,6 @@
           <p class="border-top border-secondary">Tiempo máximo de espera (*)</p>
 
           <div class="w3-row w3-col d-flex overflow-x-auto">
-
             <!-- Tipo 15 minutos -->
             <div
               class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
@@ -421,4 +436,16 @@
       </div>
     </form>
   </div>
+
+  @if(footerDisplayed){
+
+  <app-footer-page  
+    (panelDisplayed)="showFooterOnButton()"
+    [methodToShowFooter]="methodToShowFooter"
+    [address]="address"
+    [coord]="coord"
+    [coord_destination]="coord_destination"
+  ></app-footer-page>
+
+  }
 </section>

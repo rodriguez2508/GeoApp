@@ -16,11 +16,14 @@ import { Coordinate } from 'ol/coordinate';
 import { DataService } from '../../../../../services/data/data.service';
 import { OpenRouteService } from '../../../../../services/map/open-route.service';
 // -- services
+// -- components
+import { FooterPageComponent } from '../footer-page/footer-page.component';
+// -- components
 
 @Component({
   selector: 'app-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule,FooterPageComponent],
   templateUrl: './form-page.component.html',
   styleUrl: './form-page.component.scss',
 })
@@ -47,6 +50,11 @@ export class FormPageComponent implements OnInit,AfterViewInit{
   isSignUpFailed = false;
   errorMessage = '';
   checkAllvehicleType:boolean = false;
+
+
+  footerDisplayed = false;
+  methodToShowFooter: string = '';
+  address: string = '';
   // ----------------------------------
   // -- Variables
   // ----------------------------------
@@ -60,8 +68,11 @@ export class FormPageComponent implements OnInit,AfterViewInit{
   ) {
     this.route.queryParams.subscribe((params) => {
 
-      this.coord = params['lon'] && params['lat'] ? [params['lon'], params['lat']] : [];
-      this.coord_destination = params['lon_d'] && params['lat_d'] ? [params['lon_d'], params['lat_d']] : [];
+      // --coord origen
+      // this.coord = params['lon'] && params['lat'] ? [params['lon'], params['lat']] : [];
+      this.coord = params['lon'] && params['lon'] !== 0  && params['lon']!== undefined &&  params['lat'] && params['lat'] !== 0  && params['lat']!== undefined ? [params['lon'], params['lat']] : [];
+      // --coord destino
+      this.coord_destination = params['lon_d'] && params['lon_d'] !== 0  && params['lon_d']!== undefined &&  params['lat_d'] && params['lat_d'] !== 0  && params['lat_d']!== undefined ? [params['lon_d'], params['lat_d']] : [];
 
     });
 
@@ -70,9 +81,9 @@ export class FormPageComponent implements OnInit,AfterViewInit{
 
   ngOnInit(): void {
  
-    if(this.coord && this.coord[0] != 0 && this.coord[1] != 0 ) this.getAddress(this.coord, 'origin');
+    if(this.coord && this.coord[0] != 0 && this.coord[1] != 0 && this.coord[0] !== undefined && this.coord[1] != undefined ) this.getAddress(this.coord, 'origin');
     
-    if(this.coord_destination && this.coord_destination[0] != 0 && this.coord_destination[1] != 0 ) this.getAddress(this.coord_destination, 'destination'); 
+    if(this.coord_destination && this.coord_destination[0] != 0 && this.coord_destination[1] != 0 && this.coord_destination[0] !== undefined && this.coord_destination[1] != undefined ) this.getAddress(this.coord_destination, 'destination'); 
 
   }
 
@@ -122,7 +133,9 @@ export class FormPageComponent implements OnInit,AfterViewInit{
   
 
   goToMap(): void {
-    this.router.navigate(['/traveler/travel-request?view=map'] );
+    window.location.assign(
+      '/traveler/travel-request?view=map');
+
   }
 
   private getAddress(coord: Coordinate, addresType:string) {
@@ -166,6 +179,16 @@ export class FormPageComponent implements OnInit,AfterViewInit{
     });
   }
 
+  showFooterOnButton() {
+    this.footerDisplayed = !this.footerDisplayed;
+    this.address = 'Definir destino';
+    if (!this.footerDisplayed) {
+      this.address = '';
+      // this.distance = '0'; 
+    }
+    this.methodToShowFooter = 'button';
+  }
+  
   checkedAllvehicleType(){
     this.checkAllvehicleType = !this.checkAllvehicleType;
   }
