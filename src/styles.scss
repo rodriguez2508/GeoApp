@@ -111,18 +111,53 @@ body {
   margin: auto;
 }
 
-/* scroll fondo */
-::-webkit-scrollbar {
-  background-color: black;
-  border-right: black 1px solid;
-  border-left: black 1px solid;
+// ---------------------------------
+// ---------------------------------
+// /* scroll fondo */
+// ---------------------------------
+// ---------------------------------
+
+// ::-webkit-scrollbar {
+  
+
+// }
+
+
+// /* scroll barra */
+::-webkit-scrollbar-thumb {
+  border-radius: 6px; /* Redondeado de los bordes */
+  background-color: rgb(163, 160, 160);
+}
+  
+/* Estilo para el track (superficie) del scrollbar */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1); /* Sombra interior */
+  border-radius: 6px; /* Redondeado de los bordes */
+}
+
+/* Estilos adicionales para el thumb (parte móvil) del scrollbar */
+::-webkit-scrollbar-thumb:horizontal {
+  background-clip: padding-box;
+  height: 5px;
+}
+
+::-webkit-scrollbar-thumb:vertical {
+  background-clip: padding-box;
   width: 5px;
 }
 
-/* scroll barra */
-::-webkit-scrollbar-thumb {
-  background-color: rgb(163, 160, 160);
+/* Hacer que el scrollbar sea más fino */
+::-webkit-scrollbar-corner,
+::-webkit-resizer {
+  background-color: transparent;
 }
+
+
+// ---------------------------------
+// ---------------------------------
+// /* scroll fondo */
+// ---------------------------------
+// ---------------------------------
 
 ._divider-white {
   border: aliceblue 2px solid;

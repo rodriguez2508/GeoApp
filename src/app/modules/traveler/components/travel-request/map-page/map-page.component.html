@@ -7,39 +7,40 @@
     <!-- ... -->
     <button
       id="btn_centerPosition"
-      [class]="'btn position-absolute bg-light border border-secondary'"
+      [class]="'btn position-absolute bg-dark w3-round-xxlarge text-white border border-secondary'"
       type="button"
       (click)="centerMap()"
     >
-      <i [class]="'fa fa-location-crosshairs w3-xlarge'"></i>
+      <i [class]="'fa fa-location-crosshairs w3-xlarge p-1'"></i>
     </button>
     <!-- ... -->
 
     <!-- ... -->
     <button
-      id="btn_navigation"
-      (click)="showFooterOnButton()"
+      id="btn_navigation" 
+      (click)="reloadWithParams()"
       type="button"
-      class="btn btn-md position-absolute bg-warning bg-opacity-50 w3-round-xxlarge text-dark border border-secondary"
+      class="btn btn-md position-absolute bg-dark text-warning border border-warning"
     >
-      <!-- <label class="w3-col m-0 p-0 w3-small">Navegar</label> -->
-      <i class="fa fa-route w3-xlarge"></i>
+       
+        <i class="fa fa-route w3-xlarge"></i>
+       
     </button>
 
     <!-- ... -->
 
     @if(socket_status){
     <button
-      class="btn btn-md position-absolute bg-warning bg-opacity-50 w3-round-xxlarge text-dark border border-secondary"
+      class="  btn btn-md position-absolute bg-dark text-white border border-secondary"
       id="btn_show_drivers"
     >
       <i class="fa fa-car-on w3-xlarge"></i>
       @switch (connected_DriverUsers.length) { @case (0) {
-      <span class="badge text-dark border border-danger">{{
+      <span class="w3-badge position- text-white fw-bold border border-danger bg-transparent" style="bottom:27px!important;">{{
         connected_DriverUsers.length
       }}</span>
       } @default {
-      <span class="badge bg-danger">{{ connected_DriverUsers.length }}</span>
+      <span class="w3-badge position-absolute text-dark fw-bold border border-danger bg-danger" style="bottom:27px!important;">{{ connected_DriverUsers.length }}</span>
       } }
     </button>
 
@@ -67,6 +68,8 @@
     [methodToShowFooter]="methodToShowFooter"
     [address]="address"
     [distance]="distance"
+    [coord]="coord"
+    [coord_destination]="coord_destination"
   ></app-footer-page>
 
   }

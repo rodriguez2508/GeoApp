@@ -36,6 +36,7 @@ export class GeolocService {
           this.max_count.next(this.count);
           console.log('max_count', this.count)
           if (this.count >= 5) {
+            this.count = 1;
             this.max_count.next(-1);
             this.stopWatchingPosition();
           }

@@ -1,1 +1,424 @@
-<p>form-page works!</p>
+<section class="w3-row w3-col w3-container">
+  <div class="w3-row w3-col _center-h-sb">
+    <h3>{{ title_page }}</h3>
+  </div>
+
+  <div class="w3-row w3-col d-flex _center-h-sb">
+    <!-- Inputs y Forms -->
+    <form
+      class="w3-row w3-col l8 m8 set-height-s-80 d-flex align-content-between p-3 border border-warning rounded-2"
+      [formGroup]="form_request"
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="w3-row w3-col m-auto">
+        <div class="w3-col">
+          <h3>Ruta</h3>
+        </div>
+        <!-- -------------- -->
+        <!-- Lugar origen del viajero -->
+        <!-- -------------- -->
+        <div class="w3-row w3-col form-control">
+          <input
+            formControlName="placeOrigin"
+            hidden
+            type="text"
+            class="form-control"
+            name="placeOrigin"
+            id="placeOrigin"
+            placeholder="Lugar de origen "
+            type="text" 
+            [class.is-invalid]="f.placeOrigin.invalid && f.placeOrigin.touched"
+          />
+          <label
+            class="w3-col"
+            for="placeOrigin"
+            title="Ruta de origen del viaje "
+            >Desde</label
+          >
+
+          @if(f.placeOrigin.invalid && (f.placeOrigin.dirty ||
+          f.placeOrigin.touched) ){ @if(f.placeOrigin.errors?.['required'] ){
+          <div [classList]="'text-danger'">Origen is required.</div>
+          } @if(f.placeOrigin.errors?.['minlength']){ } }
+
+          <h4 [class]="address_coord == '' ? 'text-secondary ' : '' + ' w3-col '">
+            {{ address_coord !== "" ? address_coord : "Definir su ubicación" }}
+            <i (click)="goToMap()" class="fa fa-map-location w3-right"></i>
+          </h4>
+        </div>
+
+        <!-- -------------- -->
+        <!-- Lugar destino del viajero -->
+        <!-- -------------- -->
+        <div class="w3-row w3-col form-control">
+          <input 
+            formControlName="placeDestination"
+            type="text"
+            
+            class="form-control"
+            name="placeDestination"
+            id="placeDestination"
+            placeholder="Lugar de destino "
+            type="text"
+            hidden
+            [value]="coord_destination[0]+','+coord_destination[1]"
+            [class.is-invalid]="
+              f.placeDestination.invalid && f.placeDestination.touched
+            "
+          />
+          <label
+            class="w3-col"
+            for="placeDestination"
+            title="Ruta de destino del viaje "
+            >Hasta</label
+          >
+
+          @if(f.placeDestination.invalid && (f.placeDestination.dirty ||
+          f.placeDestination.touched) ){
+            @if(f.placeDestination.errors?.['coordInvalid'] ){
+              <div [classList]="'text-danger'">Destino is required.</div>
+              } @if(f.placeDestination.errors?.['required'] ){
+          <div [classList]="'text-danger'">Destino is required.</div>
+          } @if(f.placeDestination.errors?.['minlength']){
+
+          <div [classList]="'text-danger'">
+            Destino min-required length: 3 | actual lenght:
+            {{ f.placeDestination.value.length }}
+          </div>
+          } }
+
+          <h4 [class]="address_coord_destination == '' ? 'text-secondary ' : '' + ' w3-col '">
+            {{
+              address_coord_destination !== ""
+                ? address_coord_destination
+                : "Definir destino"
+            }}
+            @if(address_coord_destination == ''){
+            <i class="fa fa-plus w3-right"></i>}
+          </h4>
+        </div>
+
+        <!-- -------------- -->
+        <!-- Indicador de Tipo de Vehiculo -->
+        <!-- -------------- -->
+
+        <div class="w3-col border-bottom border-secondary pt-1">
+          <p class="border-top border-secondary">Tipo de Conductor (*)</p>
+
+          <div class="w3-row w3-col d-flex overflow-x-auto">
+
+            <!-- Tipo Moto -->
+            <div
+              class="custom-control custom-radio ml-2 w3-col m6 s6 _center-h"
+            >
+              <input
+                formControlName="vehicleType"
+                type="checkbox"
+                name="vehicleType"
+                value="motorcycle"
+                id="motorcycle"
+                class="custom-control-input" [checked]="checkAllvehicleType"
+              />
+              <span class="custom-control-indicator"></span>
+              <label
+                for="motorcycle"
+                class="custom-control-description btn w-100"
+              >
+                <i class="fa fa-motorcycle fa-2"></i>
+              </label>
+            </div>
+
+            <!-- Tipo Car -->
+
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                formControlName="vehicleType"
+                type="checkbox"
+                name="vehicleType"
+                value="car"
+                id="car"
+                class="custom-control-input" [checked]="checkAllvehicleType"
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="car" class="custom-control-description btn w-100">
+                <i class="fa fa-car fa-2"></i>
+              </label>
+            </div>
+  
+            <!-- Tipo Camion -->
+            <div
+              class="custom-control custom-radio ml-2 w3-col m6 s6 _center-h"
+            >
+              <input
+                formControlName="vehicleType"
+                type="checkbox"
+                name="vehicleType"
+                value="truck"
+                id="truck"
+                class="custom-control-input" [checked]="checkAllvehicleType"
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="truck" class="custom-control-description btn w-100">
+                <i class="fa fa-truck fa-2"></i>
+              </label>
+            </div>
+
+            <!-- Tipo Van -->
+            <div
+              class="custom-control custom-radio ml-2 w3-col m6 s6 _center-h"
+            >
+              <input
+                formControlName="vehicleType"
+                type="checkbox"
+                name="vehicleType"
+                value="van"
+                id="van"
+                class="custom-control-input"[checked]="checkAllvehicleType"
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="van" class="custom-control-description btn w-100">
+                <i class="fa fa-van-shuttle fa-2"></i>
+              </label>
+            </div>
+
+            <!-- Tipo Otro -->
+            <div
+              class="custom-control custom-radio ml-2 w3-col m6 s6 _center-h"
+            >
+              <input 
+                type="checkbox" 
+                class="custom-control-input"
+                id="other"
+                (change)="checkedAllvehicleType()"
+                
+              />
+              <!-- <span class="custom-control-indicator"></span> -->
+              <label
+                for="other"
+                class="custom-control-description btn w-100 text-uppercase"
+              >
+                Todos
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- -------------- -->
+        <!-- cantidad de acompañantes -->
+        <!-- -------------- -->
+        <div class="w3-col pt-1">
+          <p class="border-top border-secondary">Cantidad de acompañantes (*)</p>
+
+          <div class="w3-row w3-col d-flex overflow-x-auto">
+            <!-- Tipo 1 personas-->
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                formControlName="personNumber"
+                type="radio"
+                name="personNumber"
+                value="1"
+                id="p-1"
+                class="custom-control-input"
+                required
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="p-1" class="custom-control-description btn w-100">
+                1
+              </label>
+            </div>
+
+            <!-- Tipo 2 personas-->
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                formControlName="personNumber"
+                type="radio"
+                name="personNumber"
+                value="2"
+                id="p-2"
+                class="custom-control-input"
+                required
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="p-2" class="custom-control-description btn w-100">
+                2
+              </label>
+            </div>
+
+            <!-- Tipo 4 personas -->
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                formControlName="personNumber"
+                type="radio"
+                name="personNumber"
+                value="3"
+                id="p-3"
+                class="custom-control-input"
+                required
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="p-3" class="custom-control-description btn w-100">
+                3
+              </label>
+            </div>
+
+            <!-- Tipo 4 personas -->
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                formControlName="personNumber"
+                type="radio"
+                name="personNumber"
+                value="4"
+                id="p-4"
+                class="custom-control-input"
+                required
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="p-4" class="custom-control-description btn w-100">
+                4
+              </label>
+            </div>
+
+            <!-- Tipo otra cant personas -->
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                formControlName="personNumber"
+                type="radio"
+                name="personNumber"
+                value="n"
+                id="p-n"
+                class="custom-control-input"
+                required
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="p-n" class="custom-control-description btn btn-sm w-100">
+                otra cantidad
+              </label>
+            </div>
+
+            <!--  -->
+          </div>
+        </div>
+
+        <!-- -------------- -->
+        <!-- Tiempo Máximo de Espera del viajero -->
+        <!-- -------------- -->
+        <div class="w3-col border-bottom border-secondary pt-1">
+          <p class="border-top border-secondary">Tiempo máximo de espera (*)</p>
+
+          <div class="w3-row w3-col d-flex overflow-x-auto">
+
+            <!-- Tipo 15 minutos -->
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                formControlName="maxTimeWaiting"
+                type="radio"
+                name="maxTimeWaiting"
+                value="15"
+                id="h-15"
+                class="custom-control-input"
+                required
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="h-15" class="custom-control-description btn w-100">
+                15 minutos
+              </label>
+            </div>
+
+            <!-- Tipo 30 minutos -->
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                formControlName="maxTimeWaiting"
+                type="radio"
+                name="maxTimeWaiting"
+                value="30"
+                id="h-30"
+                class="custom-control-input"
+                required
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="h-30" class="custom-control-description btn w-100">
+                30 minutos
+              </label>
+            </div>
+
+            <!-- Tipo 1 hora -->
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                formControlName="maxTimeWaiting"
+                type="radio"
+                name="maxTimeWaiting"
+                value="60"
+                id="h-60"
+                class="custom-control-input"
+                required
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="h-60" class="custom-control-description btn w-100">
+                1 hora
+              </label>
+            </div>
+
+            <!--  -->
+          </div>
+        </div>
+
+        <!-- -------------- -->
+        <!-- preferencias del viajero -->
+        <!-- -------------- -->
+        <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
+          <textarea
+            formControlName="travelPeferences"
+            rows="5"
+            class="form-control h-auto w-100"
+            name="travelPeferences"
+            id="travelPeferences"
+            placeholder="Preferencias del viajero "
+            [class.is-invalid]="
+              f.travelPeferences.invalid && f.travelPeferences.touched
+            "
+          ></textarea>
+          <label for="travelPeferences">Descripción del viaje</label>
+
+          @if(f.travelPeferences.invalid && (f.travelPeferences.dirty ||
+          f.travelPeferences.touched) ){
+          @if(f.travelPeferences.errors?.['required'] ){
+          <div [classList]="'text-danger'">Preferencias is required.</div>
+          } @if(f.travelPeferences.errors?.['minlength']){
+
+          <div [classList]="'text-danger'">
+            Preferencias min-required length: 3 | actual lenght:
+            {{ f.travelPeferences.value.length }}
+          </div>
+          } }
+        </div>
+
+        <!-- -------------- -->
+        <!-- Botones -->
+        <!-- -------------- -->
+        <div class="w3-row w3-col w3-section">
+          <button class="w3-col l4 m4 btn btn-warning float-end" type="submit">
+            Enviar Oferta
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>

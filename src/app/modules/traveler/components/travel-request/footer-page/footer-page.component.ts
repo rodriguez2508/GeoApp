@@ -11,6 +11,7 @@ import { I_ConnectedUser } from '../../../../../interface/user.interface';
 // -- services
 import { GeolocService } from '../../../../../services/geolocation/geoloc.service';
 import { DataService } from '../../../../../services/data/data.service';
+import { Coordinate } from 'ol/coordinate';
 // -- services
 
 @Component({
@@ -26,7 +27,8 @@ export class FooterPageComponent implements OnInit, OnChanges {
   @Input() methodToShowFooter: string = ''; 
   @Input() address: string = '';  
   @Input() distance: string = '0';  
-  
+  @Input() coord: Coordinate = [];
+  @Input() coord_destination: Coordinate = []; 
   connected_TravelerUsers: I_ConnectedUser[] = [];
   connected_DriverUsers: I_ConnectedUser[] = []; 
   

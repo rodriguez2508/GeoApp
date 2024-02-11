@@ -35,7 +35,7 @@
 
         <button
           [class]="
-            'navbar-toggler w3-right btn btn-md bg-warning text-dark border border-secondary animated__fadeIn ms-1'
+            'navbar-toggler w3-right btn btn-md text-light border border-secondary animated__fadeIn ms-1'
           "
           type="button"
           (click)="toggleIcon()"
@@ -51,10 +51,18 @@
         </button>
 
         <button
-                [class]="'navbar-toggler w3-right btn btn-md bg-warning text-dark border border-secondary animated__fadeIn '"
+                [class]="'navbar-toggler w3-right btn btn-md text-success border-end-0 border-start-0 border-top-0 border-secondary animated__fadeIn '"
                 (click)="shareApp('')"
               >
                 <i [class]="'fa fa-share-alt me-2 '"></i>
+               
+              </button>
+
+              <button
+                [class]="'navbar-toggler w3-right btn btn-md text-light border-end-0 border-start-0 border-top-0 border-secondary animated__fadeIn '"
+                
+              >
+                <i [class]="'fa fa-bell me-2 '"></i>
                
               </button>
         <!-- <button

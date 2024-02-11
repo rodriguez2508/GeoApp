@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 // -- Components
 import { MapPageComponent } from './map-page/map-page.component';
-import { FooterPageComponent } from './footer-page/footer-page.component'; 
+import { FooterPageComponent } from './footer-page/footer-page.component';
 // -- Components
 // -- Interfaces
 import { I_ConnectedUser, I_UserSessionStorage } from '../../../../interface/user.interface';
@@ -12,12 +12,15 @@ import { GeolocService } from '../../../../services/geolocation/geoloc.service';
 import { DataService } from '../../../../services/data/data.service';
 import { SocketioService } from '../../../../services/socketio.service';
 import { StorageService } from '../../../../services/storage/storage.service';
+import { FormPageComponent } from './form-page/form-page.component';
+import { Coordinate } from 'ol/coordinate';
+import { ActivatedRoute, Router } from '@angular/router';
 // -- Services
 
 @Component({
   selector: 'app-travel-request',
   standalone: true,
-  imports: [FooterPageComponent, MapPageComponent, ],
+  imports: [FooterPageComponent, MapPageComponent, FormPageComponent],
   templateUrl: './travel-request.component.html',
   styleUrl: './travel-request.component.scss'
 })
@@ -27,23 +30,41 @@ export class TravelRequestComponent {
   title_page = "Crear Oferta de Viaje";
   lat: number = 23.0415;
   lon: number = -81.5775;
+  coord_origin: Coordinate = [-81.5775, 23.0415];
+  coord_destination: Coordinate = [0, 0];
+
   zoom: number = 14;
   socket_status: boolean = false;
   location_status: boolean = false;
   max_count: number = 0;
 
   connected_users: I_ConnectedUser[] = [];
-  userData: I_UserSessionStorage = {id:'', user_name:'', user_type:''};
-  
-  type_user:string = '';
+  userData: I_UserSessionStorage = { id: '', user_name: '', user_type: '' };
 
-  constructor(private geolocService: GeolocService, private dataService: DataService, private socketioService: SocketioService, private storageService: StorageService) {
-  
-    this.dataService.getUserData().subscribe((value) => { 
-      this.userData = value; 
-   });
+  type_user: string = '';
+  viewToShow: string = 'map';
+
+  constructor(private router: Router, private route: ActivatedRoute, private geolocService: GeolocService, private dataService: DataService, private socketioService: SocketioService, private storageService: StorageService) {
+
+    // obtengo el parametro en la ruta
+    this.route.queryParams.subscribe(params => {
+
+       // -------------------------------------------
+      // -- verifica el parametro view en la ruta  
+      // ------------------------------------------- 
+      this.viewToShow = params['view']? params['view'] : 'map'; 
+
+     
+    });
+ 
+
+    // obtengo los datos de sesion del usuario
+    this.dataService.getUserData().subscribe((value) => {
+      this.userData = value;
+    });
     // this.client = storageService.getUser();
-    
+
+
 
   }
   ngOnDestroy(): void {
@@ -54,13 +75,16 @@ export class TravelRequestComponent {
   ngAfterViewInit(): void {
 
     // this.first_iteration = 1;
-    
-    this.type_user = this.userData.user_type==='traveler'? 'Conductor': 'Viajero';
+
+    this.type_user = this.userData.user_type === 'traveler' ? 'Conductor' : 'Viajero';
 
   }
   ngOnInit() {
 
-    // -------------------------------------------
+
+    if(this.viewToShow == 'map'){
+      
+      // -------------------------------------------
     // -- obtener localizacion  
     // -------------------------------------------
     this.getLocation();
@@ -76,8 +100,8 @@ export class TravelRequestComponent {
     // -- obtener lista de usuarios conectados
     // -------------------------------------------
     this.getConnectedUsers();
-    
 
+    }
   }
 
   reload_location() {
@@ -102,12 +126,12 @@ export class TravelRequestComponent {
       // Aquí puedes manejar la nueva posición del usuario 
 
       if (Math.floor(this.lat * 10000) !== Math.floor(position.coords.latitude * 10000) || Math.floor(this.lon * 1000) !== Math.floor(position.coords.longitude * 1000)) {
-      // if (this.lat != position.coords.latitude || this.lon != position.coords.longitude) {
+        // if (this.lat != position.coords.latitude || this.lon != position.coords.longitude) {
         this.lat = position.coords.latitude;
         this.lon = position.coords.longitude;
 
 
-        let user_:I_UserSessionStorage = this.userData;
+        let user_: I_UserSessionStorage = this.userData;
         let position_ = { lat: this.lat, long: this.lon };
 
         // -- Enviar los datos del usuario al servidor
@@ -143,7 +167,7 @@ export class TravelRequestComponent {
       error: (error: any) => {
         // Manejar errores al obtener el estado del socket
         console.error('Error getting socket status:', error);
-        
+
         this.socket_status = false;
       },
       complete: () => {

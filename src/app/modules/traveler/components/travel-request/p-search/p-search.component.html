@@ -14,9 +14,9 @@
       <h6 class="w3-col w3-xsmall text-light">27.12.1.1</h6>
     </div>
   </div> -->
-  <!--  -->
+<!--  -->
 
-  <!-- <div class="w3-col border-top border-bottom border-secondary pt-1">
+<!-- <div class="w3-col border-top border-bottom border-secondary pt-1">
     <div class="custom-control custom-radio mb-0  w3-col m6 s6 _center-h">
       <input
         type="radio"
@@ -48,34 +48,56 @@
     </div>
   </div> -->
 
-  <!--  -->
+<!--  -->
 <!-- </div> -->
 
-
-<div class="w3-row w3-col w3-container bg-dark "> 
-  <h4 class="w3-col l10 m10 s10 text-warning ">{{address}}</h4>
-  <i class="w3-col l2 m2 s2 fa fa-2x fa-location-dot mt-3 text-center text-warning"></i>
+<div class="w3-row w3-col w3-container w3-section bg-dark">
+  <h4 class="w3-col l10 m10 s10 text-secondary">{{ address }}</h4>
+  <i
+    class="w3-col l2 m2 s2 fa fa-2x fa-location-dot mt-3 text-center text-warning"
+  ></i>
   <!-- <p class=" w3-col">{{distance}}</p> -->
-
-
 </div>
 <!--  -->
-<div class="w3-row w3-col w3-container bg-dark "> 
-  <h4 class="w3-col l10 m10 s10 text-warning ">{{address}}</h4>
-  <i class="w3-col l2 m2 s2 fa fa-2x fa-location-dot mt-3 text-center text-warning"></i>
+<div class="w3-row w3-col w3-container bg-dark border-top border-warning">
+  <h4 class="w3-col l10 m10 s10 text-secondary">Tus Marcadores</h4>
+  <i
+    class="w3-col l2 m2 s2 fa fa-2x fa-flag-checkered mt-3 text-center text-warning"
+  ></i>
   <!-- <p class=" w3-col">{{distance}}</p> -->
-
-
 </div>
-<div class="favorites w3-row w3-col w3-container bg-dark">
-  <!-- Contenido aquí -->
-  <p style="display: inline-block; margin-right: 220px;">Elemento 1</p>
-  <p style="display: inline-block; margin-right: 220px;">Elemento 2</p>
-  <p style="display: inline-block; margin-right: 920px;">Elemento 3</p>
+
+<div class="w3-row w3-col d-flex bg-dark overflow-x-auto">
+  <!-- elemento -->
+  <div class="w-100 d-flex align-items-center mr-3">
+    <h4 class="text-warning container w3-section">Dirección 1</h4>
+    <i class="fa fa-2x fa-location-dot text-warning"></i>
+  </div>
+
+  <!-- elemento -->
+  <div class="w-100 d-flex align-items-center mr-3">
+    <h4 class="text-warning container w3-section">Dirección 1</h4>
+    <i class="fa fa-2x fa-location-dot text-warning"></i>
+  </div>
+
+  <!-- elemento --> 
+ <div class=" w-100 d-flex align-items-center mr-3">
+  <h4 class="text-warning container w3-section">Dirección 1</h4>
+  <i class="fa fa-2x fa-location-dot text-warning"></i>
+</div>
+
+<!-- elemento --> 
+<div class=" w-100 d-flex align-items-center mr-3">
+  <h4 class="text-warning container w3-section">Dirección 1</h4>
+  <i class="fa fa-2x fa-location-dot text-warning"></i>
+</div>
+
   <!-- ... y así sucesivamente -->
 </div>
 
-<div [classList]="'w3-row w3-col panel bg-dark h-auto border-top border-warning'">
+<div
+  [classList]="'w3-row w3-col panel bg-dark h-auto border-top border-warning'"
+>
   <div class="w3-row w3-col">
     <div class="w3-row w3-col _center-h">
       <button
@@ -83,9 +105,9 @@
         class="w3-col m6 s6 btn btn-lg text-secondary rounded-0 p-0 w3-left"
       >
         <label class="w3-col w3-section m-0 p-0 w3-large"
-          >Guardar Destino</label
+          >Buscar</label
         >
-        <i class="fa fa-flag fa-2x"></i>
+        <i class="fa fa-search fa-2x"></i>
       </button>
 
       <button
