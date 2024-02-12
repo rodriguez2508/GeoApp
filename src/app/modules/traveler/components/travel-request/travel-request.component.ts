@@ -1,7 +1,12 @@
 import { Component } from '@angular/core';
 
+import { Coordinate } from 'ol/coordinate';
+import { ActivatedRoute, Router } from '@angular/router';
+
+
 // -- Components
 import { MapPageComponent } from './map-page/map-page.component';
+import { FormPageComponent } from './form-page/form-page.component';
 import { FooterPageComponent } from './footer-page/footer-page.component';
 // -- Components
 // -- Interfaces
@@ -12,9 +17,6 @@ import { GeolocService } from '../../../../services/geolocation/geoloc.service';
 import { DataService } from '../../../../services/data/data.service';
 import { SocketioService } from '../../../../services/socketio.service';
 import { StorageService } from '../../../../services/storage/storage.service';
-import { FormPageComponent } from './form-page/form-page.component';
-import { Coordinate } from 'ol/coordinate';
-import { ActivatedRoute, Router } from '@angular/router';
 // -- Services
 
 @Component({
@@ -72,7 +74,10 @@ export class TravelRequestComponent {
   }
   ngOnDestroy(): void {
 
+    this.socket_status = false;
+    this.location_status = false;
     this.socketioService.disconnect();
+    this.geolocService.stopWatchingPosition();
 
   }
   ngAfterViewInit(): void {

@@ -133,8 +133,15 @@ export class FormPageComponent implements OnInit,AfterViewInit{
   
 
   goToMap(): void {
-    window.location.assign(
-      '/traveler/travel-request?view=map');
+    // window.location.assign(
+    //   '/traveler/travel-request?view=map');
+
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {
+          view: 'map',
+        }
+      });
 
   }
 

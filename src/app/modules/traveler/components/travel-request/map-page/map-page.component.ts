@@ -63,6 +63,7 @@ import {
 } from '../../../data/data-map';
 // -- constant
 import { FooterPageComponent } from '../footer-page/footer-page.component';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-map-page',
@@ -138,6 +139,8 @@ export class MapPageComponent {
   connected_DriverUsers: I_ConnectedUser[] = [];
 
   constructor(
+    private route: ActivatedRoute, 
+    private router: Router,
     private elementRef: ElementRef,
     private markerService: OlMapMarkerService,
     private dataService: DataService,
@@ -466,7 +469,7 @@ export class MapPageComponent {
   // --------------------------------------------
   // -- inicializar marcador en el mapa
   // --------------------------------------------
-  public initMarker(
+   public initMarker(
     coord: Coordinate,
     client: I_UserMap | I_DestinationMarker,
     type: string = ''
@@ -640,16 +643,27 @@ export class MapPageComponent {
   // --------------------------------------------
 
   reloadWithParams() {
-    window.location.assign(
-      '/traveler/travel-request?view=form&lon=' +
-        this.coord[0] +
-        '&lat=' +
-        this.coord[1] +
-        '&lon_d=' +
-        this.coord_destination[0] +
-        '&lat_d=' +
-        this.coord_destination[1]
-    );
+    // window.location.assign(
+    //   '/traveler/travel-request?view=form&lon=' +
+    //     this.coord[0] +
+    //     '&lat=' +
+    //     this.coord[1] +
+    //     '&lon_d=' +
+    //     this.coord_destination[0] +
+    //     '&lat_d=' +
+    //     this.coord_destination[1]
+    // );
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        view: 'form',
+        lon: this.coord[0],
+        lat: this.coord[1],
+        lon_d: this.coord_destination[0],
+        lat_d: this.coord_destination[1]
+      }
+    });
   }
 }
 

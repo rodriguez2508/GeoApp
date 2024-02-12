@@ -1,7 +1,7 @@
 <header
   id="header"
   [class]="
-    ' position-absolute w3-row w3-col l12 m12 s12 set-height-8 bg-dark border-bottom border-warning border-1 '
+    ' position-absolute w3-row w3-col l12 m12 s12 set-height-15 bg-dark border-bottom border-warning border-1 '
   "
 >
   <nav [class]="'navbar navbar-expand-sm navbar-dark pt-sm-0 '">
@@ -28,9 +28,8 @@
 
         <i class="fa fa-driver fa-1x text-white"></i>
 
-        }@else if (userData.user_type == 'admin') { }
-        @else {
-          <i class="fa fa-user fa-1x text-white"></i>
+        }@else if (userData.user_type == 'admin') { } @else {
+        <i class="fa fa-user fa-1x text-white"></i>
         }
 
         <button
@@ -40,31 +39,29 @@
           type="button"
           (click)="toggleIcon()"
         >
-        @switch (isActive) {
-          @case (true) {
-            <i [class]="'fa fa-times fa-1x  fadeIn'" ></i> 
-          }
-          @default {
-            <i [class]="'fa fa-bars fa-1x fadeIn '" ></i> 
-          }
-        }
+          @switch (isActive) { @case (true) {
+          <i [class]="'fa fa-times fa-1x  fadeIn'"></i>
+          } @default {
+          <i [class]="'fa fa-user fa-1x fadeIn '"></i>
+          } }
         </button>
 
         <button
-                [class]="'navbar-toggler w3-right btn btn-md text-success border-end-0 border-start-0 border-top-0 border-secondary animated__fadeIn '"
-                (click)="shareApp('')"
-              >
-                <i [class]="'fa fa-share-alt me-2 '"></i>
-               
-              </button>
+          [class]="
+            'navbar-toggler w3-right btn btn-md text-success border-end-0 border-start-0 border-top-0 border-secondary animated__fadeIn '
+          "
+          (click)="shareApp('')"
+        >
+          <i [class]="'fa fa-share-alt me-2 '"></i>
+        </button>
 
-              <button
-                [class]="'navbar-toggler w3-right btn btn-md text-light border-end-0 border-start-0 border-top-0 border-secondary animated__fadeIn '"
-                
-              >
-                <i [class]="'fa fa-bell me-2 '"></i>
-               
-              </button>
+        <button
+          [class]="
+            'navbar-toggler w3-right btn btn-md text-light border-end-0 border-start-0 border-top-0 border-secondary animated__fadeIn '
+          "
+        >
+          <i [class]="'fa fa-bell me-2 '"></i>
+        </button>
         <!-- <button
           [class]="
             'navbar-toggler w3-right btn btn-dark text-white animated__fadeIn me-sm-2'
@@ -81,9 +78,8 @@
         <!-- -------- -->
 
         <div [class]="'w3-col w3-section '" id="Navbar">
-
           @if(isActive){
-            
+
           <ul [class]="'w3-col w3-section navbar-nav p-1 justify-content-end '">
             @if(!userLoginOn){
 
@@ -92,7 +88,7 @@
             <!-- -------- -->
             <li [class]="'nav-item btn btn-md '">
               <a
-              (click)="toggleIcon()"
+                (click)="toggleIcon()"
                 [class]="'nav-link fw-bold border-bottom border-secondary'"
                 routerLink="/public/home"
                 routerLinkActive="active"
@@ -130,7 +126,7 @@
 
             <li [class]="'nav-item btn btn-md '">
               <a
-              (click)="toggleIcon()"
+                (click)="toggleIcon()"
                 [class]="'nav-link fw-bold border-bottom border-secondary'"
                 routerLink="/private/home"
                 routerLinkActive="active"
@@ -141,7 +137,7 @@
 
             <li [class]="'nav-item btn btn-md '">
               <a
-              (click)="toggleIcon()"
+                (click)="toggleIcon()"
                 [class]="'nav-link fw-bold border-bottom border-secondary '"
                 routerLink="/traveler/travel-request"
                 routerLinkActive="active"
@@ -150,11 +146,11 @@
               </a>
             </li>
 
-            }@else if (userData.user_type  == 'driver') {
+            }@else if (userData.user_type == 'driver') {
 
             <li [class]="'nav-item btn btn-md '">
               <a
-              (click)="toggleIcon()"
+                (click)="toggleIcon()"
                 [class]="'nav-link fw-bold border-bottom border-secondary '"
                 routerLink=""
                 routerLinkActive="active"
@@ -163,15 +159,10 @@
               >
             </li>
 
-            }@else if (userData.user_type  == 'admin') { }
+            }@else if (userData.user_type == 'admin') { }
 
             <li [class]="'nav-item btn btn-sm w3-row '">
-              
-
-              <button
-                [class]="'w3-col btn text-white'"
-                (click)="f_signOut()"
-              >
+              <button [class]="'w3-col btn text-white'" (click)="f_signOut()">
                 <i [class]="'fa fa-sign-out-alt me-2 float-sm-start'"></i>
                 <label
                   [class]="
@@ -189,9 +180,21 @@
             }
           </ul>
 
-        }
+          }
         </div>
       </div>
     </div>
   </nav>
+
+  @if (userData.user_type == 'traveler') {
+
+  <!-- -------- -->
+  <!-- -------- NAVBAR Traveler -->
+  <!-- -------- -->
+  <app-navbar-traveler></app-navbar-traveler>
+  <!-- -------- -->
+  <!-- -------- NAVBAR Traveler -->
+  <!-- -------- -->
+
+  }@else if(userData.user_type == 'driver'){ }
 </header>

@@ -1,0 +1,34 @@
+<div class="w3-row w3-col set-height-7 border border-dark bg-dark">
+  <ul class="w3-row w3-col d-flex nav nav-tabs" id="myTab" role="tablist">
+    <li class="w3-col s4 nav-item w3-btn border-0" role="presentation">
+      <a
+      (click)="goTo('/traveler/travel-request')"
+        type="button" 
+        class="btn border-0 active bg-transparent text-white"
+      >
+        <i class="fs-1 fa fa-location-dot fa-2"></i>
+        Mapa
+      </a>
+    </li>
+    <li class="w3-col s4 nav-item w3-btn border-0" role="presentation">
+      <a
+      (click)="goTo('/traveler/travel-offers')" 
+        class="btn border-0 bg-transparent text-white"
+        type="button"
+      >
+        <i class="fs-1 fa fa-message fa-2"></i>
+        Ofertas
+      </a>
+    </li>
+    <li class="w3-col s4 nav-item w3-btn border-0" role="presentation">
+      <a
+      (click)="goTo('/traveler/travel-history')" 
+        class="btn border-0 bg-transparent text-white"
+        type="button"
+      >
+        <i class="fs-1 fa fa-history fa-2"></i>
+        Historial
+      </a>
+    </li>
+  </ul>
+</div>

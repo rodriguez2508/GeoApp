@@ -19,11 +19,12 @@ import { SessionService } from '../../../modules/session-module/services/session
 import { ShareAppService } from '../../../services/share-app.service';
 import { StorageService } from '../../../services/storage/storage.service';
 import { I_UserSessionStorage } from '../../../interface/user.interface';
+import { NavbarTravelerComponent } from '../../../modules/traveler/components/shared/navbar/navbar-traveler.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, NavbarTravelerComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })

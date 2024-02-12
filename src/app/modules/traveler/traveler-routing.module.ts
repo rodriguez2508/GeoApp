@@ -1,9 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { TravelRequestComponent } from './components/travel-request/travel-request.component';
-import { WaitingOffersComponent } from './components/waiting-offers/waiting-offers.component';
-import { ConfirmOffersComponent } from './components/confirm-offers/confirm-offers.component';
-import { RateDriverComponent } from './components/rate-driver/rate-driver.component';
+import { TravelRequestComponent } from './components/travel-request/travel-request.component';   
+import { TravelOffersComponent } from './components/travel-offers/travel-offers.component';
+import { TravelHistoryComponent } from './components/travel-history/travel-history.component';
 
 const routes: Routes = [
 
@@ -15,17 +14,13 @@ const routes: Routes = [
         component: TravelRequestComponent
       },
       {
-        path: 'waiting-offers', 
-        component: WaitingOffersComponent
+        path: 'travel-offers', 
+        component: TravelOffersComponent
       },
       {
-        path: 'confirm-offers', 
-        component: ConfirmOffersComponent
-      },
-      {
-        path: 'rate-driver', 
-        component: RateDriverComponent
-      },
+        path: 'travel-history', 
+        component: TravelHistoryComponent
+      }, 
     ]
   }
 
