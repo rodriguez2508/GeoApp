@@ -1,7 +1,6 @@
 <header
   id="header"
-  [class]="
-    ' position-absolute w3-row w3-col l12 m12 s12 set-height-15 bg-dark border-bottom border-warning border-1 '
+  [class]="'set-height-8 position-absolute w3-row w3-col l12 m12 s12 bg-dark border-bottom border-warning border-1 '
   "
 >
   <nav [class]="'navbar navbar-expand-sm navbar-dark pt-sm-0 '">
@@ -186,7 +185,16 @@
     </div>
   </nav>
 
-  @if (userData.user_type == 'traveler') {
+ 
+</header>
+
+<header
+  id="header_"
+  [class]="'set-height-8 position-absolute w3-row w3-col l12 m12 s12 bg-dark border-bottom border-warning border-1 '
+  "
+>
+
+@if (userData.user_type == 'traveler') {
 
   <!-- -------- -->
   <!-- -------- NAVBAR Traveler -->
@@ -197,4 +205,6 @@
   <!-- -------- -->
 
   }@else if(userData.user_type == 'driver'){ }
+
+
 </header>
