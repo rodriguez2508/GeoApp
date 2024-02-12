@@ -17,6 +17,8 @@ export class PSearchComponent implements OnChanges, AfterViewInit {
   @Input() distance: string = '0';  
   @Output() footerDisplayed = new EventEmitter<boolean>(false);
 
+  favoriteMarkers:any = [];
+
   constructor(){
 
      

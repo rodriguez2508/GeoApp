@@ -37,6 +37,6 @@ export class PublicRouteGuardService {
       return true;
     }
 
-    return this.router.navigate(['/map/show']);
+    return this.router.navigate(['/traveler/travel-request']);
   }
 }

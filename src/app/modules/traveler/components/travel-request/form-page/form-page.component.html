@@ -1,6 +1,12 @@
 <section class="w3-row w3-col w3-container">
-  <div class="w3-row w3-col _center-h-sb">
+  <div class="w3-row w3-col m10 s10 _center-h-sb">
     <h3>{{ title_page }}</h3>
+  </div>
+  <div class="w3-row w3-col m2 s2 ">
+    <button (click)="goToMap()" class="btn w3-border">
+      <i class="fa fa-1 fa-arrow-left-long"></i>
+      <label class="w3-small">Atrás</label>
+    </button>
   </div>
 
   <div class="w3-row w3-col d-flex _center-h-sb">
@@ -11,8 +17,8 @@
       (ngSubmit)="onSubmit()"
     >
       <div class="w3-row w3-col m-auto">
-        <div class="w3-col">
-          <h3>Ruta</h3>
+        <div class="w3-col d-flex">
+          <h6>Ruta</h6> 
         </div>
         <!-- -------------- -->
         <!-- Lugar origen del viajero -->
@@ -41,13 +47,12 @@
           <div [classList]="'text-danger'">Origen is required.</div>
           } @if(f.placeOrigin.errors?.['minlength']){ } }
 
-          <h4
-            (click)="goToMap()"
+          <p
             [class]="address_coord == '' ? 'text-secondary ' : '' + ' w3-col '"
           >
             {{ address_coord !== "" ? address_coord : "Definir su ubicación" }}
-            <i class="fa fa-map-location w3-right"></i>
-          </h4>
+            <!-- <i class="fa fa-map-location w3-right"></i> -->
+          </p>
         </div>
 
         <!-- -------------- -->
@@ -89,7 +94,7 @@
           </div>
           } }
 
-          <h4
+          <p
             (click)="showFooterOnButton()"
             [class]="
               address_coord_destination == ''
@@ -104,7 +109,7 @@
             }}
             @if(address_coord_destination == ''){
             <i class="fa fa-pen-alt w3-right text-dark"></i>}
-          </h4>
+          </p>
         </div>
 
         <!-- -------------- -->
@@ -439,7 +444,7 @@
 
   @if(footerDisplayed){
 
-  <app-footer-page  
+  <app-footer-page
     (panelDisplayed)="showFooterOnButton()"
     [methodToShowFooter]="methodToShowFooter"
     [address]="address"

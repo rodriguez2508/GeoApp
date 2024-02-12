@@ -30,8 +30,8 @@ export class TravelRequestComponent {
   title_page = "Crear Oferta de Viaje";
   lat: number = 23.0415;
   lon: number = -81.5775;
-  coord_origin: Coordinate = [-81.5775, 23.0415];
-  coord_destination: Coordinate = [0, 0];
+  coord_origin: Coordinate = [];
+  coord_destination: Coordinate = [];
 
   zoom: number = 14;
   socket_status: boolean = false;
@@ -50,13 +50,16 @@ export class TravelRequestComponent {
     this.route.queryParams.subscribe(params => {
 
        // -------------------------------------------
-      // -- verifica el parametro view en la ruta  
+      // -- verifica parametros en la ruta  
       // ------------------------------------------- 
       this.viewToShow = params['view']? params['view'] : 'map'; 
+      
+      this.coord_origin = params['view']== 'form' && params['coord'] ? params['view'] : 'map'; 
 
-     
+
+
     });
- 
+
 
     // obtengo los datos de sesion del usuario
     this.dataService.getUserData().subscribe((value) => {
@@ -113,6 +116,8 @@ export class TravelRequestComponent {
   // -------------------------------------------
   async getLocation() {
 
+    this.max_count = 0;
+    
     this.geolocService.get_locationStatus().subscribe((value) => {
 
       this.location_status = value;

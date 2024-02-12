@@ -1,5 +1,8 @@
-
-<div (click)="hideFooter()" class=" w3-animate-opacity w3-row w3-col position-relative set-height-100 " style="background-color: #212223b0;"></div>
+<div
+  (click)="hideFooter()"
+  class="w3-animate-opacity w3-row w3-col position-relative set-height-100"
+  style="background-color: #212223b0"
+></div>
 
 <div class="w3-row w3-col w3-container pb-3 bg-dark">
   <h4 class="w3-col l10 m10 s10 text-secondary">{{ address }}</h4>
@@ -17,32 +20,27 @@
   <!-- <p class=" w3-col">{{distance}}</p> -->
 </div>
 
-<div class="w3-row w3-col d-flex bg-dark overflow-x-auto">
+<div
+  class="w3-row w3-col bg-dark set-height-s-40 w3-container d-flex align-items-center"
+>
+  @if (favoriteMarkers.lenght == 0) {
   <!-- elemento -->
   <div class="w-100 d-flex align-items-center mr-3">
-    <h4 class="text-warning container w3-section">Dirección 1</h4>
-    <i class="fa fa-2x fa-location-dot text-warning"></i>
+    <h4 class="text-warning opacity-25 container w3-section">
+      No se encontraron marcadores
+    </h4>
   </div>
+  }@else {
 
-  <!-- elemento -->
-  <div class="w-100 d-flex align-items-center mr-3">
-    <h4 class="text-warning container w3-section">Dirección 1</h4>
-    <i class="fa fa-2x fa-location-dot text-warning"></i>
-  </div>
+  <ul class="w3-row w3-col w3-ul">
+    <li class="w3-col d-flex align-items-center mr-3">
+      <!-- elemento --> 
+        <h4 class="text-warning container w3-section">Dirección 1</h4>
+        <i class="fa fa-2x fa-location-dot text-warning"></i> 
+    </li>
+  </ul>
 
-  <!-- elemento --> 
- <div class=" w-100 d-flex align-items-center mr-3">
-  <h4 class="text-warning container w3-section">Dirección 1</h4>
-  <i class="fa fa-2x fa-location-dot text-warning"></i>
-</div>
-
-<!-- elemento --> 
-<div class=" w-100 d-flex align-items-center mr-3">
-  <h4 class="text-warning container w3-section">Dirección 1</h4>
-  <i class="fa fa-2x fa-location-dot text-warning"></i>
-</div>
-
-  <!-- ... y así sucesivamente -->
+  }
 </div>
 
 <div
@@ -50,8 +48,6 @@
 >
   <div class="w3-row w3-col">
     <div class="w3-row w3-col _center-h">
-      
-
       <button
         type="button"
         class="w3-col m6 s6 btn btn-sm text-success p-0 w3-right"
@@ -65,9 +61,7 @@
         class="w3-col m6 s6 btn btn-lg text-secondary rounded-0 p-0 w3-left"
         (click)="hideFooter()"
       >
-        <label class="w3-col w3-section m-0 p-0 w3-large"
-          >Cancelar</label
-        >
+        <label class="w3-col w3-section m-0 p-0 w3-large">Cancelar</label>
         <i class="fa fa-cancel fa-2x"></i>
       </button>
     </div>

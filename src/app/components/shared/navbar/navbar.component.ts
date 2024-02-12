@@ -83,7 +83,6 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
   ngAfterViewInit() {
 
-    this.pageInit = 1;
 
   }
   ngOnDestroy(): void {

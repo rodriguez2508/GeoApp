@@ -1,59 +1,150 @@
 <section class="w3-row w3-col">
+  @if(viewToShow == 'map' && (!location_status || !socket_status)){
 
-  @if(viewToShow == 'map'){
-    
-    @if(!location_status && max_count < 3){
-    <label class="w3-col w3-container border-bottom border-dark text-primary ">
+  <div
+    class="w3-row w3-col panel-error-connection position-absolute set-height-90 d-flex align-content-between"
+    style="z-index: 2"
+  >
+    @if( max_count < 3){
+
+    <label
+      class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge _center-h"
+    >
       obteniendo ubicación..
-      <span class="btn btn-sm btn-primary spinner-border spinner-border-sm"></span> 
-       
+      <span
+        class="btn btn-sm btn-primary spinner-border spinner-border-sm"
+      ></span>
     </label>
+
     } @else if(max_count >= 3) {
-      <label class="w3-col w3-container border-bottom border-dark me-3 ">
-        error al buscar su  ubicación
-        <span class="btn btn-sm border border-danger w3-small float-end" (click)="reload_location()"><i class="fa fa-arrow-left-rotate"></i></span>
-      </label>
-    } @if(!socket_status){
-    <label class="w3-col w3-container border-bottom border-dark text-success">
-      conectando al servidor...
-      <span class="btn btn-sm btn-primary spinner-border spinner-border-sm"></span>
+
+    <label
+      class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge _center-h"
+    >
+      error al buscar su ubicación
+      <span
+        class="btn btn-md border border-warning text-warning float-end pt-3"
+        (click)="reload_location()"
+        ><i class="w3-btn w3-btn-floating-large fa fa-arrow-left-rotate"></i
+      ></span>
     </label>
+    } @if(!socket_status){
+    <label
+      class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge _center-h"
+    >
+      conectando al servidor...
+      <span
+        class="btn btn-sm btn-primary spinner-border spinner-border-sm"
+      ></span>
+    </label>
+
     }
-  
+  </div>
+
   }
-  
-    <!-- -------------- -->
-    <!-- content page -->
-    <!-- -------------- -->
-    <div class="w3-row w3-col set-height-s-90 border border-dark">
-       
-      <!-- -------------- -->
-      <!-- Body page -->
-      <!-- -------------- -->
-      @if(viewToShow == 'map'){
+
+  <!-- -------------- -->
+  <!-- content page -->
+  <!-- -------------- -->
+
+  <div class="w3-row w3-col set-height-7 border border-dark bg-dark"> 
+      <ul class=" w3-row w3-col d-flex nav nav-tabs" id="myTab" role="tablist">
+        <li class="w3-col s4 nav-item w3-btn border-0" role="presentation">
+          <button
+            data-bs-toggle="tab"
+            data-bs-target="#map"
+            type="button"
+            role="tab"
+            aria-controls="map"
+            aria-selected="true"
+            class="btn border-0 active bg-transparent text-white"
+            id="map-tab"
+          >
+          <i class=" fs-1 fa fa-location-dot fa-2"></i>
+            Mapa
+          </button>
+        </li>
+        <li class="w3-col s4 nav-item w3-btn border-0" role="presentation">
+          <button
+            class="btn border-0 bg-transparent text-white"
+            id="paris-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#paris"
+            type="button"
+            role="tab"
+            aria-controls="paris"
+            aria-selected="false"
+          >
+          <i class=" fs-1 fa fa-message fa-2"></i>
+            Ofertas
+          </button>
+        </li>
+        <li class="w3-col s4 nav-item w3-btn border-0" role="presentation">
+          <button
+            class="btn border-0 bg-transparent text-white"
+            id="tokyo-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#tokyo"
+            type="button"
+            role="tab"
+            aria-controls="tokyo"
+            aria-selected="false"
+          >
+          <i class=" fs-1 fa fa-history fa-2"></i>
+          Historial
+          </button>
+        </li>
+      </ul> 
+  </div>
+
+  <div class="tab-content" id="myTabContent">
+    <div
+      class="tab-pane fade show active"
+      id="map"
+      role="tabpanel"
+      aria-labelledby="map-tab"
+    >
+      <div class="w3-row w3-col set-height-s-85 border border-dark">
+        <!-- -------------- -->
+        <!-- Body page -->
+        <!-- -------------- -->
+        @if(viewToShow == 'map'){
         <app-map-page
-        [lat]="lat"
-        [lon]="lon"
-        [zoom]="zoom"
-        [width]="'100%'"
-        [height]="'89vh'"
-        [socket_status]="socket_status"
-        [location_status]="location_status"
-        [connected_users]="connected_users"
-        [userData]="userData"
+          [lat]="lat"
+          [lon]="lon"
+          [zoom]="zoom"
+          [width]="'100%'"
+          [height]="'89vh'"
+          [socket_status]="socket_status"
+          [location_status]="location_status"
+          [connected_users]="connected_users"
+          [userData]="userData"
         ></app-map-page>
-      } @else if(viewToShow == 'form'){
+        } @else if(viewToShow == 'form'){
         <app-form-page></app-form-page>
 
-      }
-      
-
-   
+        }
+      </div>
     </div>
-  </section>
-  
-  <!-- Footer -->
-  <!-- <section class="w3-row ">
-   
-  </section> -->
-  
+    <!--  -->
+    <!--  -->
+    <div
+      class="tab-pane fade"
+      id="offers"
+      role="tabpanel"
+      aria-labelledby="offers-tab"
+    >
+      <h3>Ofertas</h3>
+    </div>
+    <!--  -->
+    <!--  -->
+    <div
+      class="tab-pane fade"
+      id="history"
+      role="tabpanel"
+      aria-labelledby="history-tab"
+    >
+      <h3>Historial</h3>
+    </div>
+  </div>
+</section>
