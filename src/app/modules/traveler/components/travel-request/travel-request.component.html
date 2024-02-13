@@ -2,18 +2,31 @@
   @if(viewToShow == 'map' && (!location_status || !socket_status)){
 
   <div
-    class="w3-row w3-col panel-error-connection position-absolute set-height-90 d-flex align-content-between"
+    class="w3-row w3-col panel-error-connection position-absolute set-height-85 align-content-between"
     style="z-index: 2"
   >
+
+  @if(!socket_status){
+    <label
+      class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge bg-danger " style="height: 10px;"
+    >
+    </label>
+
+    }
     @if( max_count < 3){
 
-    <label
-      class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge _center-h"
+    <!-- <label
+      class=" panel-error-connection w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge _center-h"
     >
       obteniendo ubicación..
       <span
         class="btn btn-sm btn-primary spinner-border spinner-border-sm"
       ></span>
+    </label> -->
+
+    <label
+      class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge bg-warning " style="height: 10px;"
+    >
     </label>
 
     } @else if(max_count >= 3) {
@@ -28,17 +41,7 @@
         ><i class="w3-btn w3-btn-floating-large fa fa-arrow-left-rotate"></i
       ></span>
     </label>
-    } @if(!socket_status){
-    <label
-      class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge _center-h"
-    >
-      conectando al servidor...
-      <span
-        class="btn btn-sm btn-primary spinner-border spinner-border-sm"
-      ></span>
-    </label>
-
-    }
+    } 
   </div>
 
   }

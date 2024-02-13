@@ -1,5 +1,6 @@
 import {
-  Component, OnDestroy,
+  Component,
+  OnDestroy,
   OnInit,
   Input,
   Output,
@@ -10,9 +11,13 @@ import {
   SimpleChanges,
 } from '@angular/core';
 
-import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  ActivatedRoute,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+} from '@angular/router';
 import { environment } from '../../../../environments/environment';
-
 
 import { DataService } from '../../../services/data/data.service';
 import { SessionService } from '../../../modules/session-module/services/session.service';
@@ -26,10 +31,9 @@ import { NavbarTravelerComponent } from '../../../modules/traveler/components/sh
   standalone: true,
   imports: [RouterLink, RouterLinkActive, NavbarTravelerComponent],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss'
+  styleUrl: './navbar.component.scss',
 })
 export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
-
   _role: string = 'undefined';
   client: any;
 
@@ -38,7 +42,7 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   appVersion: string = environment.appVersion;
   appName: string = environment.appName;
-  titleApp: string = this.appName + " | " + this.appVersion;
+  titleApp: string = this.appName + ' | ' + this.appVersion;
 
   isActive = false;
 
@@ -52,123 +56,103 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     private shareappService: ShareAppService,
     private storageService: StorageService
   ) {
-
-    this.route.queryParams.subscribe(params => {
-
-    });
-
-    console.log(this.client)
-
-
+    this.route.queryParams.subscribe((params) => {});
   }
 
   async ngOnInit(): Promise<void> {
-
     this.dataService.getUserData().subscribe((value) => {
-
       this.userData = value;
-
     });
 
     this.dataService.getUserLoggedIn().subscribe((value) => {
-
       this.userLoginOn = value;
-
     });
-
   }
 
-
-  ngOnChanges(changes: SimpleChanges): void {
-
-  }
-  ngAfterViewInit() {
-
-
-  }
-  ngOnDestroy(): void {
-
-  }
-
-
+  ngOnChanges(changes: SimpleChanges): void {}
+  ngAfterViewInit() {}
+  ngOnDestroy(): void {}
 
   // -----------------------------------------
   // F_ boton menu cuando la vista es telefono
   // -----------------------------------------
   toggleIcon() {
-
-
     this.isActive = !this.isActive;
-    const headerElement = document.getElementById('header'); 
-    if(headerElement != null)
-    headerElement.style.height = this.isActive ? '100vh' : '8vh';
-    
-}
-
-
+    const headerElement = document.getElementById('header');
+    const headerElement_ = document.getElementById('header_');
+    if (headerElement != null) {
+      headerElement.style.height = this.isActive ? '100vh' : '8vh';
+    }
+    if (headerElement_ != null) {
+      headerElement_.style.display = this.isActive ? 'none' : '';
+    }
+  }
 
   // -----------------------------------------
   //  F_ eliminar datos de Sesion
   // -----------------------------------------
 
   async f_signOut() {
+    const resultado = await this.dataService.showQuestion(
+      '¿Estás seguro de que deseas continuar?',
+      'warning',
+      'question'
+    );
+    if (resultado) {
+      // -- funcion para eliminar datos de la sesion
+      this.sessionService.signout();
 
-  const resultado = await this.dataService.showQuestion('¿Estás seguro de que deseas continuar?', 'warning', 'question');
-  if (resultado) {
+      // -- mostrar mensaje en la pantalla
+      this.dataService.showMsjInData('Cerrando Sesión...', 'success', '/');
 
-    // -- funcion para eliminar datos de la sesion
-    this.sessionService.signout();
-
-    // -- mostrar mensaje en la pantalla
-    this.dataService.showMsjInData('Cerrando Sesión...', 'success', '/');
-
-    // window.location.reload();
-
-  } else {
-    // Hacer algo si se cancela
+      // window.location.reload();
+    } else {
+      // Hacer algo si se cancela
+    }
   }
-
-}
-
-
 
   // -----------------------------------------
   //  F_ para abrir a pantalla completa la aplicacion
   // -----------------------------------------
   async toggleFullscreen() {
-  const doc = window.document;
-  const docEl = doc.documentElement;
+    const doc = window.document;
+    const docEl = doc.documentElement;
 
-  const requestFullScreen = docEl.requestFullscreen;
-  const cancelFullScreen = doc.exitFullscreen;
+    const requestFullScreen = docEl.requestFullscreen;
+    const cancelFullScreen = doc.exitFullscreen;
 
-  if (!doc.fullscreenElement && !doc.fullscreenElement && !doc.fullscreenElement && !doc.fullscreenElement) {
-    requestFullScreen.call(docEl);
-  } else {
-    cancelFullScreen.call(doc);
+    if (
+      !doc.fullscreenElement &&
+      !doc.fullscreenElement &&
+      !doc.fullscreenElement &&
+      !doc.fullscreenElement
+    ) {
+      requestFullScreen.call(docEl);
+    } else {
+      cancelFullScreen.call(doc);
+    }
   }
-}
 
+  // -----------------------------------------
+  //  F_ para abrir a pantalla completa la aplicacion
+  // -----------------------------------------
+  shareApp(platform: string) {
+    this.shareappService.compartir().then(
+      () => {
+        // -- mostrar mensaje en la pantalla
+        this.dataService.showMsj(
+          'Éxito!',
+          'Contenido compartido con éxito',
+          'success'
+        );
 
-// -----------------------------------------
-//  F_ para abrir a pantalla completa la aplicacion
-// -----------------------------------------
-shareApp(platform: string) {
-
-  this.shareappService.compartir().then(
-    () => {
-
-      // -- mostrar mensaje en la pantalla
-      this.dataService.showMsj('Éxito!', 'Contenido compartido con éxito', 'success');
-
-      console.log('Contenido compartido con éxito.')
-    },
-    () => console.error('Error al compartir el contenido.')
-  );
-}
+        console.log('Contenido compartido con éxito.');
+      },
+      () => console.error('Error al compartir el contenido.')
+    );
+  }
 
   get role(): string | undefined {
-  return this._role;
-}
-  
+    return this._role;
+  }
 }

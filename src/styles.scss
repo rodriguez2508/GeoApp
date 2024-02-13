@@ -6,7 +6,7 @@ html,
 body {
 
   height: 100%;
-
+  background-color:rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important ;
   font-family: 'Roboto';
   color: var(--text-color);
   margin: 0;

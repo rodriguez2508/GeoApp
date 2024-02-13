@@ -1,0 +1,81 @@
+// --------------------------------------
+// --------------------------------------
+/* Estilo base para los controles de radio personalizados */
+// --------------------------------------
+// --------------------------------------
+
+.custom-control-input {
+    position: absolute;
+    opacity: 0;
+  }
+  
+  .custom-control-indicator {
+    position: relative;
+    vertical-align: middle;
+    background-color: transparent;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  
+  /* Cambiar el fondo y el borde cuando está seleccionado */
+  .custom-control-input:checked ~ .custom-control-indicator {
+    background-color: transparent;
+    border-color: transparent; /* Color de resaltado */
+  }
+  
+  .custom-control-input:checked ~ .custom-control-description {
+    background-color: rgba(var(--bs-warning-rgb), var(--bs-text-opacity)) !important;
+    
+  }
+  
+  .custom-control-input:checked ~ .custom-radio {
+    background-color: #ffcb00!important;
+     
+  }
+  
+  /* Estilo para la descripción del icono */
+  .custom-control-description {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  
+  /* Ocultar el punto de selección */
+  input[type="radio"].custom-control-input:checked
+    ~ .custom-control-description::before {
+    display: none !important;
+  }
+  
+  /* Cambiar el color del borde del elemento seleccionado */
+  input[type="radio"].custom-control-input:checked ~ .custom-control-description {
+    color: #100f0f !important;   
+  }
+  
+  /* Restablecer el ancho del borde para los demás elementos */
+  input[type="radio"].custom-control-input:not(:checked)
+    ~ .custom-control-description {
+    color: #ced4da !important; /* Gris claro */
+  }
+  
+  /* Personalizar el indicador (el punto de selección) */
+  input[type="radio"].custom-control-input:checked
+    ~ .custom-control-indicator::after {
+    opacity: 1 !important;
+    background-color: transparent !important;
+    color: #100f0f !important; /* Warning */
+  }
+  
+  /* Ocultar el indicador y restaurar el ancho del borde para los demás elementos */
+  input[type="radio"].custom-control-input:not(:checked)
+    ~ .custom-control-indicator::after {
+    opacity: 0 !important;
+    background-color: #fff !important;
+    border: 2px solid #ced4da !important; /* Gris claro */
+  }
+  
+  // --------------------------------------
+  // --------------------------------------
+  /* Estilo base para los controles de radio personalizados */
+  // --------------------------------------
+  // --------------------------------------
+  
