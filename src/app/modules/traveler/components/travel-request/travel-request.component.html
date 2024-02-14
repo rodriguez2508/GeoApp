@@ -2,8 +2,10 @@
   @if(viewToShow == 'map' && (!location_status || !socket_status)){
 
   <div
-    class="w3-row w3-col panel-error-connection position-absolute set-height-85 align-content-between"
+    class="w3-row w3-col panel-error-connection position-absolute set-height-84 align-content-between mt-1"
     style="z-index: 2"
+    (click)="reload_location()"
+    
   >
 
   @if(!socket_status){
@@ -26,6 +28,7 @@
 
     <label
       class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge bg-warning " style="height: 10px;"
+      (click)="reload_location()"
     >
     </label>
 

@@ -87,7 +87,7 @@ export class SigninComponent implements OnInit, AfterViewInit {
   // ----------------------------------  
   private f_createLoginForm(): FormGroup {
     return this.fb.group({
-      'user_type': [this._role, [Validators.required]],
+      'user_type': [this._role === undefined ? 'traveler' : this._role, [Validators.required]],
       'user_name': ['', [Validators.required, Validators.minLength(3)]],
       'password': ['', [Validators.required, Validators.minLength(6)]],
     });

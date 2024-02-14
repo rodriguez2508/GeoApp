@@ -9,6 +9,7 @@ import {
 // --interfaces
 import { I_ConnectedUser } from '../../../../../interface/user.interface';
 import { Coordinate } from 'ol/coordinate';
+import { ActivatedRoute, Router } from '@angular/router';
 // --interfaces
 @Component({
   selector: 'app-p-map',
@@ -27,20 +28,34 @@ export class PMapComponent implements OnChanges, AfterViewInit {
   @Input() coord: Coordinate = [];
   @Input() coord_destination: Coordinate = [];
 
-  constructor() {}
+  constructor(
+    private route: ActivatedRoute, 
+    private router: Router,
+  ) {}
   ngOnChanges(changes: SimpleChanges): void {}
   ngAfterViewInit(): void {}
 
   reloadWithParams() {
-    window.location.assign(
-      '/traveler/travel-request?view=form&lon=' +
-        this.coord[0] +
-        '&lat=' +
-        this.coord[1] +
-        '&lon_d=' +
-        this.coord_destination[0] +
-        '&lat_d=' +
-        this.coord_destination[1]
-    );
+    // window.location.assign(
+    //   '/traveler/travel-request?view=form&lon=' +
+    //     this.coord[0] +
+    //     '&lat=' +
+    //     this.coord[1] +
+    //     '&lon_d=' +
+    //     this.coord_destination[0] +
+    //     '&lat_d=' +
+    //     this.coord_destination[1]
+    // );
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        view: 'form',
+        lon: this.coord[0],
+        lat: this.coord[1],
+        lon_d: this.coord_destination[0],
+        lat_d: this.coord_destination[1]
+      }
+    });
   }
 }

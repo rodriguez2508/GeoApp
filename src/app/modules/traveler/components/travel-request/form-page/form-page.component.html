@@ -1,9 +1,9 @@
-<section class="w3-row w3-col w3-container text-dark set-height-84 ">
+<section class="w3-row w3-col w3-container text-white set-height-84 ">
   <div class="w3-row w3-col m10 s10 _center-h-sb">
     <h3>{{ title_page }}</h3>
   </div>
-  <div class="w3-row w3-col m2 s2 ">
-    <button (click)="goToMap()" class="btn w3-border p-1 mt-2">
+  <div class="w3-row w3-col m2 s2 mt-2 ">
+    <button (click)="goToMap()" class="btn w3-border p-1 text-warning ">
       <i class="fa fa-1 fa-arrow-left-long"></i>
       <label class="w3-small">Atrás</label>
     </button>
@@ -113,7 +113,7 @@
         </div>
 
         <!-- -------------- -->
-        <!-- Indicador de Tipo de Vehiculo -->
+        <!-- Indicador de Tipo de Conductor -->
         <!-- -------------- -->
 
         <div class="w3-col border-bottom border-secondary pt-1">
@@ -138,7 +138,7 @@
                 for="motorcycle"
                 class="custom-control-description btn w-100"
               >
-                <i class="fa fa-motorcycle fa-2"></i>
+                <i class="fa fa-motorcycle fa-2 text-secondary"></i>
               </label>
             </div>
 
@@ -158,7 +158,7 @@
               />
               <span class="custom-control-indicator"></span>
               <label for="car" class="custom-control-description btn w-100">
-                <i class="fa fa-car fa-2"></i>
+                <i class="fa fa-car fa-2 text-secondary"></i>
               </label>
             </div>
 
@@ -177,7 +177,7 @@
               />
               <span class="custom-control-indicator"></span>
               <label for="truck" class="custom-control-description btn w-100">
-                <i class="fa fa-truck fa-2"></i>
+                <i class="fa fa-truck fa-2 text-secondary"></i>
               </label>
             </div>
 
@@ -196,7 +196,7 @@
               />
               <span class="custom-control-indicator"></span>
               <label for="van" class="custom-control-description btn w-100">
-                <i class="fa fa-van-shuttle fa-2"></i>
+                <i class="fa fa-van-shuttle fa-2 text-secondary"></i>
               </label>
             </div>
 
@@ -213,7 +213,7 @@
               <!-- <span class="custom-control-indicator"></span> -->
               <label
                 for="other"
-                class="custom-control-description btn w-100 text-uppercase"
+                class="custom-control-description btn w-100 text-uppercase text-white"
               >
                 Todos
               </label>
@@ -415,7 +415,7 @@
               f.travelPeferences.invalid && f.travelPeferences.touched
             "
           ></textarea>
-          <label for="travelPeferences">Descripción del viaje</label>
+          <label class="text-secondary" for="travelPeferences">Descripción del viaje</label>
 
           @if(f.travelPeferences.invalid && (f.travelPeferences.dirty ||
           f.travelPeferences.touched) ){

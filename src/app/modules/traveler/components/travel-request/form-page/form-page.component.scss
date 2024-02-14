@@ -26,7 +26,7 @@
 
 .custom-control-input:checked ~ .custom-control-description {
   background-color: transparent;
-  border-color: #100f0f; /* Color de resaltado */
+  border-color: #ffc107; /* Color de resaltado */
 }
 
 /* Estilo para la descripción del icono */
@@ -43,7 +43,7 @@ input[type="radio"].custom-control-input:checked
 
 /* Cambiar el color del borde del elemento seleccionado */
 input[type="radio"].custom-control-input:checked ~ .custom-control-description {
-  color: #100f0f !important;   
+  color: #ffc107 !important;   
 }
 
 /* Restablecer el ancho del borde para los demás elementos */
@@ -65,7 +65,7 @@ input[type="radio"].custom-control-input:not(:checked)
   ~ .custom-control-indicator::after {
   opacity: 0 !important;
   background-color: #fff !important;
-  border: 2px solid #ced4da !important; /* Gris claro */
+  border: 2px solid #ffc107 !important; /* Gris claro */
 }
 
 // --------------------------------------
