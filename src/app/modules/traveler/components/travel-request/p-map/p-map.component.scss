@@ -1,0 +1,102 @@
+
+
+
+// -----------------------------------
+
+
+.p-btn-bg_dark {
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+    border-radius: 40px;
+    border: 2px solid #ffb800;
+    background-color: #1c1b1f;
+  }
+
+.p-btn-bg_warning {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 5px;
+    box-sizing: border-box;
+    border-radius: 40px;
+    background-color: #ffb800;
+  }
+
+.p-btn-text_warning {
+    display: flex; 
+    box-sizing: content-box;
+    overflow: hidden;
+    color: #ffb800;
+    font-size: 16px;
+    letter-spacing: 0%;
+    text-align: center;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-family: JejuGothic;
+    font-weight: 400;
+    text-wrap: nowrap;
+  }
+  
+  .p-btn-text_danger {
+    display: flex;
+    box-sizing: content-box;
+    overflow: hidden;
+    color: #ff0000;
+    font-size: 16px;
+    letter-spacing: 0%;
+    text-align: center;
+    text-transform: capitalize;
+    text-decoration: none;
+    font-family: JejuGothic;
+    font-weight: 400;
+    text-wrap: nowrap;
+  }
+
+  
+.p-btn-text_dark {
+    display: flex;
+    box-sizing: content-box;
+    overflow: hidden;
+    color: #1c1b1f;
+    font-size: 16px;
+    letter-spacing: 0%;
+    text-align: center;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-family: JejuGothic;
+    font-weight: 400;
+    text-wrap: nowrap;
+  }
+    
+
+.p-text-color-white {
+    display: flex;
+    box-sizing: content-box;
+    overflow: hidden;
+    color: #ffffff;
+    font-size: 16px;
+    letter-spacing: 0%;
+    text-align: left;
+    text-decoration: none;
+    font-family: JejuGothic;
+    font-weight: 400;
+    text-wrap: nowrap;
+  }
+  
+
+  .p-btn-border_warning {
+    border: 2px solid #ffb800;
+  }

@@ -32,12 +32,12 @@ export const routes: Routes = [
     // -----------------------------------
     {
         path: '',
-        redirectTo: 'public/home',
+        redirectTo: 'session/signin',
         pathMatch: 'full'
     },
     {
         path: '**',
-        redirectTo: 'public/home',
+        redirectTo: 'session/signin',
         pathMatch: 'full'
     },
     

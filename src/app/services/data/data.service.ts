@@ -4,72 +4,55 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Router } from '@angular/router';
-
-
 import { I_UserSessionStorage } from '../../interface/user.interface';
-import { StorageService } from '../storage/storage.service';
 
-
-const API_URL = 'http://localhost:8080/api/test/';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
- 
-  private userLoggedInSubject = new BehaviorSubject<boolean>(false);
+
+  private loggedInSubject = new BehaviorSubject<boolean>(false);
   private userDataSubject = new BehaviorSubject<I_UserSessionStorage>({
-    id: '',
-    user_name: '',
-    user_type:'',
+    ci: '',
+    name: '',
+    email: '',
+    exp: 0,
+    iat: 0,
+    phone: '',
+    type_user: ''
   });
 
+  loggedIn$ = this.loggedInSubject.asObservable();
+  userData$ = this.userDataSubject.asObservable();
 
   Msj: string = '';
   MsjCode: string = '';
   RouteName: string = '';
 
-  constructor(private router: Router, private storageService: StorageService) {
+  constructor(private router: Router) {
 
   }
-
-  // --------------------------------------------------------
-  // ----------------------------
-  // -- Para verificar la sesion 
-
-
-  setUserLoggedIn(value: boolean) {
-
-    this.userLoggedInSubject.next(value);
-    this.userDataSubject.next(this.storageService.getUser());
-  }
-
-  // -------------------------------------
-  
-  // -------------------------------------
-  getUserLoggedIn(): Observable<boolean> {
- 
-    return this.userLoggedInSubject.asObservable();
-
-  }
-
-  setUserData(value: I_UserSessionStorage) { 
-
-    this.userDataSubject.next(value);
-  }
-
-  getUserData(): Observable<I_UserSessionStorage> {
- 
-    return this.userDataSubject.asObservable();
-
-  }
-
 
   // -- Para verificar la sesion 
   // ----------------------------
   // --------------------------------------------------------
 
+  getLoggedIn(): Observable<boolean> {
+    return this.loggedIn$;
+  }
+  getuserData(): Observable<I_UserSessionStorage> {
+    return this.userData$;
+  }
+
+  setLoggedIn(value:boolean) {
+    this.loggedInSubject.next(value);
+  }
+  setuserData(userData:I_UserSessionStorage) {
+    this.userDataSubject.next(userData);
+
+  }
 
   // --------------------------------------------------------
   // -- message -> 'Texto a mostrar'

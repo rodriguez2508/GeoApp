@@ -35,6 +35,9 @@ dependencies:
   '@angular/ssr':
     specifier: ^17.0.9
     version: 17.0.10(@angular/common@17.0.9)(@angular/core@17.0.9)
+  '@auth0/angular-jwt':
+    specifier: ^5.2.0
+    version: 5.2.0(@angular/common@17.0.9)
   '@fortawesome/fontawesome-free':
     specifier: ^6.5.1
     version: 6.5.1
@@ -65,6 +68,9 @@ dependencies:
   jws:
     specifier: ^4.0.0
     version: 4.0.0
+  jwt-decode:
+    specifier: ^4.0.0
+    version: 4.0.0
   ngx-bootstrap:
     specifier: ^12.0.0
     version: 12.0.0(@angular/animations@17.0.9)(@angular/common@17.0.9)(@angular/core@17.0.9)(@angular/forms@17.0.9)(rxjs@7.8.1)
@@ -77,6 +83,9 @@ dependencies:
   ngx-socket-io:
     specifier: ^4.6.1
     version: 4.6.1(@angular/common@17.0.9)(@angular/core@17.0.9)(rxjs@7.8.1)
+  ngx-webstorage:
+    specifier: ^13.0.1
+    version: 13.0.1(@angular/common@17.0.9)(@angular/core@17.0.9)
   ol:
     specifier: ^8.2.0
     version: 8.2.0
@@ -556,6 +565,15 @@ packages:
   /@assemblyscript/loader@0.10.1:
     resolution: {integrity: sha512-H71nDOOL8Y7kWRLqf6Sums+01Q5msqBW2KhDUTemh1tvY04eSkSXrK0uj/4mmY0Xr16/3zyZmsrxN7CKuRbNRg==}
     dev: true
+
+  /@auth0/angular-jwt@5.2.0(@angular/common@17.0.9):
+    resolution: {integrity: sha512-9FS2L0QwGNlxA/zgeehCcsR9CZscouyXkoIj1fODM36A8BLfdzg9k9DWAXUQ2Drjk0AypGAFzeNZR4vsLMhdeQ==}
+    peerDependencies:
+      '@angular/common': '>=14.0.0'
+    dependencies:
+      '@angular/common': 17.0.9(@angular/core@17.0.9)(rxjs@7.8.1)
+      tslib: 2.6.2
+    dev: false
 
   /@babel/code-frame@7.23.5:
     resolution: {integrity: sha512-CgH3s1a96LipHCmSUmYFPwY7MNx8C3avkq7i4Wl3cfa662ldtUe4VM1TPXX70pfmrlWTb6jLqTYrZyT2ZTJBgA==}
@@ -5066,6 +5084,11 @@ packages:
       safe-buffer: 5.2.1
     dev: false
 
+  /jwt-decode@4.0.0:
+    resolution: {integrity: sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==}
+    engines: {node: '>=18'}
+    dev: false
+
   /karma-chrome-launcher@3.2.0:
     resolution: {integrity: sha512-rE9RkUPI7I9mAxByQWkGJFXfFD6lE4gC5nPuZdobf/QdTEJI6EU4yIay/cfU/xV4ZxlM5JiTv7zWYgA64NpS5Q==}
     dependencies:
@@ -5207,8 +5230,6 @@ packages:
       webpack: '*'
     peerDependenciesMeta:
       webpack:
-        optional: true
-      webpack-sources:
         optional: true
     dependencies:
       webpack: 5.89.0(esbuild@0.19.5)
@@ -5676,6 +5697,17 @@ packages:
       - bufferutil
       - supports-color
       - utf-8-validate
+    dev: false
+
+  /ngx-webstorage@13.0.1(@angular/common@17.0.9)(@angular/core@17.0.9):
+    resolution: {integrity: sha512-CyKAqhIAmJQbdeIK1lqQZ7uSoVLPFV0StyjkANn96I36HN/RKtNw9+l7fQTfmavnZpmZ9ctffcpsXRHPzSZvlw==}
+    peerDependencies:
+      '@angular/common': ^17.0.0
+      '@angular/core': ^17.0.0
+    dependencies:
+      '@angular/common': 17.0.9(@angular/core@17.0.9)(rxjs@7.8.1)
+      '@angular/core': 17.0.9(rxjs@7.8.1)(zone.js@0.14.3)
+      tslib: 2.6.2
     dev: false
 
   /nice-napi@1.0.2:

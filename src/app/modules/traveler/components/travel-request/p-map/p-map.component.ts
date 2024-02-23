@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 
 // --interfaces
-import { I_ConnectedUser } from '../../../../../interface/user.interface';
+import { I_UserMap } from '../../../../../interface/user.interface';
 import { Coordinate } from 'ol/coordinate';
 import { ActivatedRoute, Router } from '@angular/router';
 // --interfaces
@@ -19,9 +19,9 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrl: './p-map.component.scss',
 })
 export class PMapComponent implements OnChanges, AfterViewInit {
-  @Input() connected_users: I_ConnectedUser[] = [];
-  @Input() connected_TravelerUsers: I_ConnectedUser[] = [];
-  @Input() connected_DriverUsers: I_ConnectedUser[] = [];
+  @Input() connected_users: I_UserMap[] = [];
+  @Input() connected_TravelerUsers: I_UserMap[] = [];
+  @Input() connected_DriverUsers: I_UserMap[] = [];
 
   @Input() address: string = 'Buscando...';
   @Input() distance: string = '0';

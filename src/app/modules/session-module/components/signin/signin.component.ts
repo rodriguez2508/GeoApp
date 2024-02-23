@@ -1,3 +1,4 @@
+import { StorageService } from './../../../../services/storage/storage.service';
 import {
   AfterViewInit,
   Component,
@@ -12,6 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { SessionService } from '../../services/session.service';
 import { DataService } from '../../../../services/data/data.service';
+import { I_UserSessionStorage } from '../../../../interface/user.interface';
 
 
 // ----------------------------------
@@ -57,8 +59,8 @@ export class SigninComponent implements OnInit, AfterViewInit {
   // -- Variables
   // ---------------------------------- 
 
-  constructor(private router:Router, private route: ActivatedRoute, private fb: FormBuilder, private sessionService: SessionService, private dataService: DataService) {
- 
+  constructor(private router: Router, private route: ActivatedRoute, private fb: FormBuilder, private sessionService: SessionService, private dataService: DataService, private storageService:StorageService) {
+
     this.route.queryParams.subscribe(params => {
       this._role = params['role'];
     });
@@ -69,11 +71,11 @@ export class SigninComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
 
-     
+
   }
 
   ngAfterViewInit(): void {
- 
+
   }
 
   onSubmit(): void {
@@ -87,7 +89,7 @@ export class SigninComponent implements OnInit, AfterViewInit {
   // ----------------------------------  
   private f_createLoginForm(): FormGroup {
     return this.fb.group({
-      'user_type': [this._role === undefined ? 'traveler' : this._role, [Validators.required]],
+      // 'user_type': [this._role === undefined ? 'traveler' : this._role, [Validators.required]],
       'user_name': ['', [Validators.required, Validators.minLength(3)]],
       'password': ['', [Validators.required, Validators.minLength(6)]],
     });
@@ -102,44 +104,58 @@ export class SigninComponent implements OnInit, AfterViewInit {
       this.form_login.markAllAsTouched();
 
       return;
-    }
+    } 
+    
+    // const user: I_UserSessionStorage = this.storageService.getUser();
 
-    // if (this.sessionService.isAuthenticated()) {
-    //   // -- mostrar mensaje en la pantalla
-    //   this.dataService.showMsjInData('Ya existe una sesión abierta en este navegador, asegúrese de que sea de usted.', 'success', '/map/show');
-    // }
-     if (this.sessionService.signin(this.form_login.value)) {
+
+    this.sessionService.signin(this.form_login.value).subscribe({
+      next: (data: any) => {
+ 
+        // -- mostrar mensaje en la pantalla
+        this.dataService.showMsjInData('Credenciales Verificadas, espere ...', 'success', '');
+        
+         
+        const user = this.storageService.decodeToken(data.token);
+        // const user = this.storageService.getUser();
+        console.log(user)
+        if(user.type_user == 'traveler') this.goToTravelerView();
+        else if(user.type_user == 'driver') this.goToDriverView();
+        else if(user.type_user == 'admin') this.goToTravelerView();
   
-      if(this.f.user_type.value === 'traveler' ){
+      },
+      error: (errorData) => {
 
+        console.log(errorData)
         
-        // -- mostrar mensaje en la pantalla
-      this.dataService.showMsjInData('Credenciales Verificadas, espere ...', 'success', '/traveler/travel-request');
-
-      }
-
-      else if(this.f.user_type.value === 'driver' ){
-
-        this.sessionService.signout() ;
+        this.dataService.showMsj('Credenciales Incorrectas!', 'Warning', 'warning');
+      },
+      complete: () => {
         
-        // -- mostrar mensaje en la pantalla
-      this.dataService.showMsjInData('La sección CONDUCTOR está en desarrollo.', 'danger', '');
-
-      
-
-      }
-      
-
-    } else {
-
-      // -- mostrar mensaje en la pantalla
-      this.dataService.showMsjInData('Credenciales incorrectas!', 'danger', '');
-
-    }
+      },
+    }); 
 
   }
- 
 
+  goToTravelerView(): void {
+     
+    this.router.navigate(['/traveler/travel-request'], { 
+      queryParams: {
+         
+      },
+    });
+  }
+  goToDriverView(): void {
+    
+    this.router.navigate(['/traveler/travel-request'], { 
+      queryParams: {
+         
+      },
+    });
+  }  
+  // -----------------------------
+  // TODO 
+  // -----------------------------
   goToSignUp(): void {
     this.router.navigate(['/session/signup'], { queryParams: { role: '' } });
   }

@@ -6,7 +6,7 @@ import { PMapComponent } from '../p-map/p-map.component';
 import { PSearchComponent } from '../p-search/p-search.component';
 // --components
 // -- Interfaces
-import { I_ConnectedUser } from '../../../../../interface/user.interface';
+import { I_UserMap } from '../../../../../interface/user.interface';
 // -- Interfaces
 // -- services
 import { GeolocService } from '../../../../../services/geolocation/geoloc.service';
@@ -23,14 +23,14 @@ import { Coordinate } from 'ol/coordinate';
 })
 export class FooterPageComponent implements OnInit, OnChanges {
  
-  @Input() connected_users: I_ConnectedUser[] = [];   
+  @Input() connected_users: I_UserMap[] = [];   
   @Input() methodToShowFooter: string = ''; 
   @Input() address: string = '';  
   @Input() distance: string = '0';  
   @Input() coord: Coordinate = [];
   @Input() coord_destination: Coordinate = []; 
-  connected_TravelerUsers: I_ConnectedUser[] = [];
-  connected_DriverUsers: I_ConnectedUser[] = []; 
+  connected_TravelerUsers: I_UserMap[] = [];
+  connected_DriverUsers: I_UserMap[] = []; 
   
 
   userLoginOn: boolean = false;
@@ -47,11 +47,7 @@ export class FooterPageComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
 
-    // -- para verificar si el usuario tiene la sesion activa
-    this.dataService.getUserLoggedIn().subscribe((value) => {
-      this.userLoginOn = value;
-      
-    });
+  
  
   }
 
@@ -69,8 +65,9 @@ export class FooterPageComponent implements OnInit, OnChanges {
 
   }
 
-  getConnectedUsersByType(userType: string): I_ConnectedUser[] {
-    return this.connected_users.filter((user: I_ConnectedUser) => user.user.user_type === userType);
+  getConnectedUsersByType(userType: string): I_UserMap[] {
+    // return this.connected_users.filter((user: I_UserMap) => user.type === userType);
+    return this.connected_users;
   }
 
   getAndUpdateConnectedTravelerUsers(): void {

@@ -19,15 +19,15 @@
         <!-- ---------------- -->
         <!-- Verificar tipo de usuario conectado -->
         <!-- ---------------- -->
-        @if(userData.user_type == 'traveler'){
+        @if(userData.type_user == 'traveler'){
 
         <i class="fa fa-person fa-1x text-white"></i>
 
-        }@else if (userData.user_type == 'driver') {
+        }@else if (userData.type_user == 'driver') {
 
         <i class="fa fa-driver fa-1x text-white"></i>
 
-        }@else if (userData.user_type == 'admin') { } @else {
+        }@else if (userData.type_user == 'admin') { } @else {
         <i class="fa fa-user fa-1x text-white"></i>
         }
 
@@ -121,7 +121,7 @@
             <!-- Verificar tipo de usuario conectado -->
             <!-- ---------------- -->
 
-            @if(userData.user_type =='traveler' ){
+            @if(userData.type_user =='traveler' ){
 
             <li [class]="'nav-item btn btn-md '">
               <a
@@ -145,7 +145,7 @@
               </a>
             </li>
 
-            }@else if (userData.user_type == 'driver') {
+            }@else if (userData.type_user == 'driver') {
 
             <li [class]="'nav-item btn btn-md '">
               <a
@@ -158,7 +158,7 @@
               >
             </li>
 
-            }@else if (userData.user_type == 'admin') { }
+            }@else if (userData.type_user == 'admin') { }
 
             <li [class]="'nav-item btn btn-sm w3-row '">
               <button [class]="'w3-col btn text-white'" (click)="f_signOut()">
@@ -195,7 +195,7 @@
   "
 >
 
-@if (userData.user_type == 'traveler') {
+@if (userData.type_user == 'traveler') {
 
   <!-- -------- -->
   <!-- -------- NAVBAR Traveler -->
@@ -205,7 +205,7 @@
   <!-- -------- NAVBAR Traveler -->
   <!-- -------- -->
 
-  }@else if(userData.user_type == 'driver'){ }
+  }@else if(userData.type_user == 'driver'){ }
 
 
 </header>

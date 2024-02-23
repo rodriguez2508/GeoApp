@@ -4,7 +4,7 @@
     @for (item of connected_users; track $index) {
 
     <li class="list-group-item ">
-      <label>{{ item.user.user_name }} | LAT: {{ item.currentPosition.lat }} LON: {{ item.currentPosition.long }}</label>
+      <label>{{ item.name }} | LAT: {{ item.currentPosition.lat }} LON: {{ item.currentPosition.long }}</label>
     </li>
 
     }

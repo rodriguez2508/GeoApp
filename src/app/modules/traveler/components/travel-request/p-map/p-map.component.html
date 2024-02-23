@@ -1,35 +1,68 @@
-<div class="w3-row w3-col w3-container bg-dark "> 
-  <h4 class="w3-col l10 m10 s10 text-warning ">{{address}}</h4>
-  <i class="w3-col l2 m2 s2 fa fa-2x fa-location-dot mt-3 text-center text-warning"></i>
+<div class="w3-row w3-col w3-container bg-dark">
+  <h4 class="w3-col l10 m10 s10 address text-warning">{{ address }}</h4>
+  <i
+    class="w3-col l2 m2 s2 fa fa-2x fa-location-dot mt-3 text-center text-warning"
+  ></i>
   <!-- <p class=" w3-col">{{distance}}</p> -->
-
 </div>
 
 <div
-  [classList]="
-    'w3-row w3-col panel bg-dark h-auto border-top border-warning'
-  "
+  [classList]="'w3-row w3-col panel bg-dark h-auto border-top border-warning'"
 >
-  <div class=" w3-row w3-col ">
-    
-    <div class="d-flex justify-content-center mt-4 ">
+  <div class="w3-row w3-col">
+    <div class="d-flex justify-content-center mt-4">
       <button
-    type="button"
-    class="w3-col btn btn-lg text-secondary align-items-center d-flex btn-block "
-  >
-    <label class=" m-0 p-0 w3-xlarge">Guardar Destino</label>
-    <i class="p-3 fa fa-flag fa-2x"></i>
-  </button>
+        type="button"
+        class="w3-col p-btn-bg_dark p-btn-text_warning p-btn-border_warning"
+      >
+        <svg
+          width="80"
+          height="70"
+          viewBox="0 0 30 29"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M10 22L15 18.1875L20 22L18.0417 15.8333L23.0417 12.2917H16.9375L15 5.89584L13.0417 12.2917H6.9375L11.9375 15.8333L10 22ZM15 27C13.2847 27 11.6667 26.6719 10.1458 26.0156C8.62501 25.3594 7.29862 24.4653 6.16666 23.3333C5.03472 22.2014 4.14063 20.875 3.48438 19.3542C2.82812 17.8333 2.5 16.2153 2.5 14.5C2.5 12.7708 2.82812 11.1458 3.48438 9.625C4.14063 8.10417 5.03472 6.78125 6.16666 5.65625C7.29862 4.53125 8.62501 3.64063 10.1458 2.98438C11.6667 2.32812 13.2847 2 15 2C16.7292 2 18.3542 2.32812 19.875 2.98438C21.3958 3.64063 22.7188 4.53125 23.8438 5.65625C24.9688 6.78125 25.8594 8.10417 26.5156 9.625C27.1719 11.1458 27.5 12.7708 27.5 14.5C27.5 16.2153 27.1719 17.8333 26.5156 19.3542C25.8594 20.875 24.9688 22.2014 23.8438 23.3333C22.7188 24.4653 21.3958 25.3594 19.875 26.0156C18.3542 26.6719 16.7292 27 15 27Z"
+            fill="#FFB800"
+          />
+          <path
+            d="M10 22L15 18.1875L20 22L18.0417 15.8333L23.0417 12.2917H16.9375L15 5.89584L13.0417 12.2917H6.9375L11.9375 15.8333L10 22Z"
+            fill="white"
+          />
+          <path
+            d="M5.45954 24.0404L5.45956 24.0405C6.68399 25.2649 8.11688 26.2292 9.74965 26.9338C11.4001 27.646 13.1534 28 15 28C16.8593 28 18.6198 27.6464 20.2712 26.9338C21.9045 26.229 23.3348 25.264 24.553 24.0383L23.8438 23.3333L24.553 24.0383C25.7697 22.814 26.7298 21.3818 27.4338 19.7504C28.146 18.0999 28.5 16.3466 28.5 14.5C28.5 12.6407 28.1464 10.8802 27.4338 9.22881C26.7296 7.59678 25.7689 6.16717 24.5509 4.94914C23.3328 3.73111 21.9032 2.77044 20.2712 2.06621C18.6198 1.3536 16.8593 1 15 1C13.1534 1 11.4001 1.35404 9.74965 2.06621C8.11816 2.77021 6.68596 3.73026 5.46173 4.94697L5.46173 4.94697C4.23599 6.1652 3.27099 7.59549 2.56621 9.22881C1.8536 10.8802 1.5 12.6407 1.5 14.5C1.5 16.3466 1.85404 18.0999 2.56621 19.7504C3.27076 21.3831 4.23513 22.816 5.45954 24.0404Z"
+            stroke="#333333"
+            stroke-opacity="0.5"
+            stroke-width="2"
+          />
+        </svg>
 
-  <button
-    type="button"
-    class="w3-col btn btn-lg text-warning align-items-center d-flex btn-block "
-    (click)="reloadWithParams()"
-  >
-    <label class="m-0 p-0 w3-xlarge">Nuevo Viaje</label>
-    <i class="p-3 fa fa-route fa-2x"></i>
-  </button>
+        <label class="m-0 p-0 w3-xlarge">Guardar Sitio</label>
+        <!-- <i class="p-3 fa fa-flag fa-2x"></i> -->
+      </button>
 
+      <button
+        type="button"
+        class="w3-col p-btn-bg_warning p-btn-text_dark"
+        (click)="reloadWithParams()"
+      >
+        <svg
+          width="80"
+          height="70"
+          viewBox="0 0 26 26"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M8 16.75H10.0833V12.7917H15.375V15.6042L19.25 11.75L15.375 7.875V10.7083H9.04166C8.74305 10.7083 8.49479 10.8073 8.29688 11.0052C8.09896 11.2031 8 11.4514 8 11.75V16.75ZM13 25.5625C12.7292 25.5625 12.4635 25.5139 12.2031 25.4167C11.9427 25.3194 11.7153 25.1736 11.5208 24.9792L1.02084 14.4792C0.826385 14.2847 0.680552 14.0573 0.583344 13.7969C0.486115 13.5365 0.4375 13.2708 0.4375 13C0.4375 12.7292 0.486115 12.4635 0.583344 12.2031C0.680552 11.9427 0.826385 11.7153 1.02084 11.5208L11.5208 1.02081C11.7153 0.826375 11.9427 0.680552 12.2031 0.583344C12.4635 0.486114 12.7292 0.4375 13 0.4375C13.2708 0.4375 13.5365 0.486114 13.7969 0.583344C14.0573 0.680552 14.2847 0.826375 14.4792 1.02081L24.9792 11.5208C25.1736 11.7153 25.3194 11.9427 25.4167 12.2031C25.5139 12.4635 25.5625 12.7292 25.5625 13C25.5625 13.2708 25.5139 13.5365 25.4167 13.7969C25.3194 14.0573 25.1736 14.2847 24.9792 14.4792L14.4792 24.9792C14.2847 25.1736 14.0573 25.3194 13.7969 25.4167C13.5365 25.5139 13.2708 25.5625 13 25.5625Z"
+            fill="#1C1B1F"
+          />
+        </svg>
+
+        <label class="m-0 p-0 w3-xlarge">Nuevo Viaje</label>
+        <!-- <i class="p-3 fa fa-route fa-2x"></i> -->
+      </button>
     </div>
   </div>
 </div>

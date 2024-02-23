@@ -1,11 +1,14 @@
 <main id='main_app' class="w3-row w3-col bg-dark text-white">
   <!-- Navbar -->
   <section class="w3-row w3-col">
-    <app-navbar ></app-navbar>
+    <app-navbar 
+    [userLoginOn]="userLoginOn"
+    [userData]="userData"
+    ></app-navbar>
   </section>
 
   <!-- Router -->
-  <section class="w3-row w3-col set-height-85 section-body">
+  <section class="w3-row w3-col set-height-100">
     <div class="w3-row w3-col _center-h ">
       <app-data></app-data>
     </div>

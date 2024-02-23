@@ -7,6 +7,7 @@ const routes: Routes = [
   {
     path: '',
     children: [
+       
       {
         path: 'signin', 
         component: SigninComponent
@@ -14,7 +15,8 @@ const routes: Routes = [
       {
         path: 'signup', 
         component: SignupComponent
-      }
+      },
+      
     ]
   }
 ];

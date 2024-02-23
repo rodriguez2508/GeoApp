@@ -1,54 +1,57 @@
-<section class="w3-row w3-col">
+<section class="w3-row w3-col mt-15">
   @if(viewToShow == 'map' && (!location_status || !socket_status)){
 
   <div
-    class="w3-row w3-col panel-error-connection position-absolute set-height-84 align-content-between mt-1"
+    [class]="
+      (!location_status
+        ? 'panel-error-connection-gps set-height-85'
+        : 'panel-error-connection-') +
+      ' align-content-between w-100 position-absolute '
+    "
     style="z-index: 2"
-    (click)="reload_location()"
-    
   >
-
-  @if(!socket_status){
-    <label
-      class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge bg-danger " style="height: 10px;"
-    >
-    </label>
-
-    }
-    @if( max_count < 3){
-
+    @if(!socket_status && location_status){
     <!-- <label
-      class=" panel-error-connection w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge _center-h"
+      class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge bg-danger"
+      style="height: 10px"
     >
-      obteniendo ubicación..
+    </label> -->
+    <label
+      class="panel-error-connection w3-col w3-container border-top border-bottom border-dark bg-danger w3-xlarge _center-h"
+    >
+      conectando ..
       <span
         class="btn btn-sm btn-primary spinner-border spinner-border-sm"
       ></span>
-    </label> -->
+    </label>
+
+    } @switch (max_count) { @case(0){} @case(-1){
 
     <label
-      class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge bg-warning " style="height: 10px;"
+      class="panel-error-connection w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge text-center rounded-3"
       (click)="reload_location()"
     >
+      Hmm, parece que tenemos problemas para detectar tu ubicación. ¿Podrías
+      verificar que tu GPS esté habilitado? <br />
+      <a class="btn btn-warning text-text-dark fw-bold">Reintentar <i class="fa fa-rotate-back"></i></a>
+      
     </label>
 
-    } @else if(max_count >= 3) {
+    } @default{
 
     <label
-      class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge _center-h"
+      class="panel-error-connection w3-col w3-container border-top border-bottom border-dark bg-danger w3-xlarge _center-h"
     >
-      error al buscar su ubicación
+      obteniendo ubicación ..
       <span
-        class="btn btn-md border border-warning text-warning float-end pt-3"
-        (click)="reload_location()"
-        ><i class="w3-btn w3-btn-floating-large fa fa-arrow-left-rotate"></i
+        class="btn btn-sm btn-primary spinner-border spinner-border-sm"
       ></span>
     </label>
-    } 
+
+    } }
   </div>
 
   }
-
 
   <!-- -------------- -->
   <!-- content page -->
@@ -70,7 +73,7 @@
           [lon]="lon"
           [zoom]="zoom"
           [width]="'100%'"
-          [height]="'89vh'"
+          [height]="'85vh'"
           [socket_status]="socket_status"
           [location_status]="location_status"
           [connected_users]="connected_users"

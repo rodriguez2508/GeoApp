@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
+  ActivatedRoute,
   ActivatedRouteSnapshot,
   Router,
   RouterStateSnapshot,
@@ -10,6 +11,7 @@ import { Observable } from 'rxjs';
 
 import { DataService } from '../../../services/data/data.service';
 import { SessionService } from '../services/session.service';
+import { StorageService } from '../../../services/storage/storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,9 +19,11 @@ import { SessionService } from '../services/session.service';
 export class PublicRouteGuardService {
 
   constructor(
-    private data: DataService,
+    private storageService: StorageService,
     private router: Router,
-    private sessionService: SessionService
+    private route: ActivatedRoute,
+    private sessionService: SessionService,
+    private dataService: DataService
   ) { }
 
   canActivate(
@@ -33,10 +37,36 @@ export class PublicRouteGuardService {
     // Aquí va la lógica de tu guard de ruta
 
     if (!Boolean(this.sessionService.isAuthenticated())) {
-     
+
       return true;
     }
 
+    const user = this.storageService.getUser();
+    this.dataService.setLoggedIn(true);
+    this.dataService.setuserData(user);
+
+    // console.log(user)
+    if (user.type_user == 'traveler') return this.goToTravelerView();
+    else if (user.type_user == 'driver') return this.goToDriverView();
+    else if (user.type_user == 'admin') return this. goToTravelerView();
+
     return this.router.navigate(['/traveler/travel-request']);
+  }
+
+
+  goToTravelerView() {
+
+    return this.router.navigate(['../traveler/travel-request'], { relativeTo: this.route });
+    
+    // this.router.navigate(['/traveler/travel-request'], {
+    //   queryParams: {
+
+    //   },
+    // });
+  }
+  goToDriverView() {
+
+    return this.router.navigate(['../traveler/travel-request'], { relativeTo: this.route });
+     
   }
 }

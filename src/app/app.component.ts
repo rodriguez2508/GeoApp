@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChildrenOutletContexts, RouterOutlet } from '@angular/router';
 
@@ -6,6 +6,9 @@ import { NavbarComponent } from './components/shared/navbar/navbar.component';
 import { DataComponent } from './components/shared/data/data.component';
 import { DataService } from './services/data/data.service';
 import { SessionService } from './modules/session-module/services/session.service';
+import { I_UserSessionStorage } from './interface/user.interface';
+import { StorageService } from './services/storage/storage.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -18,29 +21,64 @@ import { SessionService } from './modules/session-module/services/session.servic
      
   ]
 })
-export class AppComponent implements OnInit, AfterViewInit{
+export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
   
   title = 'Linki';
-  userLoginOn: any;
-  datosUsuario: any;
+  
+  subscriptionLoggedIn: Subscription;
+  subscriptionUserData: Subscription;
+
+  userLoginOn: boolean = false;
+  userData: I_UserSessionStorage = {
+    ci: '',
+    name: '',
+    email: '',
+    exp: 0,
+    iat: 0,
+    phone: '',
+    type_user: ''
+  };
 
   constructor( 
     private dataService: DataService,
     private sessionService:SessionService, 
-    private contexts: ChildrenOutletContexts
+    private storageService:StorageService,  
   ){
+
+    this.subscriptionLoggedIn = this.dataService.loggedIn$.subscribe(value => {
+      this.userLoginOn = value;
+    });
+  
+    this.subscriptionUserData = this.dataService.userData$.subscribe(value => {
+      this.userData = value;
+    });
+
+    
     
   }
   ngOnInit(): void {
-    
+
+   
+    // this.userData = this.storageService.getUser();
+    // this.userLoginOn = this.storageService.isLoggedIn();
+
+    // console.log( this.userData)
   }
 
   ngAfterViewInit(): void {
     
+     
+    
   }
 
-  getRouteAnimationData() {
-    return this.contexts.getContext('primary')?.route?.snapshot?.data?.['animation'];
+  ngOnDestroy() {
+    if (this.subscriptionLoggedIn) {
+      this.subscriptionLoggedIn.unsubscribe();
+    }
+  
+    if (this.subscriptionUserData) {
+      this.subscriptionUserData.unsubscribe();
+    }
   }
-
+ 
 }

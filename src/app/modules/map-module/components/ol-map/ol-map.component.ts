@@ -34,11 +34,10 @@ import { LineString } from 'ol/geom';
 // --services
 import { OlMapMarkerService } from '../../../../services/map/ol-map-marker.service';
 import { DataService } from '../../../../services/data/data.service';
-import { StorageService } from '../../../../services/storage/storage.service';
 import { OpenRouteService } from '../../../../services/map/open-route.service';
 // --services 
 // --interfaces
-import { I_UserMap, I_UserSessionStorage, I_ConnectedUser } from '../../../../interface/user.interface';
+import { I_UserMap, I_UserSessionStorage } from '../../../../interface/user.interface';
 import { I_DestinationMarker } from '../../../../interface/marker.interface';  
 // --interfaces
 //  -- constant
@@ -88,8 +87,19 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges, OnDestr
 
   target: string = '#map';
   map: Map = new Map();
+  
   client: I_UserMap;
-  @Input() connected_users: I_ConnectedUser[] = []; // Asegúrate de inicializar correctamente la lista
+  userData: I_UserSessionStorage = {
+    ci: '',
+    name: '',
+    email: '',
+    exp: 0,
+    iat: 0,
+    phone: '',
+    type_user: ''
+  };
+  
+  @Input() connected_users: I_UserMap[] = []; // Asegúrate de inicializar correctamente la lista
 
   // Agregar el control ZoomToExtent al mapa
   center = transform([this.lon, this.lat], 'EPSG:4326', 'EPSG:3857');
@@ -105,13 +115,17 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges, OnDestr
   constructor(
     private elementRef: ElementRef,
     private markerService: OlMapMarkerService,
-    private dataService: DataService,
-    private storageService: StorageService,
+    private dataService: DataService, 
     private openRouteService: OpenRouteService
   ) {
+ 
 
-    this.client = storageService.getUser();
-
+    this.client = {
+      id: this.userData.ci,
+      name: this.userData.name,
+      markerColor: 'success',
+      currentPosition: {lat:0, long:0}
+    };
 
   }
 
@@ -144,7 +158,7 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges, OnDestr
     if (this.map && this.socket_status && this.location_status) {
 
       if (!this.hasAddedTu) {
-        this.client.user_name += ' (Tú)';
+        this.client.name += ' (Tú)';
         this.client.markerColor = 'success';
         this.initMarker([this.lon, this.lat], this.client);
         this.hasAddedTu = true;
@@ -166,7 +180,7 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges, OnDestr
         console.log('connected_user update', this.connected_users)
 
         // Eliminar los marcadores que no están en this.connected_users 
-        const indexToRemove = this.markers.findIndex(marker => !this.connected_users.some(user => user.user.id === marker.get('client').id));
+        const indexToRemove = this.markers.findIndex(marker => !this.connected_users.some(user => user.id === marker.get('client').id));
 
         if (indexToRemove !== -1) this.clearMarker(this.markers[indexToRemove].get('client').id);
 
@@ -400,8 +414,12 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges, OnDestr
 
     let destination: I_DestinationMarker = {
       id: 'destination',
-      user_name: 'Destino',
+      name: 'Destino',
       markerColor: 'warning',
+      currentPosition: {
+        lat: coord[0],
+        long: coord[1]
+      }
     };
 
     this.initMarker(coord, destination);
@@ -450,9 +468,7 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges, OnDestr
         // this.clearMarker(clientId);
       }
 
-    }
-
-
+    } 
   }
   clearAllMarkers() {
 
@@ -462,7 +478,7 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges, OnDestr
   public setMarkersForConnectedUsers() {
     // Asegúrate de tener datos en connected_users y de que el servicio y el mapa estén disponibles
     if (this.connected_users.length > 0 && this.markerService && this.map) {
-      this.connected_users.forEach((user: I_ConnectedUser) => {
+      this.connected_users.forEach((user: I_UserMap) => {
         // Verifica si la posición actual está presente en el usuario antes de intentar pintar el marcador
         if (user.currentPosition.lat && user.currentPosition.long) {
           const coord: Coordinate = [
@@ -471,10 +487,18 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges, OnDestr
           ];
 
           this.markers = this.markers.filter(marker => {
-            return this.connected_users.some(user => user.user.id === marker.get('client').id);
+            return this.connected_users.some(user => user.id === marker.get('client').id);
           });
 
-          let client: I_UserMap = { id: user.user.id, user_name: user.user.user_name, markerColor: 'danger' };
+          let client: I_UserMap = { 
+            id: user.id,
+            name: user.name,
+            markerColor: 'danger',
+            currentPosition:{
+              lat: coord[0],
+              long: coord[1]
+            }
+           };
 
           if (this.client.id == client.id) {
             // this.initMarker([this.lon, this.lat], this.client);

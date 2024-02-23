@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 // --interfaces
-import { I_ConnectedUser } from '../../../../../interface/user.interface';
+import { I_UserMap } from '../../../../../interface/user.interface';
 // --interfaces
 @Component({
   selector: 'app-p-usersonline',
@@ -13,9 +13,9 @@ import { I_ConnectedUser } from '../../../../../interface/user.interface';
 export class PUsersonlineComponent implements OnChanges, AfterViewInit {
 
 
-  @Input() connected_users: I_ConnectedUser[] = [];
-  @Input() connected_TravelerUsers: I_ConnectedUser[] = [];
-  @Input() connected_DriverUsers: I_ConnectedUser[] = [];
+  @Input() connected_users: I_UserMap[] = [];
+  @Input() connected_TravelerUsers: I_UserMap[] = [];
+  @Input() connected_DriverUsers: I_UserMap[] = [];
 
   constructor(){
 

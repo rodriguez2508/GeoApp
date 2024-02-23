@@ -1,5 +1,5 @@
- 
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
@@ -7,27 +7,17 @@ import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
 // -- módulo que para generar ID
 import { v4 as uuidv4 } from 'uuid';
 
-// -- modulo para manejar token
-// import * as jwt from 'jsonwebtoken';
-import * as jws from 'jws';
 
 // -- Interfaces
-import { I_UserSessionStorage } from '../../../interface/user.interface';
 import { I_SignIn, I_SignUp } from '../../../interface/session.interface';
 // -- Interfaces
 // -- Services
 import { DataService } from '../../../services/data/data.service';
-import { StorageService } from '../../../services/storage/storage.service'; 
-// -- Services
- 
+import { Router } from '@angular/router';
+import { StorageService } from '../../../services/storage/storage.service';
+// -- Services 
 
-
-const AUTH_API = 'http://localhost:8080/api/auth/';
-
-const httpOptions = {
-  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-};
-
+const AUTH_API = 'http://localhost:3000/api/v1/auth/';
 
 @Injectable({
 
@@ -36,167 +26,163 @@ const httpOptions = {
 
 export class SessionService {
 
-  constructor(private http: HttpClient, private dataService: DataService, private storageService: StorageService) { }
+  private apiUrl = '/api/v1/auth/'; // Ajusta la URL seg�n la estructura de tu backend
+
+  token: BehaviorSubject<string> = new BehaviorSubject<string>('');
+
+  constructor(private http: HttpClient, private dataService: DataService, private router: Router, private storageService: StorageService) { }
 
 
   // ----------------------------------
-  // -- funcion para iniciar sesion  
+  // TODO funcion para iniciar sesion  
   // ----------------------------------
-  signin(credentials: I_SignIn): boolean {
+  signin(credentials: I_SignIn): Observable<any> {
 
-    const newId = uuidv4();
+    const url = AUTH_API + 'login';
 
-    const userData: I_UserSessionStorage = {
-      id: newId,
-      user_name: credentials.user_name,
-      user_type: credentials.user_type,
-
+    const userData: { user: string, password: string } = {
+      user: credentials.user_name,
+      password: credentials.password
     };
 
-    // -- Verificar que las credenciales sean correctas
-    const credentialsStatus: boolean = Boolean(credentials.password === '123456');
+    return this.http.post<any>(url, userData).pipe(
+
+      tap((data: any) => {
+
+        const decodedToken = this.storageService.decodeToken(data.token); // Decodifica el token
+
+        this.storageService.saveUser(decodedToken);
+        // -- guardar token
+        this.storageService.f_setToken(data.token);
+      }),
 
 
-    // -- Credenciales OK, crea un token, lo guarda en sesionStorage
-    if (credentialsStatus) {
+      catchError(this.handleError)
+    );
 
-      try {
-
-        // const token = this.f_createToken(userData);
-
-        // -- asignar true a la sesion actual del usuario
-        this.dataService.setUserLoggedIn(true);
-        this.dataService.setUserData(userData);
-
-        this.storageService.saveUser(userData);
-
-        return true;
-
-      } catch (error) {
-        console.error('Error ecoding token:', error);
-        return false;
-      }
-
-    }
-    console.error('Error invalid credentials');
-    return false;
   }
 
 
-
   // ----------------------------------
-  // -- funcion para registrarse  
+  //  TODO funcion para registrarse  
   // ----------------------------------
-  signup(credentials: I_SignUp): boolean {
+  signup(credentials: I_SignUp): Observable<any> {
 
-    // --Datos del usuario recivido del for
-    let userData: I_SignUp = {
+    const url = AUTH_API + 'register';
 
+    const userData: {
+      user_type: string,
+      ci: string,
+      email: string,
+      name: string,
+      phone: string,
+      password: string,
+    } = {
       user_type: credentials.user_type,
       ci: credentials.ci,
       email: credentials.email,
       name: credentials.name,
       phone: credentials.phone,
-      code: credentials.code,
       password: credentials.password,
-      password_rpt: credentials.password_rpt,
-
     };
 
+    if (userData.password != credentials.password_rpt) {
+      return throwError(() => new Error('Contraseñas no coinciden.'));
+    }
     // -- Verificar que las datos sean correctas 
 
-    return this.signin({ user_name: userData.name, password: userData.password, user_type: userData.user_type });
+    return this.http.post<any>(url, userData).pipe(
+
+      tap((data: any) => {
+        // -- guardar token
+        this.storageService.f_setToken(data.token);
+
+        const decodedToken = this.storageService.decodeToken(data.token); // Decodifica el token
+
+        this.storageService.saveUser(decodedToken);
+
+      }),
+
+      catchError(this.handleError)
+    );
 
   }
 
 
   // ----------------------------------
-  // -- funcion para cerrar sesion  
+  //  TODO funcion para cerrar sesion  
   // ----------------------------------
   signout() {
 
-    // -- asignar true a la sesion actual del usuario
-    this.dataService.setUserLoggedIn(false);
-
+    this.dataService.setLoggedIn(false); 
     this.storageService.clean();
 
   }
 
-  // ----------------------------------
-  // -- funcion para verificar la sesion 
-  // ----------------------------------
   public isAuthenticated(): boolean {
-    // const token: string = this.f_getToken();
 
-    const isLoggedIn = this.storageService.isLoggedIn(); 
-    // -- asignar true a la sesion actual del usuario
-    this.dataService.setUserLoggedIn(isLoggedIn);
-    return isLoggedIn;
+    const token: string | null = this.storageService.f_getToken(); // Obtén el token almacenado
 
-  }
+    if (token !== null) {
+      try {
+        const decodedToken = this.storageService.decodeToken(token); // Decodifica el token
+
+        // Verifica la fecha de expiración
+        const currentTimestamp = Math.floor(Date.now() / 1000);
+        if (decodedToken.exp && decodedToken.exp < currentTimestamp) {
+
+          this.dataService.showMsj('Su sesión ha expirado', 'Alert', 'warning');
+
+          console.log('El token ha caducado.');
+          this.dataService.setLoggedIn(false); 
+          this.storageService.clean();
+
+          return false;
+        }
+
+        // Resto del código para configurar la autenticación 
 
 
-  private f_createToken(user: I_UserSessionStorage): string {
+        return true;
+      } catch (error) {
+        console.error('Error al decodificar el token:', error);
+        this.storageService.clean();
+        this.dataService.setLoggedIn(false); 
 
-    // // Set your secret key for signing the token
-    // const secret = 'session';
+        return false;
+      }
+    } else {
+      console.log('No se encontró un token.');
+      this.storageService.clean();
+      this.dataService.setLoggedIn(false); 
 
-    // // Set the token expiration time (in seconds)
-    // const expiresIn = 86400; // 24 hours, you can adjust this as needed
-
-    // // Create the token using the user information and secret key
-    // const token = jwt.sign({ user }, secret, { expiresIn, algorithm: 'HS256' });
-
-
-    // return token;
-    return "";
-  }
-
-  private f_getToken(): string {
-    // Implementa la lógica para obtener el token desde donde lo hayas almacenado
-    // Por ejemplo, localStorage, sessionStorage, etc.
-    return '...'; // Reemplaza con tu lógica de obtención de token
-  }
-
-  private f_decodificarJwt(token: string): any {
-    // Implementa la lógica para decodificar el token utilizando la biblioteca jsonwebtoken
-    try {
-      const decodedToken = "";
-      // const decodedToken = jwt.verify(token, 'session');
-      return decodedToken;
-    } catch (error) {
-      console.error('Error decoding JWT:', error);
-      return null;
+      return false;
     }
   }
 
+  private handleError(error: HttpErrorResponse) {
+    if (error.status === 0) {
+      console.log('Se ha producido un error ', error.error); 
 
-  //  -----------------------------
-  //  -----------------------------
-  login(username: string, password: string): Observable<any> {
-    return this.http.post(
-      AUTH_API + 'signin',
-      {
-        username,
-        password,
-      },
-      httpOptions
-    );
+    } else if (error.status === 400) { 
+      console.error('Error en la petición ' + error.status) 
+
+    } else if (error.status === 401) {
+ 
+      console.error('Sin Autorización! ' + error.status) 
+
+    } else if (error.status === 500) {
+ 
+      console.error('Error en el Servidor ' + error.status) 
+    }
+    else{
+    }
+    return throwError(() => new Error('Algo ha salido mal. ' + error.status));
+
+    
   }
 
-  register(username: string, email: string, password: string): Observable<any> {
-    return this.http.post(
-      AUTH_API + 'signup',
-      {
-        username,
-        email,
-        password,
-      },
-      httpOptions
-    );
-  }
 
-  logout(): Observable<any> {
-    return this.http.post(AUTH_API + 'signout', {}, httpOptions);
-  }
+
+
 }

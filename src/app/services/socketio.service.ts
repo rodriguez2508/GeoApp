@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Observer, Subject, fromEvent, repeat, takeUntil } from 'rxjs';
 
 import { Socket } from 'ngx-socket-io';
+import { I_UserMap } from '../interface/user.interface';
 
-// -- interfaces
-import { I_ConnectedUser } from '../interface/user.interface';
+// -- interfaces 
 // -- interfaces
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,7 @@ export class SocketioService {
   public socketStatus: boolean = false;
   public usuario = null;
 
-  private connectedUsersSubject: BehaviorSubject<I_ConnectedUser[]> = new BehaviorSubject<I_ConnectedUser[]>([]);
+  private connectedUsersSubject: BehaviorSubject<I_UserMap[]> = new BehaviorSubject<I_UserMap[]>([]);
  
   private destroy$ = new Subject<void>();
 
@@ -52,15 +52,15 @@ export class SocketioService {
   // -------------------------------------
 
   // Método para enviar datos del usuario al servidor
-  public sendUserData(user: { id: string, user_name: string, user_type: string }, currentPosition: { lat: number, long: number }): Observable<any> {
-    return this.socket.emit('send_user_data', { user, currentPosition });
+  public sendUserData(user: I_UserMap): Observable<any> {
+    return this.socket.emit('send_user_data', { user });
     
   }
  
 
-  public getConnectedUsers(): Observable<I_ConnectedUser[]> {
-    return new Observable<I_ConnectedUser[]>((observer) => {
-      this.socket.on('connected_users', (users: I_ConnectedUser[]) => {
+  public getConnectedUsers(): Observable<I_UserMap[]> {
+    return new Observable<I_UserMap[]>((observer) => {
+      this.socket.on('connected_users', (users: I_UserMap[]) => {
         observer.next(users);
       });
 

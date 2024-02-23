@@ -2,9 +2,13 @@ import { Coordinate } from "ol/coordinate";
 
 
 export interface I_UserSessionStorage {
-  id: string;
-  user_name: string;
-  user_type:string;
+  ci: string;
+  name: string;
+  email: string;
+  exp: number;
+  iat: number;
+  phone: string;
+  type_user:string; 
 }
 
 export interface I_UserDrivers {
@@ -37,15 +41,19 @@ export interface I_UserTraveler {
 
 export interface I_UserMap {
   id: string;
-  user_name: string;
+  name: string;
   markerColor:string;
-}
-
-export interface I_ConnectedUser {
-  id: string;
-  user: I_UserSessionStorage;
   currentPosition: {
-    lat: number;
     long: number;
+    lat: number;
   };
 }
+
+// export interface I_ConnectedUser {
+//   id: string;
+//   user: I_UserSessionStorage;
+//   currentPosition: {
+//     lat: number;
+//     long: number;
+//   };
+// }

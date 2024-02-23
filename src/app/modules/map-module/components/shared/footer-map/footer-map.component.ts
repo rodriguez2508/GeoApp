@@ -6,7 +6,7 @@ import { GeolocService } from '../../../../../services/geolocation/geoloc.servic
 import { DataService } from '../../../../../services/data/data.service';
 // -- services
 // -- interface
-import { I_ConnectedUser } from '../../../../../interface/user.interface';
+import { I_UserMap } from '../../../../../interface/user.interface';
 // -- interface
 
 @Component({
@@ -18,7 +18,7 @@ import { I_ConnectedUser } from '../../../../../interface/user.interface';
 })
 export class FooterMapComponent implements OnInit {
  
-  @Input() connected_users: I_ConnectedUser[] = [];  
+  @Input() connected_users: I_UserMap[] = [];  
  
   connected_users_lenght: number = 0;
 
@@ -39,11 +39,7 @@ export class FooterMapComponent implements OnInit {
 
   ngOnInit(): void {
 
-    // -- para verificar si el usuario tiene la sesion activa
-    this.dataService.getUserLoggedIn().subscribe((value) => {
-      this.userLoginOn = value;
-      
-    });
+     
 
    
     

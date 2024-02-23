@@ -9,13 +9,15 @@ import { MapPageComponent } from './map-page/map-page.component';
 import { FormPageComponent } from './form-page/form-page.component';
 import { FooterPageComponent } from './footer-page/footer-page.component';
 // -- Components
+
 // -- Interfaces
-import { I_ConnectedUser, I_UserSessionStorage } from '../../../../interface/user.interface';
 // -- Interfaces
+
 // -- Services
 import { GeolocService } from '../../../../services/geolocation/geoloc.service';
 import { DataService } from '../../../../services/data/data.service';
 import { SocketioService } from '../../../../services/socketio.service';
+import { I_UserMap, I_UserSessionStorage } from '../../../../interface/user.interface';
 import { StorageService } from '../../../../services/storage/storage.service';
 // -- Services
 
@@ -35,18 +37,32 @@ export class TravelRequestComponent {
   coord_origin: Coordinate = [];
   coord_destination: Coordinate = [];
 
-  zoom: number = 14;
+  zoom: number = 10;
   socket_status: boolean = false;
   location_status: boolean = false;
   max_count: number = 0;
 
-  connected_users: I_ConnectedUser[] = [];
-  userData: I_UserSessionStorage = { id: '', user_name: '', user_type: '' };
+  connected_users: I_UserMap[] = [];
+  userData: I_UserSessionStorage = { 
+    ci: '',
+    name: '',
+    email: '',
+    exp: 0,
+    iat: 0,
+    phone: '',
+    type_user: ''
+   };
 
   type_user: string = '';
   viewToShow: string = 'map';
 
-  constructor(private router: Router, private route: ActivatedRoute, private geolocService: GeolocService, private dataService: DataService, private socketioService: SocketioService, private storageService: StorageService) {
+  constructor(
+    private router: Router, 
+    private route: ActivatedRoute, 
+    private geolocService: GeolocService, 
+    private dataService: DataService, 
+    private storageService: StorageService, 
+    private socketioService: SocketioService) {
 
     // obtengo el parametro en la ruta
     this.route.queryParams.subscribe(params => {
@@ -62,39 +78,34 @@ export class TravelRequestComponent {
 
     });
 
-
-    // obtengo los datos de sesion del usuario
-    this.dataService.getUserData().subscribe((value) => {
-      this.userData = value;
-    });
-    // this.client = storageService.getUser();
-
-
-
+    
   }
   ngOnDestroy(): void {
 
-    this.socket_status = false;
-    this.location_status = false;
+    // this.socket_status = false;
+    // this.location_status = false;
     this.socketioService.disconnect();
     this.geolocService.stopWatchingPosition();
+    // this.max_count = -4;
 
   }
   ngAfterViewInit(): void {
 
     // this.first_iteration = 1;
 
-    this.type_user = this.userData.user_type === 'traveler' ? 'Conductor' : 'Viajero';
+    this.type_user = this.userData.type_user === 'traveler' ? 'Conductor' : 'Viajero';
 
   }
   ngOnInit() {
 
+    this.userData = this.storageService.getUser();
 
     if(this.viewToShow == 'map'){
       
       // -------------------------------------------
     // -- obtener localizacion  
     // -------------------------------------------
+     
     this.getLocation();
 
 
@@ -113,6 +124,9 @@ export class TravelRequestComponent {
   }
 
   reload_location() {
+    
+    this.geolocService.stopWatchingPosition();
+    
     this.getLocation();
   }
 
@@ -120,9 +134,35 @@ export class TravelRequestComponent {
   // -- obtener localizacion del usuario
   // -------------------------------------------
   async getLocation() {
+ 
 
-    this.max_count = 0;
     
+    this.geolocService.startWatchingPosition((position: Coordinate) => {
+
+      // Aquí puedes manejar la nueva posición del usuario 
+
+      if (Math.floor(this.lat * 10000) !== Math.floor(position[1] * 10000) || Math.floor(this.lon * 1000) !== Math.floor(position[0] * 1000)) {
+        // if (this.lat != position.coords.latitude || this.lon != position.coords.longitude) {
+        this.lat = position[1];
+        this.lon = position[0];
+
+        let position_ = { lat: this.lat, long: this.lon };
+
+        let user_:I_UserMap = {
+          id: this.userData.ci,
+          name: this.userData.name,
+          markerColor: 'success', currentPosition: position_ 
+        };
+
+
+        // -- Enviar los datos del usuario al servidor
+        this.socketioService.sendUserData(user_);
+
+        console.log('Pos.Update -> Latitude: ' + position[1] + ', Longitude: ' + position[0]);
+      }
+    });
+
+
     this.geolocService.get_locationStatus().subscribe((value) => {
 
       this.location_status = value;
@@ -131,31 +171,12 @@ export class TravelRequestComponent {
       console.log(this.max_count);
       this.max_count = value;
     });
-    this.geolocService.startWatchingPosition((position: GeolocationPosition) => {
-
-      // Aquí puedes manejar la nueva posición del usuario 
-
-      if (Math.floor(this.lat * 10000) !== Math.floor(position.coords.latitude * 10000) || Math.floor(this.lon * 1000) !== Math.floor(position.coords.longitude * 1000)) {
-        // if (this.lat != position.coords.latitude || this.lon != position.coords.longitude) {
-        this.lat = position.coords.latitude;
-        this.lon = position.coords.longitude;
-
-
-        let user_: I_UserSessionStorage = this.userData;
-        let position_ = { lat: this.lat, long: this.lon };
-
-        // -- Enviar los datos del usuario al servidor
-        this.socketioService.sendUserData(user_, position_);
-
-        console.log('Pos.Update -> Latitude: ' + position.coords.latitude + ', Longitude: ' + position.coords.longitude);
-      }
-    });
-
+     
   }
 
 
   // -------------------------------------------
-  // -- obtener estado del socket 
+  // -- TODO obtener estado del socket 
   // -------------------------------------------
 
   async getSocketStatus() {
@@ -163,16 +184,7 @@ export class TravelRequestComponent {
       next: (status: boolean) => {
         this.socket_status = status;
         console.log('Socket status updated:', status);
-
-        // Si el socket está en línea, enviar los datos del usuario al servidor
-        if (status) {
-
-          let user = { id: this.userData.id, name: this.userData.user_name };
-          let position = { lat: this.lat, long: this.lon };
-
-          // -- Enviar los datos del usuario al servidor
-          // this.socketioService.sendUserData(user, position);
-        }
+ 
       },
       error: (error: any) => {
         // Manejar errores al obtener el estado del socket
@@ -194,7 +206,7 @@ export class TravelRequestComponent {
 
     // Llama al método para obtener la lista de usuarios conectados
     this.socketioService.getConnectedUsers().subscribe({
-      next: (users: I_ConnectedUser[]) => {
+      next: (users: I_UserMap[]) => {
 
         // -- Guardar los usuarios conectados
         this.connected_users = users;

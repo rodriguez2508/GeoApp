@@ -5,8 +5,7 @@ import {
   Input,
   Output,
   SimpleChanges,
-} from '@angular/core';
-import { Subject } from 'rxjs';
+} from '@angular/core'; 
 
 // -- Openlayers
 import 'ol/ol.css';
@@ -43,13 +42,12 @@ import {
   I_UserMap,
   I_UserSessionStorage,
 } from '../../../../../interface/user.interface';
-import { I_ConnectedUser } from '../../../../../interface/user.interface';
 // --interfaces
+
 // -- services
 import { OlMapMarkerService } from '../../../../../services/map/ol-map-marker.service';
 import { DataService } from '../../../../../services/data/data.service';
 import { OpenRouteService } from '../../../../../services/map/open-route.service';
-import { StorageService } from '../../../../../services/storage/storage.service';
 // -- services
 // -- constant
 import {
@@ -104,11 +102,15 @@ export class MapPageComponent {
   map: Map = new Map();
 
   @Input() userData: I_UserSessionStorage = {
-    id: '',
-    user_name: '',
-    user_type: '',
+    ci: '',
+    name: '',
+    email: '',
+    exp: 0,
+    iat: 0,
+    phone: '',
+    type_user: ''
   };
-  @Input() connected_users: I_ConnectedUser[] = [];
+  @Input() connected_users: I_UserMap[] = [];
   client: I_UserMap;
 
 
@@ -135,22 +137,22 @@ export class MapPageComponent {
   distance: string = '0';
   
   // --
-  connected_TravelerUsers: I_ConnectedUser[] = [];
-  connected_DriverUsers: I_ConnectedUser[] = [];
+  connected_TravelerUsers: I_UserMap[] = [];
+  connected_DriverUsers: I_UserMap[] = [];
 
   constructor(
     private route: ActivatedRoute, 
     private router: Router,
     private elementRef: ElementRef,
-    private markerService: OlMapMarkerService,
-    private dataService: DataService,
-    private storageService: StorageService,
+    private markerService: OlMapMarkerService, 
     private openRouteService: OpenRouteService
   ) {
+ 
     this.client = {
-      id: this.userData.id,
-      user_name: this.userData.user_name,
+      id: this.userData.ci,
+      name: this.userData.name,
       markerColor: 'success',
+      currentPosition: {lat:this.lat, long:this.lon}
     };
   }
 
@@ -163,11 +165,12 @@ export class MapPageComponent {
   }
 
   ngAfterViewInit(): void {
-    this.client = {
-      id: this.userData.id,
-      user_name: this.userData.user_name,
-      markerColor: 'success',
-    };
+    // this.client = {
+    //   id: this.userData.ci,
+    //   name: this.userData.name,
+    //   markerColor: 'success',
+    //   currentPosition: {lat:this.lat, long:this.lon}
+    // };
   }
 
   ngOnDestroy(): void {}
@@ -178,9 +181,10 @@ export class MapPageComponent {
   ngOnChanges(changes: SimpleChanges): void {
     if ('client' in changes) {
       this.client = {
-        id: this.userData.id,
-        user_name: this.userData.user_name,
+        id: this.userData.ci,
+        name: this.userData.name,
         markerColor: 'success',
+        currentPosition: {lat:this.lat, long:this.lon}
       };
     }
 
@@ -191,7 +195,7 @@ export class MapPageComponent {
       
       if (!this.hasAddedTu) {
         this.coord = [this.lon, this.lat]; 
-        this.client.user_name += ' (Tú)';
+        this.client.name += ' (Tú)';
         this.client.markerColor = 'success';
         this.initMarker(this.coord, this.client);
         this.centerMap();
@@ -217,7 +221,7 @@ export class MapPageComponent {
         const indexToRemove = this.markers.findIndex(
           (marker) =>
             !this.connected_DriverUsers.some(
-              (user) => user.user.id === marker.get('client').id
+              (user) => user.id === marker.get('client').id
             )
         );
 
@@ -295,7 +299,7 @@ export class MapPageComponent {
       if (this.location_status) {
         this.showFooterOnMap();
 
-        if (this.footerDisplayed) {
+        if (this.footerDisplayed && this.socket_status && this.location_status) {
           this.getAddress(this.coord_destination);
         }
         // const startPoint = [this.lon, this.lat];
@@ -405,7 +409,7 @@ export class MapPageComponent {
 
         const address = `${road === undefined ? '' : road + ','} ${
           neighbourhood === undefined ? '' : neighbourhood + ','
-        } ${city === undefined ? state : city + ','}`;
+        } ${city === undefined ? state : city }`;
 
         // const distance = response.features[0]?.properties?.distance;
 
@@ -413,17 +417,6 @@ export class MapPageComponent {
         this.address = address;
         // this.distance = distance;
 
-        // ---------
-        // let street = response.features[0]?.properties?.street + ', ';
-        // let name = response.features[0]?.properties?.name != response.features[0]?.properties?.street ? response.features[0]?.properties?.name + ', ' : '';
-
-        // const address = street + name + response.features[0]?.properties?.region;
-
-        // const distance = response.features[0]?.properties?.distance;
-
-        // console.log(response.features)
-        // this.address = address;
-        // this.distance = distance;
       },
       error: (error: any) => {
         // Manejar errores al obtener el estado del socket
@@ -508,8 +501,12 @@ export class MapPageComponent {
   initMarkerDestination(coord: Coordinate) {
     let destination: I_DestinationMarker = {
       id: 'destination',
-      user_name: '',
+      name: '',
       markerColor: 'danger',
+      currentPosition:{
+        lat: coord[1],
+        long: coord[0],
+      }
     };
 
     this.initMarker(coord, destination);
@@ -564,7 +561,7 @@ export class MapPageComponent {
       this.markerService &&
       this.map
     ) {
-      this.connected_DriverUsers.forEach((user: I_ConnectedUser) => {
+      this.connected_DriverUsers.forEach((user: I_UserMap) => {
         // Verifica si la posición actual está presente en el usuario antes de intentar pintar el marcador
         if (user.currentPosition.lat && user.currentPosition.long) {
           const coord: Coordinate = [
@@ -574,16 +571,20 @@ export class MapPageComponent {
 
           this.markers = this.markers.filter((marker) => {
             return this.connected_DriverUsers.some(
-              (user) => user.user.id === marker.get('client').id
+              (user) => user.id === marker.get('client').id
             );
           });
 
           this.initMarker(this.coord, this.client);
 
           let client: I_UserMap = {
-            id: user.user.id,
-            user_name: user.user.user_name,
+            id: user.id,
+            name: user.name,
             markerColor: 'warning',
+            currentPosition: {
+              lat: this.coord[1],
+              long: this.coord[0]
+            }
           };
 
           // if (this.client.id == client.id) {
@@ -622,10 +623,11 @@ export class MapPageComponent {
     this.methodToShowFooter = 'map';
   } 
 
-  getConnectedUsersByType(userType: string): I_ConnectedUser[] {
-    return this.connected_users.filter(
-      (user: I_ConnectedUser) => user.user.user_type === userType
-    );
+  getConnectedUsersByType(userType: string): I_UserMap[] {
+    // return this.connected_users.filter(
+    //   (user: I_UserMap) => user. === userType
+    // );
+    return this.connected_users;
   }
 
   getAndUpdateConnectedTravelerUsers(): void {

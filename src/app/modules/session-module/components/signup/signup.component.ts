@@ -85,19 +85,18 @@ export class SignupComponent implements OnInit, AfterViewInit {
   private f_createForm(): FormGroup {
 
     return this.fb.group({
-      'user_type': [this._role, [Validators.required]],
+      'user_type': ['traveler', [Validators.required]],
       'ci': ['', [Validators.required, Validators.minLength(11)]],
       'email': ['', [Validators.required, Validators.minLength(5)]],
       'name': ['', [Validators.required, Validators.minLength(5)]],
       'phone': ['', [Validators.required, Validators.minLength(5)]],
-      'code': ['', [Validators.required, Validators.minLength(5)]],
       'password': ['', [Validators.required, Validators.minLength(6)]],
       'password_rpt': ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
   // ----------------------------------
-  // -- funcion para registrarse sesion  
+  // TODO funcion para registrarse sesion  
   // ---------------------------------- 
   f_signup() {
     // Tip: si los datos del formulario son incorrectos
@@ -107,30 +106,47 @@ export class SignupComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (this.sessionService.isAuthenticated()) {
-      // -- mostrar mensaje en la pantalla
-      this.dataService.showMsjInData('Ya existe una sesión abierta en este navegador, asegúrese de que sea de usted.', 'success', '');
-    }
-    else if (this.sessionService.signup(this.form_register.value)) {
+    this.sessionService.signup(this.form_register.value).subscribe({
+      next: (response: any) => {
 
-      // -- mostrar mensaje en la pantalla
-      this.dataService.showMsjInData('Credenciales verificadas correctamente.', 'success', '/map/show');
+        if(response.type_user == 'traveler') this.goToTravelerView();
+        else if(response.type_user == 'driver') this.goToDriverView();
+        else if(response.type_user == 'admin') this.goToTravelerView();
+  
+      },
+      error: (error: any) => {
+        
+        this.dataService.showMsj('' ,'Warning', 'warning');
+        console.error('Error getting Registrarse:', error);
+ 
+      },
+      complete: () => {
+        // Realizar acciones adicionales cuando el observable se completa, si es necesario
+      },
+    });
+     
 
-    } else {
+  } 
 
-      // -- mostrar mensaje en la pantalla
-      this.dataService.showMsjInData('Credenciales incorrectas!', 'danger', '');
 
-    }
-
+  goToTravelerView() {
+     
+   return this.router.navigate(['/traveler/travel-request'], { 
+      queryParams: {
+         
+      },
+    });
   }
-
-
-
-
-
-  goToSignIn(): void {
-    this.router.navigate(['/session/signin'], { queryParams: { role: '' } });
+  goToDriverView() {
+    
+    return this.router.navigate(['/traveler/travel-request'], { 
+      queryParams: {
+         
+      },
+    });
+  }  
+  goToSignIn() {
+    return this.router.navigate(['/session/signin'], { queryParams: { role: '' } });
   }
 
   // ----------------------------------

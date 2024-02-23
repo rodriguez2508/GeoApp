@@ -19,6 +19,7 @@ import { I_UserMap } from '../../interface/user.interface';
 
 // --- CONSTANT 
 import { DEFAULT_ANCHOR, DEFAULT_ICON, DEFAULT_LAT, DEFAULT_LON, DEFAULT_TEXT, MARKER_COLOR } from '../../modules/traveler/data/data-map';
+import { I_DestinationMarker } from '../../interface/marker.interface';
 // --- CONSTANT
 
 @Injectable({
@@ -53,7 +54,7 @@ export class OlMapMarkerService {
   // -- Inicializar marcador en el mapa 
   // --------------------------------------------
   initMarker(markers: Feature[], coord: Coordinate,
-    client: I_UserMap): Feature[] {
+    client: I_UserMap | I_DestinationMarker): Feature[] {
 
     // Buscar el índice del marcador 
     const indexToUpdate = markers.findIndex(marker => marker.get('client').id === client.id);
@@ -95,7 +96,7 @@ export class OlMapMarkerService {
 
     const text = new Style({
       text: new Text({
-        text: client.user_name,
+        text: client.name,
         font: 'bold 17px arial',
         offsetY: 20,
         offsetX: 10,
@@ -156,7 +157,7 @@ export class OlMapMarkerService {
 
         const text = new Style({
           text: new Text({
-            text: client.user_name,
+            text: client.name,
             font: 'bold 17px arial',
             offsetY: 20,
             offsetX: 10,

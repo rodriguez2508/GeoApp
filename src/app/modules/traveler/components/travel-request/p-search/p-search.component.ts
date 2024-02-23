@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 
 // --interfaces
-import { I_ConnectedUser } from '../../../../../interface/user.interface';
+
 // --interfaces
 @Component({
   selector: 'app-p-search',

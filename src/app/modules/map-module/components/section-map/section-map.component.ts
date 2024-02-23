@@ -5,14 +5,14 @@ import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { GeolocService } from '../../../../services/geolocation/geoloc.service';
 import { DataService } from '../../../../services/data/data.service';
 import { SocketioService } from '../../../../services/socketio.service'; 
-import { StorageService } from '../../../../services/storage/storage.service';
 // --services
 // --components
 import { OlMapComponent } from '../ol-map/ol-map.component';
 import { FooterMapComponent } from '../shared/footer-map/footer-map.component'; 
 // --components
 // --interface
-import { I_UserSessionStorage, I_ConnectedUser } from '../../../../interface/user.interface';
+import { I_UserMap, I_UserSessionStorage } from '../../../../interface/user.interface';
+import { MARKER_COLOR } from '../../../traveler/data/data-map';
 // --interface
 @Component({
   selector: 'app-section-map',
@@ -32,15 +32,21 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
   max_count: number = 0;
 
   
-  connected_users: I_ConnectedUser[] = [];
-  userData: I_UserSessionStorage = {id:'', user_name:'', user_type:''};
+  connected_users: I_UserMap[] = [];
+  userData: I_UserSessionStorage = {
+    ci: '',
+    name: '',
+    email: '',
+    exp: 0,
+    iat: 0,
+    phone: '',
+    type_user: ''
+  };
   
   type_user:string = '';
 
-  constructor(private geolocService: GeolocService, private dataService: DataService, private socketioService: SocketioService, private storageService: StorageService) {
-    this.dataService.getUserData().subscribe((value) => { 
-      this.userData = value; 
-   });
+  constructor(private geolocService: GeolocService, private dataService: DataService, private socketioService: SocketioService) {
+     
   }
   ngOnDestroy(): void {
 
@@ -51,7 +57,7 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // this.first_iteration = 1;
     
-    this.type_user = this.userData.user_type==='traveler'? 'Conductor': 'Viajero';
+    this.type_user = this.userData.type_user==='traveler'? 'Conductor': 'Viajero';
 
   }
   ngOnInit() {
@@ -102,14 +108,16 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.lat = position.coords.latitude;
         this.lon = position.coords.longitude;
 
-
-        let user_:I_UserSessionStorage = this.userData;
+        // -- Actualiza la posicion
         let position_ = { lat: this.lat, long: this.lon };
 
-        // -- Enviar los datos del usuario al servidor
-        this.socketioService.sendUserData(user_, position_);
+        // -- Actualiza los datos del Usuario
+        let user_:I_UserMap = {id: this.userData.ci, name: this.userData.name, markerColor: 'success', currentPosition: position_ };
 
-        console.log('Pos.Update -> Latitude: ' + position.coords.latitude + ', Longitude: ' + position.coords.longitude);
+        // -- Enviar los datos del usuario al servidor
+        this.socketioService.sendUserData(user_);
+
+        // console.log('Pos.Update -> Latitude: ' + position.coords.latitude + ', Longitude: ' + position.coords.longitude);
       }
     });
 
@@ -123,18 +131,11 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
   async getSocketStatus() {
     this.socketioService.get_socketStatus().subscribe({
       next: (status: boolean) => {
+
+        // -- actualiza el socket_status
         this.socket_status = status;
         console.log('Socket status updated:', status);
-
-        // Si el socket está en línea, enviar los datos del usuario al servidor
-        if (status) {
-
-          let user = { id: this.userData.id, name: this.userData.user_name };
-          let position = { lat: this.lat, long: this.lon };
-
-          // -- Enviar los datos del usuario al servidor
-          // this.socketioService.sendUserData(user, position);
-        }
+ 
       },
       error: (error: any) => {
         // Manejar errores al obtener el estado del socket
@@ -156,7 +157,7 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Llama al método para obtener la lista de usuarios conectados
     this.socketioService.getConnectedUsers().subscribe({
-      next: (users: I_ConnectedUser[]) => {
+      next: (users: I_UserMap[]) => {
 
         // -- Guardar los usuarios conectados
         this.connected_users = users;

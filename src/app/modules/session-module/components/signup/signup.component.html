@@ -1,251 +1,264 @@
-<section class="w3-row w3-col w3-container">
+<section class="w3-row w3-col w3-container text-white  mt-10">
   <div class="w3-row w3-col _center-h-sb">
-    <h3> <i class="fa fa-user-circle"></i> {{ title_page }}</h3>
+    <h1 class="fw-bold">LINKI</h1>
   </div>
-  <div class="w3-row w3-col d-flex   _center-h-sb">
+  <div class="w3-row w3-col _center-h-sb">
+    <h3 class="text-warning fw-bold">{{ title_page }}</h3>
+  </div>
+  <div class="w3-row w3-col d-flex _center-h-sb">
     <!-- Inputs y Forms -->
     <form
-      class="w3-row w3-col l8 m8 set-height-s-70 d-flex align-content-between p-3 border border-warning rounded-2"
+      class="w3-row w3-col l8 m8 set-height-s-55 d-flex align-content-between p-3 rounded-5 text-dark"
       [formGroup]="form_register"
       (ngSubmit)="onSubmit()"
     >
       <div class="w3-row w3-col m-auto">
-
         <!-- -------------- -->
         <!-- Tipo de Usuario -->
         <!-- -------------- -->
-        <div class="w3-row w3-col mb-3 mt-3 w3-section _center-h">
-          <div class="w3-row w3-col l5 m5 s5 mb-3 mt-3 w3-section border-bottom border-dark  me-1 _center-h">
+        <div class="w3-row w3-col _center-h bg-white rounded-top-4">
+          <div class="w3-col s6 custom-control custom-radio rounded-top-4">
             <input
               type="radio"
               formControlName="user_type"
               id="traveler"
+              name="user_type"
               value="traveler"
+              class="custom-control-input"
             />
-            <label for="traveler" class=" text-uppercase fw-bold text-center ps-2 _center-h"><i class="fa fa-person fa-2 pe-1"></i>  Viajero</label>
+            <span class="custom-control-indicator d-none"></span>
+            <label
+              for="traveler"
+              class="btn border-0 text-uppercase fw-bold _center-h custom-control-description w-100"
+              ><i class="w3-section fa fa-person fa-2x pe-1"></i> Viajero</label
+            >
           </div>
-          <div class="w3-row w3-col l5 m5 s5 mb-3 mt-3 w3-section border-bottom border-dark  _center-h">
+          <div class="w3-col s6 custom-control custom-radio rounded-top-4">
             <input
               type="radio"
               formControlName="user_type"
               id="driver"
+              name="user_type"
               value="driver"
+              class="custom-control-input"
             />
-            <label for="driver" class=" text-uppercase fw-bold text-center ps-2 _center-h"><i class="fa fa-car-alt fa-1 pe-1"></i>  Conductor</label>
+            <span class="custom-control-indicator d-none"></span>
+            <label
+              for="driver"
+              class="btn border-0 text-uppercase fw-bold _center-h custom-control-description w-100"
+              ><i class="w3-section fa fa-car-alt fa-2x pe-1"></i>
+              Conductor</label
+            >
           </div>
         </div>
 
-        <!-- -------------- -->
-        <!-- CI -->
-        <!-- -------------- -->
-        <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
-          <input
-            formControlName="ci"
-            type="text"
-            class="form-control"
-            name="ci"
-            id="ci"
-            title="Su identificación personal o carnet de identidad"
-            type="text"
-            [class.is-invalid]="f.ci.invalid && f.ci.touched"
-          />
-          <label for="ci">Identidad personal (C.I.)</label>
+        <div
+          class="w3-col w3-row w3-container rounded-bottom-5 text-dark bg-warning"
+        >
+          <!-- -------------- -->
+          <!-- CI -->
+          <!-- -------------- -->
+          <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
+            <input
+              formControlName="ci"
+              type="text"
+              class="form-control"
+              name="ci"
+              id="ci"
+              placeholder="Su identificación personal o carnet de identidad"
+              type="text"
+              [class.is-invalid]="f.ci.invalid && f.ci.touched"
+            />
+            <label for="ci">Identidad personal (C.I.)</label>
 
-          @if(f.ci.invalid && (f.ci.dirty || f.ci.touched)
-          ){ @if(f.ci.errors?.['required'] ){
-          <div [classList]="'text-danger'">CI is required.</div>
-          } @if(f.ci.errors?.['minlength']){
+            @if(f.ci.invalid && (f.ci.dirty || f.ci.touched) ){
+            @if(f.ci.errors?.['required'] ){
+            <div [classList]="'text-danger'">CI is required.</div>
+            } @if(f.ci.errors?.['minlength']){
 
-          <div [classList]="'text-danger'">
-            CI min-required length: 3 | actual lenght:
-            {{ f.ci.value.length }}
+            <div [classList]="'text-danger'">
+              CI min-required length: 3 | actual lenght:
+              {{ f.ci.value.length }}
+            </div>
+            } }
           </div>
-          } }
-        </div>
 
-        <!-- -------------- -->
-        <!-- Email -->
-        <!-- -------------- -->
-        <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
-          <input
-            formControlName="email"
-            type="text"
-            class="form-control"
-            name="email"
-            id="email"
-            title="Su email de empresa o personal"
-            type="text"
-            [class.is-invalid]="f.email.invalid && f.email.touched"
-          />
-          <label for="email">Email</label>
+          <!-- -------------- -->
+          <!-- Email -->
+          <!-- -------------- -->
+          <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
+            <input
+              formControlName="email"
+              type="text"
+              class="form-control"
+              name="email"
+              id="email"
+              placeholder="Su email de empresa o personal"
+              type="text"
+              [class.is-invalid]="f.email.invalid && f.email.touched"
+            />
+            <label for="email">Email</label>
 
-          @if(f.email.invalid && (f.email.dirty || f.email.touched)
-          ){ @if(f.email.errors?.['required'] ){
-          <div [classList]="'text-danger'">Email is required.</div>
-          } @if(f.email.errors?.['minlength']){
+            @if(f.email.invalid && (f.email.dirty || f.email.touched) ){
+            @if(f.email.errors?.['required'] ){
+            <div [classList]="'text-danger'">Email is required.</div>
+            } @if(f.email.errors?.['minlength']){
 
-          <div [classList]="'text-danger'">
-            Email min-required length: 3 | actual lenght:
-            {{ f.email.value.length }}
+            <div [classList]="'text-danger'">
+              Email min-required length: 3 | actual lenght:
+              {{ f.email.value.length }}
+            </div>
+            } }
           </div>
-          } }
-        </div>
 
-        <!-- -------------- -->
-        <!-- Name -->
-        <!-- -------------- -->
-        <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
-          <input
-            formControlName="name"
-            type="text"
-            class="form-control"
-            name="name"
-            id="name"
-            title="Su nombre y apellidos"
-            type="text"
-            [class.is-invalid]="f.name.invalid && f.name.touched"
-          />
-          <label for="name">Nombre y apellidos</label>
+          <!-- -------------- -->
+          <!-- Name -->
+          <!-- -------------- -->
+          <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
+            <input
+              formControlName="name"
+              type="text"
+              class="form-control"
+              name="name"
+              id="name"
+              placeholder="Su nombre y apellidos"
+              type="text"
+              [class.is-invalid]="f.name.invalid && f.name.touched"
+            />
+            <label for="name">Nombre y apellidos</label>
 
-          @if(f.name.invalid && (f.name.dirty || f.name.touched)
-          ){ @if(f.name.errors?.['required'] ){
-          <div [classList]="'text-danger'">Nombre is required.</div>
-          } @if(f.name.errors?.['minlength']){
+            @if(f.name.invalid && (f.name.dirty || f.name.touched) ){
+            @if(f.name.errors?.['required'] ){
+            <div [classList]="'text-danger'">Nombre is required.</div>
+            } @if(f.name.errors?.['minlength']){
 
-          <div [classList]="'text-danger'">
-            Nombre min-required length: 3 | actual lenght:
-            {{ f.name.value.length }}
+            <div [classList]="'text-danger'">
+              Nombre min-required length: 3 | actual lenght:
+              {{ f.name.value.length }}
+            </div>
+            } }
           </div>
-          } }
-        </div>
 
+          <!-- -------------- -->
+          <!-- Phone -->
+          <!-- -------------- -->
+          <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
+            <input
+              formControlName="phone"
+              type="text"
+              class="form-control"
+              name="phone"
+              id="phone"
+              placeholder="Su teléfono fijo o móvil"
+              type="text"
+              [class.is-invalid]="f.phone.invalid && f.phone.touched"
+            />
+            <label for="phone">Teléfono</label>
 
-        <!-- -------------- -->
-        <!-- Phone -->
-        <!-- -------------- -->
-        <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
-          <input
-            formControlName="phone"
-            type="text"
-            class="form-control"
-            name="phone"
-            id="phone"
-            title="Su teléfono fijo o móvil"
-            type="text"
-            [class.is-invalid]="f.phone.invalid && f.phone.touched"
-          />
-          <label for="phone">Teléfono</label>
+            @if(f.phone.invalid && (f.phone.dirty || f.phone.touched) ){
+            @if(f.phone.errors?.['required'] ){
+            <div [classList]="'text-danger'">Teléfono is required.</div>
+            } @if(f.phone.errors?.['minlength']){
 
-          @if(f.phone.invalid && (f.phone.dirty || f.phone.touched)
-          ){ @if(f.phone.errors?.['required'] ){
-          <div [classList]="'text-danger'">Teléfono is required.</div>
-          } @if(f.phone.errors?.['minlength']){
-
-          <div [classList]="'text-danger'">
-            teléfono min-required length: 3 | actual lenght:
-            {{ f.phone.value.length }}
+            <div [classList]="'text-danger'">
+              teléfono min-required length: 3 | actual lenght:
+              {{ f.phone.value.length }}
+            </div>
+            } }
           </div>
-          } }
-        </div>
 
-        <!-- -------------- -->
-        <!-- Code -->
-        <!-- -------------- -->
-        <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
-          <input
-            formControlName="code"
-            type="text"
-            class="form-control"
-            name="code"
-            id="code"
-            title="Su código de acceso "
-            type="text"
-            [class.is-invalid]="f.code.invalid && f.code.touched"
-          />
-          <label for="code">Código de acceso</label>
-
-          @if(f.code.invalid && (f.code.dirty || f.code.touched)
-          ){ @if(f.code.errors?.['required'] ){
-          <div [classList]="'text-danger'">Code is required.</div>
-          } @if(f.code.errors?.['minlength']){
-
-          <div [classList]="'text-danger'">
-            código min-required length: 3 | actual lenght:
-            {{ f.code.value.length }}
-          </div>
-          } }
-        </div>
-
-
-        <!-- -------------- -->
-        <!-- Password -->
-        <!-- -------------- -->
-
-        <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
-          <input
-            formControlName="password"
-            type="password"
-            class="form-control"
-            id="password"
-            [class.is-invalid]="f.password.invalid && f.password.touched"
-          />
-          <label for="password">Contraseña</label>
-
-          @if(f.password.invalid && (f.password.dirty || f.password.touched) ){
-          @if(f.password.errors?.['required'] ){
-          <div [classList]="'text-danger'">Contraseña is required.</div>
-          } @if(f.password.errors?.['minlength']){
-
-          <div [classList]="'text-danger'">
-            Contraseña min-required length: 6 | actual lenght:
-            {{ f.password.value.length }}
-          </div>
-          } }
-        </div>
-
-         <!-- -------------- -->
-        <!-- Password_rpt-->
-        <!-- -------------- -->
-
-        <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
-          <input
-            formControlName="password_rpt"
-            type="password"
-            class="form-control"
-            id="password_rpt"
-            [class.is-invalid]="f.password_rpt.invalid && f.password_rpt.touched"
-          />
-            
-            <label title="Debe ser igual a la anterior" for="password_rpt">Repita su contraseña</label>
-
-          @if(f.password_rpt.invalid && (f.password_rpt.dirty || f.password_rpt.touched) ){
-          @if(f.password_rpt.errors?.['required'] ){
-          <div [classList]="'text-danger'">Contraseña is required.</div>
-          } @if(f.password_rpt.errors?.['minlength']){
-
-          <div [classList]="'text-danger'">
-            Contraseña min-required length: 6 | actual lenght:
-            {{ f.password_rpt.value.length }}
-          </div>
-          } }
-        </div>
-       
-
-        <!-- -------------- -->
-        <!-- Botones -->
-        <!-- -------------- -->
-        <div class="w3-row w3-col w3-section">
-          <button class="w3-col l4 m4 btn btn-warning float-end" type="submit">
-            Registrarse
-          </button>
           
-          <button class="w3-col l4 m4 btn border-warning me-1 float-start" >
-            <a (click)="goToSignIn()" routerLinkActive="router-link-active" > <i class="fa fa-user-circle"></i> Iniciar sesión</a>
-          </button>
-          
+          <!-- -------------- -->
+          <!-- Password -->
+          <!-- -------------- -->
+
+          <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
+            <input
+              formControlName="password"
+              type="password"
+              class="form-control"
+              id="password"
+              placeholder="Escriba su contraseña"
+              [class.is-invalid]="f.password.invalid && f.password.touched"
+            />
+            <label for="password">Contraseña</label>
+
+            @if(f.password.invalid && (f.password.dirty || f.password.touched)
+            ){ @if(f.password.errors?.['required'] ){
+            <div [classList]="'text-danger'">Contraseña is required.</div>
+            } @if(f.password.errors?.['minlength']){
+
+            <div [classList]="'text-danger'">
+              Contraseña min-required length: 6 | actual lenght:
+              {{ f.password.value.length }}
+            </div>
+            } }
+          </div>
+
+          <!-- -------------- -->
+          <!-- Password_rpt-->
+          <!-- -------------- -->
+
+          <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
+            <input
+              formControlName="password_rpt"
+              type="password"
+              class="form-control"
+              id="password_rpt"
+              placeholder="Repita la contraseña"
+              [class.is-invalid]="
+                f.password_rpt.invalid && f.password_rpt.touched
+              "
+            />
+
+            <label title="Debe ser igual a la anterior" for="password_rpt"
+              >Repita su contraseña</label
+            >
+
+            @if(f.password_rpt.invalid && (f.password_rpt.dirty ||
+            f.password_rpt.touched) ){ @if(f.password_rpt.errors?.['required']
+            ){
+            <div [classList]="'text-danger'">Contraseña is required.</div>
+            } @if(f.password_rpt.errors?.['minlength']){
+
+            <div [classList]="'text-danger'">
+              Contraseña min-required length: 6 | actual lenght:
+              {{ f.password_rpt.value.length }}
+            </div>
+            } }
+          </div>
+
+          <!-- -------------- -->
+          <!-- Botones -->
+          <!-- -------------- -->
+          <div class="w3-row w3-col _center-h mb-3">
+            <button
+              class="w3-col l4 m4 s4 btn btn-dark float-end"
+              type="submit"
+            >
+              Registrarse
+            </button>
+          </div>
         </div>
       </div>
     </form>
   </div>
- 
+  <div class="w3-row w3-col w3-section">
+    
+    <button class="w3-col l4 m4 btn border-warning me-1 float-start text-white">
+      <a (click)="goToSignIn()" routerLinkActive="router-link-active">
+        <i class="fa fa-user-circle"></i> Ya tienes cuenta?
+        <span class="text-warning"> Iniciar sesión</span></a
+      >
+    </button>
+  </div>
+  <div class="w3-row w3-col ">
+    
+    <button class="w3-col l4 m4 btn border-warning me-1 float-start text-white">
+      <a (click)="goToSignIn()" routerLinkActive="router-link-active">
+        <i class="fa fa-sign-in"></i> Iniciar sesión con
+        <span class="text-warning"> Google</span></a
+      >
+    </button>
+  </div>
 </section>

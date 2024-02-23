@@ -22,7 +22,6 @@ import { environment } from '../../../../environments/environment';
 import { DataService } from '../../../services/data/data.service';
 import { SessionService } from '../../../modules/session-module/services/session.service';
 import { ShareAppService } from '../../../services/share-app.service';
-import { StorageService } from '../../../services/storage/storage.service';
 import { I_UserSessionStorage } from '../../../interface/user.interface';
 import { NavbarTravelerComponent } from '../../../modules/traveler/components/shared/navbar/navbar-traveler.component';
 
@@ -37,8 +36,16 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
   _role: string = 'undefined';
   client: any;
 
-  userLoginOn: boolean = false;
-  userData: I_UserSessionStorage = { id: '', user_name: '', user_type: '' };
+  @Input() userLoginOn: boolean = false;
+  @Input() userData: I_UserSessionStorage = {
+    ci: '',
+    name: '',
+    email: '',
+    exp: 0,
+    iat: 0,
+    phone: '',
+    type_user: ''
+  };
 
   appVersion: string = environment.appVersion;
   appName: string = environment.appName;
@@ -53,25 +60,20 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     private route: ActivatedRoute,
     private dataService: DataService,
     private sessionService: SessionService,
-    private shareappService: ShareAppService,
-    private storageService: StorageService
+    private shareappService: ShareAppService
   ) {
-    this.route.queryParams.subscribe((params) => {});
+    this.route.queryParams.subscribe((params) => { });
+     
   }
 
   async ngOnInit(): Promise<void> {
-    this.dataService.getUserData().subscribe((value) => {
-      this.userData = value;
-    });
-
-    this.dataService.getUserLoggedIn().subscribe((value) => {
-      this.userLoginOn = value;
-    });
+ 
+    
   }
 
-  ngOnChanges(changes: SimpleChanges): void {}
-  ngAfterViewInit() {}
-  ngOnDestroy(): void {}
+  ngOnChanges(changes: SimpleChanges): void { }
+  ngAfterViewInit() { }
+  ngOnDestroy(): void { }
 
   // -----------------------------------------
   // F_ boton menu cuando la vista es telefono
@@ -103,7 +105,7 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.sessionService.signout();
 
       // -- mostrar mensaje en la pantalla
-      this.dataService.showMsjInData('Cerrando Sesión...', 'success', '/');
+      this.dataService.showMsjInData('Cerrando Sesión...', 'success', '/session/login');
 
       // window.location.reload();
     } else {
@@ -122,9 +124,6 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     const cancelFullScreen = doc.exitFullscreen;
 
     if (
-      !doc.fullscreenElement &&
-      !doc.fullscreenElement &&
-      !doc.fullscreenElement &&
       !doc.fullscreenElement
     ) {
       requestFullScreen.call(docEl);

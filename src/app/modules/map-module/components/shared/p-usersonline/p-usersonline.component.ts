@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 
 
 // --interface
-import { I_ConnectedUser } from '../../../../../interface/user.interface';
+import { I_UserMap } from '../../../../../interface/user.interface';
 // --interface
 @Component({
   selector: 'app-p-usersonline',
@@ -13,7 +13,7 @@ import { I_ConnectedUser } from '../../../../../interface/user.interface';
 })
 export class PUsersonlineComponent {
 
-  @Input() connected_users: I_ConnectedUser[] = []; 
+  @Input() connected_users: I_UserMap[] = []; 
   
   
    

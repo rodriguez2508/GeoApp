@@ -8,6 +8,10 @@ export interface I_Marker {
 
 export interface I_DestinationMarker {
   id: string;
-  user_name: string;
-  markerColor: string;
+  name: string;
+  markerColor:string;
+  currentPosition: {
+    long: number;
+    lat: number;
+  };
 }
