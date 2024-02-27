@@ -4,7 +4,7 @@
   <div
     [class]="
       (!location_status
-        ? 'panel-error-connection-gps set-height-85'
+        ? 'panel-error-connection-gps set-height-87'
         : 'panel-error-connection-') +
       ' align-content-between w-100 position-absolute '
     "
@@ -63,7 +63,7 @@
       role="tabpanel"
       aria-labelledby="map-tab"
     >
-      <div class="w3-row w3-col set-height-s-85 border border-dark">
+      <div class="w3-row w3-col set-height-s-87 border border-dark">
         <!-- -------------- -->
         <!-- Body page -->
         <!-- -------------- -->
@@ -73,7 +73,7 @@
           [lon]="lon"
           [zoom]="zoom"
           [width]="'100%'"
-          [height]="'85vh'"
+          [height]="'87vh'"
           [socket_status]="socket_status"
           [location_status]="location_status"
           [connected_users]="connected_users"

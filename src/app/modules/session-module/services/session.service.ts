@@ -1,7 +1,8 @@
+import { environment } from './../../../../environments/environment';
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
 
 // -- módulo que para generar ID
@@ -15,9 +16,11 @@ import { I_SignIn, I_SignUp } from '../../../interface/session.interface';
 import { DataService } from '../../../services/data/data.service';
 import { Router } from '@angular/router';
 import { StorageService } from '../../../services/storage/storage.service';
+import { Auth, UserCredential, authState, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 // -- Services 
 
-const AUTH_API = 'http://localhost:3000/api/v1/auth/';
+const AUTH_API = environment.AUTH_API;
 
 @Injectable({
 
@@ -26,7 +29,13 @@ const AUTH_API = 'http://localhost:3000/api/v1/auth/';
 
 export class SessionService {
 
+  
   private apiUrl = '/api/v1/auth/'; // Ajusta la URL seg�n la estructura de tu backend
+
+  // -- Firebase variables
+  private auth:Auth = inject(Auth);
+  readonly authState$ = authState(this.auth);
+
 
   token: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
@@ -60,6 +69,12 @@ export class SessionService {
       catchError(this.handleError)
     );
 
+  }
+
+  // -- login con firebase
+
+  signinWithFirebase(credentials: {email:string, password:string}): Promise<UserCredential>{
+    return createUserWithEmailAndPassword(this.auth, credentials.email, credentials.password);
   }
 
 
@@ -109,6 +124,13 @@ export class SessionService {
   }
 
 
+  // -- registrarse con firebase
+
+  signupWithFirebase(credentials: {email:string, password:string}): Promise<UserCredential>{
+    return signInWithEmailAndPassword(this.auth, credentials.email, credentials.password);
+  }
+
+
   // ----------------------------------
   //  TODO funcion para cerrar sesion  
   // ----------------------------------
@@ -116,6 +138,7 @@ export class SessionService {
 
     this.dataService.setLoggedIn(false); 
     this.storageService.clean();
+    this.auth.signOut();
 
   }
 
@@ -177,7 +200,7 @@ export class SessionService {
     }
     else{
     }
-    return throwError(() => new Error('Algo ha salido mal. ' + error.status));
+    return throwError(() => new Error(`${error.status}`));
 
     
   }

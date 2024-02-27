@@ -1,6 +1,8 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { StorageService } from './../../../../services/storage/storage.service';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import * as firebase from 'firebase/app'
 
 
 // -- Interfaces
@@ -10,7 +12,10 @@ import { I_SignUp } from '../../../../interface/session.interface';
 // -- Services
 import { SessionService } from '../../services/session.service';
 import { DataService } from '../../../../services/data/data.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 // -- Services
+
+declare var google: any;
 
 @Component({
   selector: 'app-signup',
@@ -26,6 +31,9 @@ export class SignupComponent implements OnInit, AfterViewInit {
   // -- Variables
   // ---------------------------------- 
 
+  private _snackBar = inject(MatSnackBar)
+
+  
   _role: string = 'undefined';
 
   title_page: string = "Registrarse";
@@ -43,12 +51,17 @@ export class SignupComponent implements OnInit, AfterViewInit {
   isSuccessful = false;
   isSignUpFailed = false;
   errorMessage = '';
-
+  hide = true;
   // ----------------------------------
   // -- Variables
   // ---------------------------------- 
 
-  constructor(private router:Router, private route: ActivatedRoute, private fb: FormBuilder, private sessionService: SessionService, private dataService: DataService) {
+  constructor(
+    private router:Router, private route: ActivatedRoute, 
+    private fb: FormBuilder, private sessionService: SessionService, 
+    private dataService: DataService,
+    private storageService: StorageService,
+    ) {
 
     this.route.queryParams.subscribe(params => {
       this._role = params['role'];
@@ -69,8 +82,7 @@ export class SignupComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-
-
+ 
   }
 
   onSubmit(): void {
@@ -109,14 +121,18 @@ export class SignupComponent implements OnInit, AfterViewInit {
     this.sessionService.signup(this.form_register.value).subscribe({
       next: (response: any) => {
 
-        if(response.type_user == 'traveler') this.goToTravelerView();
-        else if(response.type_user == 'driver') this.goToDriverView();
-        else if(response.type_user == 'admin') this.goToTravelerView();
+        // guardar sesion en Firebase
+        this.f_signupFirebase();
+
+        if(response.type_user == 'traveler') return this.goToTravelerView();
+        else if(response.type_user == 'driver') return this.goToDriverView();
+        else if(response.type_user == 'admin') return this.goToTravelerView();
   
+        return;
       },
       error: (error: any) => {
         
-        this.dataService.showMsj('' ,'Warning', 'warning');
+        this.dataService.showMsj('Ha ocurrido un error.' ,'Warning', 'warning');
         console.error('Error getting Registrarse:', error);
  
       },
@@ -127,6 +143,52 @@ export class SignupComponent implements OnInit, AfterViewInit {
      
 
   } 
+
+  registerWithGoogle(router:any, auth: any, response:any) {
+    // console.log('Encoded JWT ID token: ' + response.credential);
+    let token= "";
+    if (response.credential) {
+      auth.f_setToken(response.credential);
+      
+      // sessionStorage.setItem('token', response.credential);
+      router.navigateByUrl('private/inicio');
+      // document.location.href = 'http://localhost:4200/#/private/inicio';
+    }
+ 
+  }
+
+  
+  
+  async f_signupFirebase(){
+
+    // Tip: si los datos del formulario son incorrectos
+    if (this.form_register.invalid) {
+      this.form_register.markAllAsTouched();
+
+      const config = this.dataService.openSnackBar('warning');
+      const snackBarRef = this._snackBar.open('verifique el formulario', 'CLOSE', config ); 
+   
+      snackBarRef.afterDismissed().subscribe(() => {
+        
+        return;
+
+      });
+
+    } 
+
+    const credentials = {
+      email: this.form_register.value.user_name,
+      password: this.form_register.value.password
+    }
+
+    try{
+      await this.sessionService.signupWithFirebase(credentials); 
+      
+    }catch (error){
+      console.log(error)
+    }
+  }
+ 
 
 
   goToTravelerView() {

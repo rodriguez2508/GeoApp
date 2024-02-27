@@ -73,3 +73,14 @@ input[type="radio"].custom-control-input:not(:checked)
 /* Estilo base para los controles de radio personalizados */
 // --------------------------------------
 // --------------------------------------
+
+
+
+._form-traveler-request{
+
+  position: absolute;
+  top: 0;
+  z-index: 1031;
+  background: black;
+  
+}

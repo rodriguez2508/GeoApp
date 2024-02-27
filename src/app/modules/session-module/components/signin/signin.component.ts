@@ -1,3 +1,4 @@
+import { provideAuth } from '@angular/fire/auth';
 import { StorageService } from './../../../../services/storage/storage.service';
 import {
   AfterViewInit,
@@ -5,22 +6,25 @@ import {
   EventEmitter,
   OnInit,
   Output,
+  inject,
 } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-
+import { FirebaseApp } from '@angular/fire/app';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { SessionService } from '../../services/session.service';
 import { DataService } from '../../../../services/data/data.service';
 import { I_UserSessionStorage } from '../../../../interface/user.interface';
+import { I_SignIn } from '../../../../interface/session.interface';
 
 
 // ----------------------------------
 // -- Variables Globales
 // ---------------------------------- 
 
-// declare var google: any;
+declare var google: any;
 
 // ----------------------------------
 // -- Variables Globales
@@ -30,7 +34,10 @@ import { I_UserSessionStorage } from '../../../../interface/user.interface';
 @Component({
   selector: 'app-signin',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule,
+    MatSnackBarModule
+  ],
   templateUrl: './signin.component.html',
   styleUrl: './signin.component.scss'
 })
@@ -40,6 +47,7 @@ export class SigninComponent implements OnInit, AfterViewInit {
   // -- Variables
   // ---------------------------------- 
 
+  private _snackBar = inject(MatSnackBar)
 
   _role: string = 'undefined';
 
@@ -51,15 +59,23 @@ export class SigninComponent implements OnInit, AfterViewInit {
     email: null,
     password: null
   };
-  isSuccessful = false;
+  isProccesing = false;
   isSignUpFailed = false;
   errorMessage = '';
-
+  hide = true;
   // ----------------------------------
   // -- Variables
   // ---------------------------------- 
 
-  constructor(private router: Router, private route: ActivatedRoute, private fb: FormBuilder, private sessionService: SessionService, private dataService: DataService, private storageService:StorageService) {
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private fb: FormBuilder,
+    private sessionService: SessionService,
+    private dataService: DataService,
+    private storageService: StorageService,
+    private afAuth: FirebaseApp
+  ) {
 
     this.route.queryParams.subscribe(params => {
       this._role = params['role'];
@@ -76,10 +92,11 @@ export class SigninComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
 
+
+
   }
 
   onSubmit(): void {
-
     // -- llamar funcion iniciar sesion
     this.f_signin();
   }
@@ -102,57 +119,117 @@ export class SigninComponent implements OnInit, AfterViewInit {
     // Tip: si los datos del formulario son incorrectos
     if (this.form_login.invalid) {
       this.form_login.markAllAsTouched();
+ 
 
+      const config = this.dataService.openSnackBar('warning');
+      const snackBarRef = this._snackBar.open('Verifique el formulario', 'CLOSE', config ); 
+ 
       return;
-    } 
-    
-    // const user: I_UserSessionStorage = this.storageService.getUser();
+    }
 
+    // this.dataService.showMsjInData('procesando..', 'warning', '');
 
     this.sessionService.signin(this.form_login.value).subscribe({
       next: (data: any) => {
- 
+
         // -- mostrar mensaje en la pantalla
-        this.dataService.showMsjInData('Credenciales Verificadas, espere ...', 'success', '');
-        
-         
-        const user = this.storageService.decodeToken(data.token);
-        // const user = this.storageService.getUser();
-        console.log(user)
-        if(user.type_user == 'traveler') this.goToTravelerView();
-        else if(user.type_user == 'driver') this.goToDriverView();
-        else if(user.type_user == 'admin') this.goToTravelerView();
-  
+        // this.dataService.showMsjInData('Credenciales Verificadas, espere ...', 'success', '');
+
+
+      const config = this.dataService.openSnackBar('success');
+      const snackBarRef = this._snackBar.open('Credenciales verificadas, espere..', 'CLOSE', config ); 
+
+        snackBarRef.afterDismissed().subscribe(() => {
+
+
+          const user = this.storageService.decodeToken(data.token);
+          // const user = this.storageService.getUser();
+          console.log(user)
+          if (user.type_user == 'traveler') this.goToTravelerView();
+          else if (user.type_user == 'driver') this.goToDriverView();
+          else if (user.type_user == 'admin') this.goToTravelerView();
+
+
+        });
+
+
+
       },
       error: (errorData) => {
 
         console.log(errorData)
-        
-        this.dataService.showMsj('Credenciales Incorrectas!', 'Warning', 'warning');
+
+        // this.dataService.showMsj('Credenciales Incorrectas!', 'Warning', 'warning');
+
+        // const snackBarRef = this._snackBar.open('Credenciales incorrectas', 'CLOSE', {
+        //   duration: 12000,
+        //   verticalPosition: 'top',
+        //   horizontalPosition: 'end',
+        //   panelClass: ['danger-snackbar'],
+        // });
+        // this._snackBar.open(message, 'CLOSE',
+
+        const config = this.dataService.openSnackBar('danger');
+        const snackBarRef = this._snackBar.open('Credenciales Incorrectas', 'CLOSE', config );
+
+        snackBarRef.afterDismissed().subscribe(() => {
+ 
+        });
       },
       complete: () => {
-        
+
       },
-    }); 
+    });
 
   }
 
+  async f_signinFirebase() {
+
+    // Tip: si los datos del formulario son incorrectos
+    if (this.form_login.invalid) {
+      this.form_login.markAllAsTouched();
+
+      const config = this.dataService.openSnackBar('warning');
+        const snackBarRef = this._snackBar.open('verifique el formulario', 'CLOSE', config );
+ 
+      return;
+    }
+
+    const credentials = {
+      email: this.form_login.value.user_name,
+      password: this.form_login.value.password
+    }
+
+    try {
+      await this.sessionService.signupWithFirebase(credentials);
+
+      // this.f_signin();
+
+
+    } catch (error) {
+      console.log(error)
+    }
+
+
+  }
+
+
   goToTravelerView(): void {
-     
-    this.router.navigate(['/traveler/travel-request'], { 
+
+    this.router.navigate(['/traveler/travel-request'], {
       queryParams: {
-         
+
       },
     });
   }
   goToDriverView(): void {
-    
-    this.router.navigate(['/traveler/travel-request'], { 
+
+    this.router.navigate(['/traveler/travel-request'], {
       queryParams: {
-         
+
       },
     });
-  }  
+  }
   // -----------------------------
   // TODO 
   // -----------------------------
@@ -160,7 +237,9 @@ export class SigninComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/session/signup'], { queryParams: { role: '' } });
   }
 
-
+  showPassword() {
+    this.hide = !this.hide;
+  }
   // ----------------------------------
   // -- para obtener el valor de los campos del form
   // ---------------------------------- 

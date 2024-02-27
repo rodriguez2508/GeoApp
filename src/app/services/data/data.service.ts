@@ -1,10 +1,11 @@
 import Swal, { SweetAlertIcon } from 'sweetalert2';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { I_UserSessionStorage } from '../../interface/user.interface';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 
 
@@ -12,6 +13,9 @@ import { I_UserSessionStorage } from '../../interface/user.interface';
   providedIn: 'root'
 })
 export class DataService {
+
+
+  private _snackBar = inject(MatSnackBar);
 
   private loggedInSubject = new BehaviorSubject<boolean>(false);
   private userDataSubject = new BehaviorSubject<I_UserSessionStorage>({
@@ -58,20 +62,61 @@ export class DataService {
   // -- message -> 'Texto a mostrar'
   // -- code -> 'success' | 'warning' | 'danger'
   // -- _route -> 'route/to/view' | ''
-  showMsjInData(message: string, code: string, _route: string) {
-    setTimeout(() => {
-      this.MsjCode = code;
-      this.Msj = message;
-    }, 200);
-    setTimeout(() => {
-      this.MsjCode = code;
-      this.Msj = '';
-    }, 3999);
-    setTimeout(() => {
-      if (_route != '') {
-        this.router.navigate([_route]);
-      }
-    }, 4004);
+  // showMsjInData(message: string, code: string, _route: string) {
+  //   setTimeout(() => {
+  //     this.MsjCode = code;
+  //     this.Msj = message;
+  //   }, 200);
+  //   setTimeout(() => {
+  //     this.MsjCode = code;
+  //     this.Msj = '';
+  //   }, 3999);
+  //   setTimeout(() => {
+  //     if (_route != '') {
+  //       this.router.navigate([_route]);
+  //     }
+  //   }, 4004);
+  // }
+  openSnackBar(code:string) : MatSnackBarConfig<any> {
+    
+    if(code == 'success'){
+      return {
+        duration: 2000,
+        verticalPosition: 'top',
+        horizontalPosition: 'end',
+        panelClass: ['success-snackbar'],
+      };
+    }
+    else if(code == 'danger'){
+
+      return {
+        duration: 2000,
+        verticalPosition: 'top',
+        horizontalPosition: 'end',
+        panelClass: ['error-snackbar'],
+      };
+
+    }
+     else if(code == 'warning'){
+
+      return {
+        duration: 2000,
+        verticalPosition: 'top',
+        horizontalPosition: 'end',
+        panelClass: ['warning-snackbar'],
+      };
+
+    }
+    else {
+      return {
+        duration: 2000,
+        verticalPosition: 'top',
+        horizontalPosition: 'end',
+        panelClass: ['warning-snackbar'],
+      };
+
+    }
+     
   }
 
   // -----------------------------------

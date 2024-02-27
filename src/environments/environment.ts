@@ -1,5 +1,6 @@
 export const environment = {
     production: true,
+    AUTH_API: 'https://geoloc-app.onrender.com/api/v1/auth/',
     socketUrl: 'https://geoloc-app.onrender.com',
     appVersion: '0.0.8', 
     appName: 'LINKI',

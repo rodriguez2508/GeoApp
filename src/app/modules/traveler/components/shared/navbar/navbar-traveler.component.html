@@ -1,10 +1,12 @@
-<div class="w3-row w3-col set-height-7 border border-dark bg-dark">
+<div class="w3-row w3-col">
   <ul class="w3-row w3-col d-flex nav nav-tabs" id="myTab" role="tablist">
     <li class="w3-col s4 nav-item w3-btn border-0" role="presentation">
-      <a
-      (click)="goTo('/traveler/travel-request')"
+      <a 
+      routerLink="/traveler/travel-request"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page" 
         type="button" 
-        class="btn border-0 active bg-transparent text-white"
+        class="btn border-0 bg-transparent text-white"
       >
         <i class="fs-1 fa fa-location-dot fa-2"></i>
         Mapa
@@ -12,22 +14,26 @@
     </li>
     <li class="w3-col s4 nav-item w3-btn border-0" role="presentation">
       <a
-      (click)="goTo('/traveler/travel-offers')" 
+      routerLink="/traveler/travel-offers"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page" 
         class="btn border-0 bg-transparent text-white"
         type="button"
       >
-        <i class="fs-1 fa fa-message fa-2"></i>
-        Ofertas
+        <i class="fs-1 fa fa-briefcase fa-2"></i>
+        Mis Viajes
       </a>
     </li>
     <li class="w3-col s4 nav-item w3-btn border-0" role="presentation">
       <a
-      (click)="goTo('/traveler/travel-history')" 
+      routerLink="/traveler/travel-history"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page" 
         class="btn border-0 bg-transparent text-white"
         type="button"
       >
-        <i class="fs-1 fa fa-history fa-2"></i>
-        Historial
+        <i class="fs-1 fa fa-bell fa-2"></i>
+        Alerta
       </a>
     </li>
   </ul>

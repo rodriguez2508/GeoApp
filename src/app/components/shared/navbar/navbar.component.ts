@@ -9,6 +9,7 @@ import {
   ChangeDetectorRef,
   OnChanges,
   SimpleChanges,
+  inject,
 } from '@angular/core';
 
 import {
@@ -24,6 +25,7 @@ import { SessionService } from '../../../modules/session-module/services/session
 import { ShareAppService } from '../../../services/share-app.service';
 import { I_UserSessionStorage } from '../../../interface/user.interface';
 import { NavbarTravelerComponent } from '../../../modules/traveler/components/shared/navbar/navbar-traveler.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-navbar',
@@ -36,6 +38,8 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
   _role: string = 'undefined';
   client: any;
 
+  private _snackBar = inject(MatSnackBar)
+
   @Input() userLoginOn: boolean = false;
   @Input() userData: I_UserSessionStorage = {
     ci: '',
@@ -46,7 +50,9 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     phone: '',
     type_user: ''
   };
-
+  
+  rating:number = 0.0;
+  rating_start:number[] = [0, 1, 0, 0 , 0];
   appVersion: string = environment.appVersion;
   appName: string = environment.appName;
   titleApp: string = this.appName + ' | ' + this.appVersion;
@@ -105,9 +111,15 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.sessionService.signout();
 
       // -- mostrar mensaje en la pantalla
-      this.dataService.showMsjInData('Cerrando Sesión...', 'success', '/session/login');
+      // this.dataService.showMsjInData('Cerrando Sesión...', 'success', '/session/login');
 
-      // window.location.reload();
+      const config = this.dataService.openSnackBar('success');
+      const snackBarRef = this._snackBar.open('Cerrando Sesión...', 'CLOSE', config ); 
+  
+      snackBarRef.afterDismissed().subscribe(() => {
+
+        this.router.navigateByUrl('session/login');
+      });
     } else {
       // Hacer algo si se cancela
     }

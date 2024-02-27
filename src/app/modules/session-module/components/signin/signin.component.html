@@ -8,7 +8,7 @@
   <div class="w3-row w3-col d-flex _center-h-sb">
     <!-- Inputs y Forms -->
     <form
-      class="w3-row w3-col l8 m8 set-height-s-50 d-flex align-content-between p-3 rounded-5 text-dark "
+      class="w3-row w3-col l8 m8 set-height-s-50 d-flex align-content-between p-3 rounded-5 text-dark"
       [formGroup]="form_login"
       (ngSubmit)="onSubmit()"
     >
@@ -16,15 +16,10 @@
         <!-- -------------- -->
         <!-- Tipo de Usuario -->
         <!-- -------------- -->
-        <div
-          class="w3-row w3-col _center-h bg-white rounded-top-4"
-        >
-          <div
-            class=" w3-col s6 custom-control custom-radio rounded-top-4"
-          >
+        <!-- <div class="w3-row w3-col _center-h bg-white rounded-top-4">
+          <div class="w3-col s6 custom-control custom-radio rounded-top-4">
             <input
               type="radio"
-               
               id="traveler"
               name="user_type"
               value="traveler"
@@ -37,12 +32,9 @@
               ><i class="w3-section fa fa-person fa-2x pe-1"></i> Viajero</label
             >
           </div>
-          <div
-            class=" w3-col s6 custom-control custom-radio rounded-top-4"
-          >
+          <div class="w3-col s6 custom-control custom-radio rounded-top-4">
             <input
               type="radio"
-               
               id="driver"
               name="user_type"
               value="driver"
@@ -51,13 +43,16 @@
             <span class="custom-control-indicator d-none"></span>
             <label
               for="driver"
-              class=" btn border-0 text-uppercase fw-bold _center-h custom-control-description w-100"
-              ><i class="w3-section fa fa-car-alt fa-2x pe-1"></i> Conductor</label
+              class="btn border-0 text-uppercase fw-bold _center-h custom-control-description w-100"
+              ><i class="w3-section fa fa-car-alt fa-2x pe-1"></i>
+              Conductor</label
             >
           </div>
-        </div>
+        </div> -->
 
-        <div class="w3-col w3-row w3-container rounded-bottom-5 text-dark bg-warning">
+        <div
+          class="w3-col w3-row w3-container rounded-bottom-5 text-dark bg-warning"
+        >
           <!-- -------------- -->
           <!-- User -->
           <!-- -------------- -->
@@ -73,7 +68,7 @@
               type="text"
               [class.is-invalid]="f.user_name.invalid && f.user_name.touched"
             />
-            <label for="user_name">Usuario</label>
+            <label for="user_name">Correo</label>
 
             @if(f.user_name.invalid && (f.user_name.dirty ||
             f.user_name.touched) ){ @if(f.user_name.errors?.['required'] ){
@@ -94,13 +89,24 @@
           <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
             <input
               formControlName="password"
-              type="password"
-              class="form-control"
+              [type]="hide ? 'password' : 'text'"
+              class="form-control w3-col l10 m10 s10"
               id="password"
               placeholder="Enter password"
               [class.is-invalid]="f.password.invalid && f.password.touched"
             />
             <label for="password">Contraseña</label>
+
+            <div
+              [classList]="'w3-col l2 m2 s2 btn p-3 '"
+              [attr.aria-pressed]="hide"
+              (click)="hide = !hide"
+            >
+              <i
+                
+                [class]="hide ? 'fa fa-eye' : 'fa fa-eye-slash'"
+              ></i>
+            </div>
 
             @if(f.password.invalid && (f.password.dirty || f.password.touched)
             ){ @if(f.password.errors?.['required'] ){
@@ -125,6 +131,7 @@
               Iniciar
             </button>
           </div>
+  
         </div>
       </div>
     </form>
@@ -140,5 +147,17 @@
         <span class="text-warning"> Regístrate</span></a
       >
     </button>
+
+    <div class="w3-row w3-col me-1 float-start text-white mt-2">
+      <span class="w3-col text-center text-warning"
+        >Iniciar sesión con:
+      </span>
+
+      <div class="w3-row w3-col _center-h">
+        <span class="text-white fw-bold btn btn-outline-danger"
+        >Google
+      </span>
+      </div>
+    </div>
   </div>
 </section>

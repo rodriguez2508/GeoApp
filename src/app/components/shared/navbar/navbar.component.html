@@ -1,11 +1,13 @@
 <header
   id="header"
-  [class]="'set-height-8 position-absolute w3-row w3-col l12 m12 s12 bg-dark border-bottom border-warning border-1 '
+  [class]="
+    'set-height-8 position-absolute w3-row w3-col l12 m12 s12 bg-dark '
   "
 >
   <nav [class]="'navbar navbar-expand-sm navbar-dark pt-sm-0 '">
     <div [class]="'w3-col l12 m12 s12 container-fluid '">
       <div [class]="'w3-col l3 m2 s12 '">
+        @if(!isActive){
         <a [class]="'navbar-brand '" href="#">
           <!-- <img
             src="./assets/img/linki.ico"
@@ -15,7 +17,7 @@
 
           <label class="fw-bolder">{{ titleApp }}</label>
         </a>
-
+        }
         <!-- ---------------- -->
         <!-- Verificar tipo de usuario conectado -->
         <!-- ---------------- -->
@@ -33,43 +35,33 @@
 
         <button
           [class]="
-            'navbar-toggler w3-right btn btn-md text-light border border-secondary animated__fadeIn ms-1'
+            'animated__fadeIn btn btn-md ms-1 navbar-toggler text-light w3-circle ps-2 pe-2 w3-right'
           "
           type="button"
           (click)="toggleIcon()"
         >
           @switch (isActive) { @case (true) {
-          <i [class]="'fa fa-times fa-1x  fadeIn'"></i>
+          <i [class]="'w3-xlarge fa fa-times fs fadeIn'"></i>
           } @default {
-          <i [class]="'fa fa-user fa-1x fadeIn '"></i>
+          <i [class]="'w3-xlarge fa fa-user fadeIn '"></i>
           } }
         </button>
 
+        @if(!isActive){
         <button
-          [class]="
-            'navbar-toggler w3-right btn btn-md text-success border-end-0 border-start-0 border-top-0 border-secondary animated__fadeIn '
-          "
+          [class]="'w3-btn border-0 navbar-toggler text-primary w3-right fs-5'"
           (click)="shareApp('')"
         >
-          <i [class]="'fa fa-share-alt me-2 '"></i>
+          <i [class]="'w3-xlarge fa fa-share-alt me-2 '"></i>
         </button>
 
         <button
-          [class]="
-            'navbar-toggler w3-right btn btn-md text-light border-end-0 border-start-0 border-top-0 border-secondary animated__fadeIn '
-          "
+          [class]="'w3-btn border-0 navbar-toggler text-success w3-right fs-5'"
         >
-          <i [class]="'fa fa-bell me-2 '"></i>
+          <i [class]="'w3-xlarge fa fa-headset me-2 '"></i>
         </button>
-        <!-- <button
-          [class]="
-            'navbar-toggler w3-right btn btn-dark text-white animated__fadeIn me-sm-2'
-          "
-          type="button"
-          (click)="toggleFullscreen()"
-        >
-          <i [class]="'fa fa-mobile-phone '"></i>
-        </button> -->
+
+        }
       </div>
       <div [class]="'w3-row w3-col w3-section l9 m8 s12 '">
         <!-- -------- -->
@@ -88,7 +80,7 @@
             <li [class]="'nav-item btn btn-md '">
               <a
                 (click)="toggleIcon()"
-                [class]="'nav-link fw-bold border-bottom border-secondary'"
+                [class]="'nav-link fw-bold'"
                 routerLink="/public/home"
                 routerLinkActive="active"
                 ariaCurrentWhenActive="page"
@@ -98,7 +90,7 @@
             <li [class]="'nav-item btn btn-md '">
               <a
                 (click)="toggleIcon()"
-                [class]="'nav-link fw-bold border-bottom border-secondary '"
+                [class]="'nav-link fw-bold '"
                 routerLink="/session/signin"
                 routerLinkActive="active"
                 ariaCurrentWhenActive="page"
@@ -123,54 +115,109 @@
 
             @if(userData.type_user =='traveler' ){
 
-            <li [class]="'nav-item btn btn-md '">
-              <a
-                (click)="toggleIcon()"
-                [class]="'nav-link fw-bold border-bottom border-secondary'"
-                routerLink="/private/home"
-                routerLinkActive="active"
-                ariaCurrentWhenActive="page"
-                >Inicio</a
-              >
+            <!-- -------------- -->
+            <!-- INFORMACION DE PERFIL TRAVELER-->
+            <!-- -------------- -->
+            <li [class]="'nav-item w3-row w3-col w3-container'">
+              <div class="w3-row w3-col l3 m3 s2 w3-section">
+                <i class="fa fa-user-circle fa-3x text-secondary"></i>
+              </div>
+              <div class="w3-row w3-col l9 m9 s10 w3-container">
+                <h5 class="w3-col">{{ userData.name }}</h5>
+                <div class="w3-row w3-col">
+                  <span class="fw-bold w3-medium pe-2">{{ userData.email }}</span>
+                  
+                </div>
+                
+              </div>
             </li>
 
-            <li [class]="'nav-item btn btn-md '">
-              <a
-                (click)="toggleIcon()"
-                [class]="'nav-link fw-bold border-bottom border-secondary '"
-                routerLink="/traveler/travel-request"
-                routerLinkActive="active"
-                ariaCurrentWhenActive="page"
-                >Mapa Traveler
-              </a>
-            </li>
 
-            }@else if (userData.type_user == 'driver') {
+            }
+            @else if (userData.type_user == 'driver') {
 
-            <li [class]="'nav-item btn btn-md '">
-              <a
-                (click)="toggleIcon()"
-                [class]="'nav-link fw-bold border-bottom border-secondary '"
-                routerLink=""
-                routerLinkActive="active"
-                ariaCurrentWhenActive="page"
-                >Mapa Driver</a
-              >
+            <!-- -------------- -->
+            <!-- INFORMACION DE PERFIL DRIVER -->
+            <!-- -------------- -->
+            <li [class]="'nav-item w3-row w3-col w3-container'">
+              <div class="w3-row w3-col l3 m3 s2 w3-section">
+                <i class="fa fa-user-circle fa-3x text-secondary"></i>
+              </div>
+              <div class="w3-row w3-col l9 m9 s10 w3-container">
+                <h5 class="w3-col">{{ userData.name }}</h5>
+
+                <div class="w3-row w3-col">
+                  <span class="fw-bold w3-xlarge pe-2">{{ rating }}</span>
+                  @for (item of rating_start; track $index) {
+
+                  <i class="fa fa-1x fa-star w3-text-yellow"></i>
+
+                  }
+                </div>
+              </div>
             </li>
 
             }@else if (userData.type_user == 'admin') { }
 
-            <li [class]="'nav-item btn btn-sm w3-row '">
-              <button [class]="'w3-col btn text-white'" (click)="f_signOut()">
-                <i [class]="'fa fa-sign-out-alt me-2 float-sm-start'"></i>
-                <label
-                  [class]="
-                    'w3-small float-sm-start w3-hide-medium w3-hide-large'
-                  "
-                  for=""
-                  >Cerrar Sesión</label
-                >
-              </button>
+            <li [class]="'nav-item btn btn-md mt-2 '">
+              <a
+                (click)="toggleIcon()"
+                [class]="
+                  'text-start nav-link fw-bold border-bottom border-secondary'
+                "
+                ><i class="fa fa-cogs fa-3x"></i> Configuración</a
+              >
+            </li>
+
+            <li [class]="'nav-item btn btn-md '">
+              <a
+                (click)="toggleIcon()"
+                [class]="
+                  'text-start nav-link fw-bold '
+                "
+                ><i class="fa fa-thumbs-up fa-3x"></i> Nuestras Redes Sociales
+              </a>
+            </li>
+
+            <li [class]="'nav-item btn btn-md '">
+              <a
+                (click)="toggleIcon()"
+                [class]="
+                  'text-start nav-link fw-bold '
+                "
+                ><i class="fa fa-question-circle fa-3x"></i> Ayuda
+              </a>
+            </li>
+
+            <li [class]="'nav-item btn btn-md '">
+              <a
+                (click)="toggleIcon()"
+                [class]="
+                  'text-start nav-link fw-bold '
+                "
+                ><i class="fa fa-exclamation-circle fa-3x"></i> Acerca de Linki
+              </a>
+            </li>
+
+            <li [class]="'nav-item btn btn-md '">
+              <a
+                (click)="toggleIcon()"
+                [class]="
+                  'text-start nav-link fw-bold '
+                "
+                ><i class="fa fa-exclamation-triangle fa-3x"></i> Reportar un
+                problema
+              </a>
+            </li>
+
+            <li [class]="'nav-item btn btn-md '">
+              <a
+                (click)="f_signOut(); toggleIcon()"
+                [class]="
+                  'text-start text-danger nav-link fw-bold '
+                "
+                ><i class="fa fa-sign-out fa-3x"></i> Cerrar Sesión
+              </a>
             </li>
 
             <!-- -------- -->
@@ -184,18 +231,16 @@
       </div>
     </div>
   </nav>
-
- 
 </header>
 
 @if (userLoginOn) {
 <header
   id="header_"
-  [class]="'set-height-8 position-absolute w3-row w3-col l12 m12 s12 bg-dark border-bottom border-warning border-1 '
+  [class]="
+    ' position-absolute w3-row w3-col l12 m12 s12 bg-dark '
   "
 >
-
-@if (userData.type_user == 'traveler') {
+  @if (userData.type_user == 'traveler') {
 
   <!-- -------- -->
   <!-- -------- NAVBAR Traveler -->
@@ -206,8 +251,6 @@
   <!-- -------- -->
 
   }@else if(userData.type_user == 'driver'){ }
-
-
 </header>
 
 }

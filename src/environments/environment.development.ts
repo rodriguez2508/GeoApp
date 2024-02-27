@@ -1,7 +1,8 @@
 export const environment = {
     production: false,
+    AUTH_API: 'http://localhost:3000/api/v1/auth/',
     socketUrl: 'http://localhost:3000',
-    appVersion: 'Beta',
+    appVersion: 'DEV',
     appName: 'LINKI',
 
 
