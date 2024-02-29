@@ -4,9 +4,9 @@
     'set-height-8 position-absolute w3-row w3-col l12 m12 s12 bg-dark '
   "
 >
-  <nav [class]="'navbar navbar-expand-sm navbar-dark pt-sm-0 '">
+  <nav [class]="'navbar navbar-dark pt-sm-0 '">
     <div [class]="'w3-col l12 m12 s12 container-fluid '">
-      <div [class]="'w3-col l3 m2 s12 '">
+      <div [class]="'w3-col'">
         @if(!isActive){
         <a [class]="'navbar-brand '" href="#">
           <!-- <img
@@ -35,7 +35,7 @@
 
         <button
           [class]="
-            'animated__fadeIn btn btn-md ms-1 navbar-toggler text-light w3-circle ps-2 pe-2 w3-right'
+            'animated__fadeIn btn btn-md ms-1  text-light w3-circle ps-2 pe-2 w3-right'
           "
           type="button"
           (click)="toggleIcon()"
@@ -63,7 +63,7 @@
 
         }
       </div>
-      <div [class]="'w3-row w3-col w3-section l9 m8 s12 '">
+      <div [class]="'w3-row w3-col w3-section '">
         <!-- -------- -->
         <!-- -------- -->
         <!-- -------- -->

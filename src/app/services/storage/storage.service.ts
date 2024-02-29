@@ -57,9 +57,9 @@ export class StorageService {
 
   // TODO ----- TOKEN   
 
-  f_setToken(token: string) {
+  f_setToken(token: string, name:string='token') {
 
-    localStorage.setItem('token', token);
+    localStorage.setItem(name, token);
  
   }
   decodeToken(token: string): any {

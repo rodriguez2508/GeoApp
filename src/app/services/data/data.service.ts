@@ -81,8 +81,8 @@ export class DataService {
     
     if(code == 'success'){
       return {
-        duration: 2000,
-        verticalPosition: 'top',
+        duration: 7000,
+        verticalPosition: 'bottom',
         horizontalPosition: 'end',
         panelClass: ['success-snackbar'],
       };
@@ -90,8 +90,8 @@ export class DataService {
     else if(code == 'danger'){
 
       return {
-        duration: 2000,
-        verticalPosition: 'top',
+        duration: 7000,
+        verticalPosition: 'bottom',
         horizontalPosition: 'end',
         panelClass: ['error-snackbar'],
       };
@@ -100,8 +100,8 @@ export class DataService {
      else if(code == 'warning'){
 
       return {
-        duration: 2000,
-        verticalPosition: 'top',
+        duration: 7000,
+        verticalPosition: 'bottom',
         horizontalPosition: 'end',
         panelClass: ['warning-snackbar'],
       };
@@ -109,8 +109,8 @@ export class DataService {
     }
     else {
       return {
-        duration: 2000,
-        verticalPosition: 'top',
+        duration: 7000,
+        verticalPosition: 'bottom',
         horizontalPosition: 'end',
         panelClass: ['warning-snackbar'],
       };

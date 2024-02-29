@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { TravelRequestComponent } from './components/travel-request/travel-request.component';   
-import { TravelOffersComponent } from './components/travel-offers/travel-offers.component';
+import { TravelAlertsComponent } from './components/travel-alerts/travel-alerts.component';
 import { TravelHistoryComponent } from './components/travel-history/travel-history.component';
 
 const routes: Routes = [
@@ -14,8 +14,8 @@ const routes: Routes = [
         component: TravelRequestComponent
       },
       {
-        path: 'travel-offers', 
-        component: TravelOffersComponent
+        path: 'travel-alerts', 
+        component: TravelAlertsComponent
       },
       {
         path: 'travel-history', 

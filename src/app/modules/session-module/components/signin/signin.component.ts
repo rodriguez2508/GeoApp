@@ -3,9 +3,11 @@ import { StorageService } from './../../../../services/storage/storage.service';
 import {
   AfterViewInit,
   Component,
+  ElementRef,
   EventEmitter,
   OnInit,
   Output,
+  ViewChild,
   inject,
 } from '@angular/core';
 
@@ -14,17 +16,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FirebaseApp } from '@angular/fire/app';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { SessionService } from '../../services/session.service';
+import { SessionService } from '../../../../services/services/session.service';
 import { DataService } from '../../../../services/data/data.service';
 import { I_UserSessionStorage } from '../../../../interface/user.interface';
 import { I_SignIn } from '../../../../interface/session.interface';
+import { environment } from '../../../../../environments/environment';
 
 
 // ----------------------------------
 // -- Variables Globales
 // ---------------------------------- 
 
-declare var google: any;
+declare let google: any;
 
 // ----------------------------------
 // -- Variables Globales
@@ -92,7 +95,8 @@ export class SigninComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
 
-
+    //  iniciar sesion google
+    this.f_init_signinGoogle();
 
   }
 
@@ -119,11 +123,11 @@ export class SigninComponent implements OnInit, AfterViewInit {
     // Tip: si los datos del formulario son incorrectos
     if (this.form_login.invalid) {
       this.form_login.markAllAsTouched();
- 
+
 
       const config = this.dataService.openSnackBar('warning');
-      const snackBarRef = this._snackBar.open('Verifique el formulario', 'CLOSE', config ); 
- 
+      this._snackBar.open('Verifique el formulario', 'CLOSE', config);
+
       return;
     }
 
@@ -135,9 +139,8 @@ export class SigninComponent implements OnInit, AfterViewInit {
         // -- mostrar mensaje en la pantalla
         // this.dataService.showMsjInData('Credenciales Verificadas, espere ...', 'success', '');
 
-
-      const config = this.dataService.openSnackBar('success');
-      const snackBarRef = this._snackBar.open('Credenciales verificadas, espere..', 'CLOSE', config ); 
+        const config = this.dataService.openSnackBar('success');
+        const snackBarRef = this._snackBar.open('Credenciales verificadas, espere..', 'CLOSE', config);
 
         snackBarRef.afterDismissed().subscribe(() => {
 
@@ -159,22 +162,9 @@ export class SigninComponent implements OnInit, AfterViewInit {
 
         console.log(errorData)
 
-        // this.dataService.showMsj('Credenciales Incorrectas!', 'Warning', 'warning');
-
-        // const snackBarRef = this._snackBar.open('Credenciales incorrectas', 'CLOSE', {
-        //   duration: 12000,
-        //   verticalPosition: 'top',
-        //   horizontalPosition: 'end',
-        //   panelClass: ['danger-snackbar'],
-        // });
-        // this._snackBar.open(message, 'CLOSE',
-
         const config = this.dataService.openSnackBar('danger');
-        const snackBarRef = this._snackBar.open('Credenciales Incorrectas', 'CLOSE', config );
+        this._snackBar.open('Credenciales Incorrectas', 'CLOSE', config);
 
-        snackBarRef.afterDismissed().subscribe(() => {
- 
-        });
       },
       complete: () => {
 
@@ -183,6 +173,111 @@ export class SigninComponent implements OnInit, AfterViewInit {
 
   }
 
+  // ------------------------------------------
+  // TODO para iniciar sesion con goolge
+  // ------------------------------------------
+
+  f_signin_google(email: string) {
+    // Tip: si los datos del formulario son incorrectos
+    if (email) {
+
+
+      this.sessionService.signin_google(email).subscribe({
+        next: (data: any) => {
+
+
+          const config = this.dataService.openSnackBar('success');
+          const snackBarRef = this._snackBar.open('Credenciales verificadas, espere..', 'CLOSE', config);
+
+          snackBarRef.afterDismissed().subscribe(() => {
+
+
+            const user = this.storageService.decodeToken(data.token);
+            // const user = this.storageService.getUser();
+            console.log(user)
+            if (user.type_user == 'traveler') this.goToTravelerView();
+            else if (user.type_user == 'driver') this.goToDriverView();
+            else if (user.type_user == 'admin') this.goToTravelerView();
+
+
+          });
+
+
+
+        },
+        error: (errorData) => {
+
+          console.log(errorData)
+
+          const config = this.dataService.openSnackBar('warning');
+          this._snackBar.open('Credenciales incorrectas.', 'CLOSE', config);
+
+
+          // this.dataService.showMsj('Credenciales Incorrectas', 'Alert', 'error');
+        },
+        complete: () => {
+
+        },
+      });
+    }
+    return;
+
+  }
+
+  async f_init_signinGoogle() {
+
+
+    google.accounts.id.initialize({
+      client_id: environment.client_google_auth,
+      callback: (this.handleCredentialResponse.bind(this)),
+    });
+    google.accounts.id.renderButton(
+      document.getElementById('btn_LoginGoogle'),
+      { theme: 'filled_blue', size: 'medium' } // customization attributes
+    );
+    google.accounts.id.prompt(); // also display the One Tap dialog
+
+  }
+
+
+  // Tip: Login con google
+  handleCredentialResponse(response: any) {
+
+    console.log('Encoded JWT ID token: ' + response.credential);
+    const token = response.credential;
+
+
+    const config = this.dataService.openSnackBar('success');
+    this._snackBar.open('Estamos verificando credenciales, espere..', 'CLOSE', config);
+
+    // guardar token en sessionstorage
+    this.storageService.f_setToken(token, 'token_google');
+
+    if (token) {
+
+      // -- decodificar token
+
+      const data = this.storageService.decodeToken(token);
+
+      // -- obtener email 
+
+      if (data.email_verified) {
+
+
+        // -- verificar credenciales
+        this.f_signin_google(data.email);
+
+      }
+
+    }
+
+
+  }
+
+  // ------------------------------------------
+  // para iniciar sesion con goolge
+  // ------------------------------------------
+
   async f_signinFirebase() {
 
     // Tip: si los datos del formulario son incorrectos
@@ -190,8 +285,8 @@ export class SigninComponent implements OnInit, AfterViewInit {
       this.form_login.markAllAsTouched();
 
       const config = this.dataService.openSnackBar('warning');
-        const snackBarRef = this._snackBar.open('verifique el formulario', 'CLOSE', config );
- 
+      this._snackBar.open('verifique el formulario', 'CLOSE', config);
+
       return;
     }
 

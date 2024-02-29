@@ -1,4 +1,4 @@
-import { environment } from './../../../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 
@@ -10,12 +10,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 // -- Interfaces
-import { I_SignIn, I_SignUp } from '../../../interface/session.interface';
+import { I_SignIn, I_SignUp } from '../../interface/session.interface';
 // -- Interfaces
 // -- Services
-import { DataService } from '../../../services/data/data.service';
+import { DataService } from '../data/data.service';
 import { Router } from '@angular/router';
-import { StorageService } from '../../../services/storage/storage.service';
+import { StorageService } from '../storage/storage.service';
 import { Auth, UserCredential, authState, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 // -- Services 
@@ -70,6 +70,35 @@ export class SessionService {
     );
 
   }
+
+  // ----------------------------------
+  // TODO funcion para iniciar sesion google
+  // ----------------------------------
+  signin_google(email: string): Observable<any> {
+
+    const url = AUTH_API + 'login_google';
+
+    const userData: { user: string} = {
+      user: email, 
+    };
+
+    return this.http.post<any>(url, userData).pipe(
+
+      tap((data: any) => {
+
+        const decodedToken = this.storageService.decodeToken(data.token); // Decodifica el token
+
+        this.storageService.saveUser(decodedToken);
+        // -- guardar token
+        this.storageService.f_setToken(data.token);
+      }),
+
+
+      catchError(this.handleError)
+    );
+
+  }
+
 
   // -- login con firebase
 
@@ -186,17 +215,21 @@ export class SessionService {
   private handleError(error: HttpErrorResponse) {
     if (error.status === 0) {
       console.log('Se ha producido un error ', error.error); 
+      this.dataService.showMsj('Ha ocurriddo un error, por favor intente más tarde.', 'Error.', 'danger');
 
     } else if (error.status === 400) { 
-      console.error('Error en la petición ' + error.status) 
+      console.error('Error en la petición ' + error.status)
 
     } else if (error.status === 401) {
  
-      console.error('Sin Autorización! ' + error.status) 
+      console.error('Sin Autorización! ' + error.status) ;
+      this.dataService.showMsj('Credenciales Incorrectas, por favor rectifique.', 'Error.', 'danger');
 
     } else if (error.status === 500) {
  
-      console.error('Error en el Servidor ' + error.status) 
+      console.error('Error en el Servidor ' + error.status) ;
+      this.dataService.showMsj('Ha ocurriddo un error, por favor si es posible comuníquese con nosotros.', 'Error.', 'danger');
+
     }
     else{
     }

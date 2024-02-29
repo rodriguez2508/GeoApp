@@ -1,1 +1,47 @@
-history
+<section class="w3-row w3-col mt-15 ">
+  <!-- -------------- -->
+  <!-- content page -->
+  <!-- -------------- -->
+
+  <div class="w3-row w3-col set-height-s-87 border border-dark ">
+    <ul class="nav nav-tabs">
+      <li (click)="viewToShow='pending' " class="w3-col s4 nav-item w3-btn border-0">
+        <a class="btn border-0 bg-transparent text-secondary active" data-bs-toggle="tab" href="#pending"
+          >Pendiente</a
+        >
+      </li>
+      <li (click)="viewToShow='ongoing' " class="w3-col s4 nav-item w3-btn border-0">
+        <a class="btn border-0 bg-transparent text-secondary" data-bs-toggle="tab" href="#ongoing">En Curso</a>
+      </li>
+      <li (click)="viewToShow='history' " class="w3-col s4 nav-item w3-btn border-0">
+        <a class="btn border-0 bg-transparent text-secondary" data-bs-toggle="tab" href="#history">Historial</a>
+      </li>
+      <!-- Agrega más tabs según sea necesario -->
+    </ul>
+
+    <!-- -------------- -->
+    <!-- Body page -->
+    <!-- -------------- -->
+
+    <div class="w3-row w3-col set-height-75 tab-content w3-container">
+      <div id="pending" class="tab-pane fade show active">
+        @if (viewToShow=='pending') {
+          <app-pending-page></app-pending-page>
+        }  
+      
+      </div>
+      <div id="ongoing" class="tab-pane fade">
+        @if (viewToShow=='ongoing') {
+          <app-ongoing-page></app-ongoing-page>
+        }  
+      </div>
+      <div id="history" class="tab-pane fade ">
+        @if (viewToShow=='history') {
+          <app-history-page></app-history-page>
+        }  
+      </div>
+    </div>
+
+    
+  </div>
+</section>

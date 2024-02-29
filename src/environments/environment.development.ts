@@ -17,4 +17,5 @@ export const environment = {
     // -- API KEY
     // -----------------------------
 
+    client_google_auth: '187096175156-7vu5tscu2h2p1gq4c26fahffs1e4rqov.apps.googleusercontent.com',
   };

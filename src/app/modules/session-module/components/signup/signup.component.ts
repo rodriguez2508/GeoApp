@@ -10,9 +10,10 @@ import { I_SignUp } from '../../../../interface/session.interface';
 // -- Interfaces
 
 // -- Services
-import { SessionService } from '../../services/session.service';
+import { SessionService } from '../../../../services/services/session.service';
 import { DataService } from '../../../../services/data/data.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { environment } from '../../../../../environments/environment';
 // -- Services
 
 declare var google: any;
@@ -26,14 +27,14 @@ declare var google: any;
 })
 export class SignupComponent implements OnInit, AfterViewInit {
 
-  
+
   // ----------------------------------
   // -- Variables
   // ---------------------------------- 
 
   private _snackBar = inject(MatSnackBar)
 
-  
+
   _role: string = 'undefined';
 
   title_page: string = "Registrarse";
@@ -57,17 +58,17 @@ export class SignupComponent implements OnInit, AfterViewInit {
   // ---------------------------------- 
 
   constructor(
-    private router:Router, private route: ActivatedRoute, 
-    private fb: FormBuilder, private sessionService: SessionService, 
+    private router: Router, private route: ActivatedRoute,
+    private fb: FormBuilder, private sessionService: SessionService,
     private dataService: DataService,
     private storageService: StorageService,
-    ) {
+  ) {
 
     this.route.queryParams.subscribe(params => {
       this._role = params['role'];
     });
 
-    
+
     this.form_register = this.f_createForm();
 
   }
@@ -82,13 +83,23 @@ export class SignupComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
- 
+
+    this.f_init_signinGoogle();
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
 
-    // -- llamar funcion iniciar sesion
-    this.f_signup();
+
+    // Tip: si los datos del formulario son incorrectos
+    if (this.form_register.invalid) {
+      this.form_register.markAllAsTouched();
+
+      return;
+    }
+    if (await this.dataService.showQuestion(`Está seguro de haber elegido el tipo de usuario correcto? ${this.f.user_type == 'traveler' ? 'viajero' : this.f.user_type == 'driver' ? 'conductor' : 'administrador'}`, this.f.user_type, 'warning')) {
+      // -- llamar funcion iniciar sesion
+      this.f_signup();
+    }
   }
 
   // ----------------------------------
@@ -111,102 +122,149 @@ export class SignupComponent implements OnInit, AfterViewInit {
   // TODO funcion para registrarse sesion  
   // ---------------------------------- 
   f_signup() {
-    // Tip: si los datos del formulario son incorrectos
-    if (this.form_register.invalid) {
-      this.form_register.markAllAsTouched();
 
-      return;
-    }
 
     this.sessionService.signup(this.form_register.value).subscribe({
       next: (response: any) => {
 
-        // guardar sesion en Firebase
-        this.f_signupFirebase();
+        if (response.type_user == 'traveler') return this.goToTravelerView();
+        else if (response.type_user == 'driver') return this.goToDriverView();
+        else if (response.type_user == 'admin') return this.goToTravelerView();
 
-        if(response.type_user == 'traveler') return this.goToTravelerView();
-        else if(response.type_user == 'driver') return this.goToDriverView();
-        else if(response.type_user == 'admin') return this.goToTravelerView();
-  
         return;
       },
       error: (error: any) => {
-        
-        this.dataService.showMsj('Ha ocurrido un error.' ,'Warning', 'warning');
+
+        const config = this.dataService.openSnackBar('success');
+        const snackBarRef = this._snackBar.open('Ha ocurrido un error en su petición..', 'CLOSE', config);
+
         console.error('Error getting Registrarse:', error);
- 
+
       },
       complete: () => {
         // Realizar acciones adicionales cuando el observable se completa, si es necesario
       },
     });
-     
 
-  } 
 
-  registerWithGoogle(router:any, auth: any, response:any) {
-    // console.log('Encoded JWT ID token: ' + response.credential);
-    let token= "";
-    if (response.credential) {
-      auth.f_setToken(response.credential);
-      
-      // sessionStorage.setItem('token', response.credential);
-      router.navigateByUrl('private/inicio');
-      // document.location.href = 'http://localhost:4200/#/private/inicio';
-    }
- 
   }
 
-  
-  
-  async f_signupFirebase(){
+
+  // ------------------------------------------
+  // TODO para iniciar sesion con goolge
+  // ------------------------------------------
+
+
+  async f_init_signinGoogle() {
+
+
+    google.accounts.id.initialize({
+      client_id: environment.client_google_auth,
+      callback: (this.handleCredentialResponse.bind(this)),
+    });
+    google.accounts.id.renderButton(
+      document.getElementById('btn_SignUpGoogle'),
+      { theme: 'filled_blue', size: 'medium' } // customization attributes
+    );
+    google.accounts.id.prompt(); // also display the One Tap dialog
+
+  }
+
+
+  // Tip: Login con google
+  handleCredentialResponse(response: any) {
+
+
+    // console.log('Encoded JWT ID token: ' + response.credential);
+    const token = response.credential;
+
+    // guardar token en sessionstorage
+    this.storageService.f_setToken(token, 'token_google');
+
+    if (token) {
+
+      // -- decodificar token
+
+      const data = this.storageService.decodeToken(token);
+      // console.log('Decoded JWT ID token: ', data);
+      // -- obtener email 
+
+      if (data.email_verified) {
+
+
+        const dataUserGoogle = {
+          name: data.name,
+          email: data.email,
+          phone: data.phone ? data.phone : '',
+        };
+
+        // -- Actualizar el formulario
+        this.f.name.setValue(dataUserGoogle.name);
+        this.f.email.setValue(dataUserGoogle.email);
+        this.f.phone.setValue(dataUserGoogle.phone); 
+        
+        this.dataService.showMsj('Su información se ha completado, verifique los campos que faltan.', 'Verificación completada.', 'success');
+
+        this.onSubmit(); 
+
+      }
+
+    }
+  }
+
+  // ------------------------------------------
+  // para iniciar sesion con goolge
+  // ------------------------------------------
+
+
+  async f_signupFirebase() {
 
     // Tip: si los datos del formulario son incorrectos
     if (this.form_register.invalid) {
       this.form_register.markAllAsTouched();
 
       const config = this.dataService.openSnackBar('warning');
-      const snackBarRef = this._snackBar.open('verifique el formulario', 'CLOSE', config ); 
-   
+      const snackBarRef = this._snackBar.open('verifique el formulario', 'CLOSE', config);
+
       snackBarRef.afterDismissed().subscribe(() => {
-        
+
         return;
 
       });
 
-    } 
+    }
 
     const credentials = {
       email: this.form_register.value.user_name,
       password: this.form_register.value.password
     }
 
-    try{
-      await this.sessionService.signupWithFirebase(credentials); 
-      
-    }catch (error){
+    try {
+      await this.sessionService.signupWithFirebase(credentials);
+
+    } catch (error) {
       console.log(error)
     }
   }
- 
+
 
 
   goToTravelerView() {
-     
-   return this.router.navigate(['/traveler/travel-request'], { 
+
+    return this.router.navigate(['/traveler/travel-request'], {
       queryParams: {
-         
+
       },
     });
   }
   goToDriverView() {
-    
-    return this.router.navigate(['/traveler/travel-request'], { 
+
+    return this.router.navigate(['/traveler/travel-request'], {
       queryParams: {
-         
+
       },
     });
-  }  
+  }
   goToSignIn() {
     return this.router.navigate(['/session/signin'], { queryParams: { role: '' } });
   }

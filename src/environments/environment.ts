@@ -2,7 +2,7 @@ export const environment = {
     production: true,
     AUTH_API: 'https://geoloc-app.onrender.com/api/v1/auth/',
     socketUrl: 'https://geoloc-app.onrender.com',
-    appVersion: '0.0.8', 
+    appVersion: '0.0.9', 
     appName: 'LINKI',
 
     // -----------------------------
@@ -15,5 +15,6 @@ export const environment = {
     // -----------------------------
     // -- API KEY
     // -----------------------------
+    client_google_auth: '187096175156-7vu5tscu2h2p1gq4c26fahffs1e4rqov.apps.googleusercontent.com',
 
   };
