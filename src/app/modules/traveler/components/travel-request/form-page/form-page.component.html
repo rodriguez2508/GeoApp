@@ -1,34 +1,55 @@
-<section class="_form-traveler-request w3-row w3-col w3-container text-white set-height-100 ">
+<section
+  class="_form-traveler-request set-height-100 w3-row w3-col w3-container text-white"
+>
   <div class="w3-row w3-col m10 s10 _center-h-sb">
     <h3>{{ title_page }}</h3>
   </div>
-  <div class="w3-row w3-col m2 s2 mt-2 ">
-    <button (click)="goToMap()" class="btn w3-border p-1 text-warning ">
-      <i class="fa fa-1 fa-arrow-left-long"></i>
-      <label class="w3-small">Atrás</label>
+  <div class="w3-row w3-col m2 s2 mt-2">
+    <button (click)="goToMap()" class="btn border-0 text-white">
+      <i class="fa fa-2x fa-close"></i> 
     </button>
   </div>
 
   <div class="w3-row w3-col d-flex _center-h-sb">
     <!-- Inputs y Forms -->
     <form
-      class="w3-row w3-col l8 m8 set-height-s-80 d-flex align-content-between p-3 border border-warning rounded-2"
+      class="w3-row w3-col l8 m8 set-height-s-90 align-content-between p-3 border border-warning rounded-2"
       [formGroup]="form_request"
       (ngSubmit)="onSubmit()"
     >
+      <!-- Mapa con la ruta origen destino -->
+      @if(showMap){
+
+      <div
+        class="w3-row w3-col set-height-20"
+      ></div>
+
+      }@else {
+
+      <div
+        class="w3-row w3-col pt-5 set-height-30 border-bottom border-secondary"
+      >
+        <p class="text-danger fw-bold text-uppercase text-center">
+          No se ha seleccionado una ruta válida.
+        </p>
+        <i class="fa fa-2x fa-map-location w-100 text-center"></i>
+      </div>
+
+      }
+
       <div class="w3-row w3-col m-auto">
         <div class="w3-col d-flex">
-          <h6>Ruta</h6> 
+          <h6>Ruta</h6>
         </div>
         <!-- -------------- -->
         <!-- Lugar origen del viajero -->
         <!-- -------------- -->
-        <div class="w3-row w3-col form-control">
+        <div class="w3-row w3-col form-control bg-transparent text-white border-0 border-bottom border-secondary mb-1">
           <input
             formControlName="placeOrigin"
             hidden
             type="text"
-            class="form-control"
+            class="form-control "
             name="placeOrigin"
             id="placeOrigin"
             placeholder="Lugar de origen "
@@ -39,7 +60,7 @@
             class="w3-col"
             for="placeOrigin"
             title="Ruta de origen del viaje "
-            >Desde</label
+            > <i class="fa fa-dot-circle text-primary me-1 w3-left"></i> Desde</label
           >
 
           @if(f.placeOrigin.invalid && (f.placeOrigin.dirty ||
@@ -51,14 +72,14 @@
             [class]="address_coord == '' ? 'text-secondary ' : '' + ' w3-col '"
           >
             {{ address_coord !== "" ? address_coord : "Definir su ubicación" }}
-            <!-- <i class="fa fa-map-location w3-right"></i> -->
+            <i class="fa fa-map-location w3-right"></i> 
           </p>
         </div>
 
         <!-- -------------- -->
         <!-- Lugar destino del viajero -->
         <!-- -------------- -->
-        <div class="w3-row w3-col form-control">
+        <div class="w3-row w3-col form-control bg-transparent text-white border-0 border-bottom border-secondary mb-1">
           <input
             formControlName="placeDestination"
             type="text"
@@ -77,7 +98,7 @@
             class="w3-col"
             for="placeDestination"
             title="Ruta de destino del viaje "
-            >Hasta</label
+            > <i class="fa fa-dot-circle text-danger me-1 w3-left"></i> Hasta</label
           >
 
           @if(f.placeDestination.invalid && (f.placeDestination.dirty ||
@@ -230,6 +251,26 @@
           </p>
 
           <div class="w3-row w3-col d-flex overflow-x-auto">
+            
+             <!-- Tipo 0 personas-->
+             <div
+             class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+           >
+             <input
+               formControlName="personNumber"
+               type="radio"
+               name="personNumber"
+               value="0"
+               id="p-0"
+               class="custom-control-input"
+               required
+             />
+             <span class="custom-control-indicator"></span>
+             <label for="p-0" class="custom-control-description btn w-100">
+               ninguno
+             </label>
+           </div>
+
             <!-- Tipo 1 personas-->
             <div
               class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
@@ -406,8 +447,8 @@
         <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
           <textarea
             formControlName="travelPeferences"
-            rows="5"
-            class="form-control h-auto w-100"
+            rows="3"
+            class="form-control h-auto bg-transparent text-white w-100"
             name="travelPeferences"
             id="travelPeferences"
             placeholder="Preferencias del viajero "
@@ -415,7 +456,9 @@
               f.travelPeferences.invalid && f.travelPeferences.touched
             "
           ></textarea>
-          <label class="text-secondary" for="travelPeferences">Descripción del viaje</label>
+          <label class="text-secondary" for="travelPeferences"
+            >Preferencias:</label
+          >
 
           @if(f.travelPeferences.invalid && (f.travelPeferences.dirty ||
           f.travelPeferences.touched) ){
@@ -433,9 +476,9 @@
         <!-- -------------- -->
         <!-- Botones -->
         <!-- -------------- -->
-        <div class="w3-row w3-col w3-section">
-          <button class="w3-col l4 m4 btn btn-warning float-end" type="submit">
-            Publicar Oferta
+        <div class="w3-row w3-col w3-section _center-h">
+          <button class=" btn btn-warning rounded-5 " type="submit">
+            Publicar Oferta <i class="fa fa-paper-plane ps-2"></i>
           </button>
         </div>
       </div>

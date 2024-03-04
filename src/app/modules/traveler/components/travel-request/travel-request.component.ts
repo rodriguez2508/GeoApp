@@ -19,6 +19,8 @@ import { DataService } from '../../../../services/data/data.service';
 import { SocketioService } from '../../../../services/socketio.service';
 import { I_UserMap, I_UserSessionStorage } from '../../../../interface/user.interface';
 import { StorageService } from '../../../../services/storage/storage.service';
+import { FavoritesPlacesService } from '../../../../services/map/favorites-places.service';
+import { I_Places } from '../../../../interface/places.interface';
 // -- Services
 
 @Component({
@@ -42,8 +44,9 @@ export class TravelRequestComponent {
   location_status: boolean = false;
   max_count: number = 0;
 
+  favoriteMarkers: I_Places[] = [];
   connected_users: I_UserMap[] = [];
-  userData: I_UserSessionStorage = { 
+  userData: I_UserSessionStorage = {
     ci: '',
     name: '',
     email: '',
@@ -51,34 +54,35 @@ export class TravelRequestComponent {
     iat: 0,
     phone: '',
     type_user: ''
-   };
+  };
 
   type_user: string = '';
   viewToShow: string = 'map';
 
   constructor(
-    private router: Router, 
-    private route: ActivatedRoute, 
-    private geolocService: GeolocService, 
-    private dataService: DataService, 
-    private storageService: StorageService, 
-    private socketioService: SocketioService) {
+    private router: Router,
+    private route: ActivatedRoute,
+    private geolocService: GeolocService,
+    private dataService: DataService,
+    private storageService: StorageService,
+    private socketioService: SocketioService,
+    private favoritePlacesService: FavoritesPlacesService) {
 
     // obtengo el parametro en la ruta
     this.route.queryParams.subscribe(params => {
 
-       // -------------------------------------------
+      // -------------------------------------------
       // -- verifica parametros en la ruta  
       // ------------------------------------------- 
-      this.viewToShow = params['view']? params['view'] : 'map'; 
-      
-      this.coord_origin = params['view']== 'form' && params['coord'] ? params['view'] : 'map'; 
+      this.viewToShow = params['view'] ? params['view'] : 'map';
+
+      this.coord_origin = params['view'] == 'form' && params['coord'] ? params['view'] : 'map';
 
 
 
     });
 
-    
+
   }
   ngOnDestroy(): void {
 
@@ -95,38 +99,40 @@ export class TravelRequestComponent {
 
     this.type_user = this.userData.type_user === 'traveler' ? 'Conductor' : 'Viajero';
 
+    this.getFavoritePlaces(this.userData.ci);
+
   }
   ngOnInit() {
 
     this.userData = this.storageService.getUser();
 
-    if(this.viewToShow == 'map'){
-      
+    if (this.viewToShow == 'map') {
+
       // -------------------------------------------
-    // -- obtener localizacion  
-    // -------------------------------------------
-     
-    this.getLocation();
+      // -- obtener localizacion  
+      // -------------------------------------------
+
+      this.getLocation();
 
 
-    this.socketioService.connect();
+      this.socketioService.connect();
 
-    // -------------------------------------------
-    // -- obtener estado del socket 
-    // -------------------------------------------
-    this.getSocketStatus();
-    // -------------------------------------------
-    // -- obtener lista de usuarios conectados
-    // -------------------------------------------
-    this.getConnectedUsers();
+      // -------------------------------------------
+      // -- obtener estado del socket 
+      // -------------------------------------------
+      this.getSocketStatus();
+      // -------------------------------------------
+      // -- obtener lista de usuarios conectados
+      // -------------------------------------------
+      this.getConnectedUsers();
 
     }
   }
 
   reload_location() {
-    
+
     this.geolocService.stopWatchingPosition();
-    
+
     this.getLocation();
   }
 
@@ -134,9 +140,9 @@ export class TravelRequestComponent {
   // -- obtener localizacion del usuario
   // -------------------------------------------
   async getLocation() {
- 
 
-    
+
+
     this.geolocService.startWatchingPosition((position: Coordinate) => {
 
       // Aquí puedes manejar la nueva posición del usuario 
@@ -148,10 +154,10 @@ export class TravelRequestComponent {
 
         let position_ = { lat: this.lat, long: this.lon };
 
-        let user_:I_UserMap = {
+        let user_: I_UserMap = {
           id: this.userData.ci,
           name: this.userData.name,
-          markerColor: 'success', currentPosition: position_ 
+          markerColor: 'success', currentPosition: position_
         };
 
 
@@ -171,7 +177,7 @@ export class TravelRequestComponent {
       console.log(this.max_count);
       this.max_count = value;
     });
-     
+
   }
 
 
@@ -184,7 +190,7 @@ export class TravelRequestComponent {
       next: (status: boolean) => {
         this.socket_status = status;
         console.log('Socket status updated:', status);
- 
+
       },
       error: (error: any) => {
         // Manejar errores al obtener el estado del socket
@@ -227,5 +233,23 @@ export class TravelRequestComponent {
 
   }
 
+
+
+  getFavoritePlaces(user_ci: string) {
+
+
+    this.favoritePlacesService.getPlaceByUser(user_ci).subscribe(
+      res => {
+
+        console.log(res)
+
+      },
+      err => {
+       console.log(err)
+      }
+
+    );
+
+  }
 
 }

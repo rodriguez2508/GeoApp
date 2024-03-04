@@ -1,4 +1,8 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import { FavoritesPlacesService } from './../../../../../services/map/favorites-places.service';
+import { DataService } from '../../../../../services/data/data.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { I_Places } from '../../../../../interface/places.interface';
 
 // --interfaces
 
@@ -12,14 +16,18 @@ import { AfterViewInit, Component, EventEmitter, Input, OnChanges, Output, Simpl
 })
 export class PSearchComponent implements OnChanges, AfterViewInit {
  
+  private _snackBar = inject(MatSnackBar)
   
   @Input() address: string = '';  
   @Input() distance: string = '0';  
   @Output() footerDisplayed = new EventEmitter<boolean>(false);
 
-  favoriteMarkers:any = [];
+  @Input() favoriteMarkers:I_Places[] = [];
 
-  constructor(){
+  constructor(
+    private dataService: DataService,
+    
+  ){
 
      
   }
@@ -27,6 +35,8 @@ export class PSearchComponent implements OnChanges, AfterViewInit {
     
   }
   ngAfterViewInit(): void {
+
+    console.log(this.favoriteMarkers)
     
   }
    

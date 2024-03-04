@@ -62,6 +62,7 @@ import {
 // -- constant
 import { FooterPageComponent } from '../footer-page/footer-page.component';
 import { ActivatedRoute, Router } from '@angular/router';
+import { I_Places } from '../../../../../interface/places.interface';
 
 @Component({
   selector: 'app-map-page',
@@ -79,6 +80,8 @@ export class MapPageComponent {
   @Input() width: string | number = DEFAULT_WIDTH;
   @Input() height: string | number = DEFAULT_HEIGHT;
 
+  @Input() favoriteMarkers:I_Places[] = [];
+  
   @Output() movestart = new EventEmitter<any>();
   @Output() moveend = new EventEmitter<any>();
  
@@ -314,17 +317,17 @@ export class MapPageComponent {
     //  ------------------------------
   }
 
-  // --------------------------------------------
-  // -- Actualizar mapa segun latitud y longitud
-  // --------------------------------------------
-  private updateMap() {
-    // Agregar el control ZoomToExtent al mapa
+  // // --------------------------------------------
+  // // -- Actualizar mapa segun latitud y longitud
+  // // --------------------------------------------
+  // private updateMap() {
+  //   // Agregar el control ZoomToExtent al mapa
 
-    // this.center = transform([this.lon, this.lat], 'EPSG:4326', 'EPSG:3857');
-    // this.extent = [this.center[0] - 50000, this.center[1] - 50000, this.center[0] + 50000, this.center[1] + 50000];
+  //   // this.center = transform([this.lon, this.lat], 'EPSG:4326', 'EPSG:3857');
+  //   // this.extent = [this.center[0] - 50000, this.center[1] - 50000, this.center[0] + 50000, this.center[1] + 50000];
 
-    this.map.render;
-  }
+  //   this.map.render;
+  // }
 
   centerMap() {
     // this.map.getView().setCenter(Proj.fromLonLat([this.lon, this.lat]));
@@ -391,15 +394,9 @@ export class MapPageComponent {
   private getAddress(coord: Coordinate) {
     this.openRouteService.getStreetInformation(coord).subscribe({
       next: (response: any) => {
-        // const displayName = response.name;
-        // const address = response.address;
-
-        // console.log(' n:', response);
-        // console.log('Nombre de la ubicación:', displayName);
-        // console.log('Dirección detallada:', address);
-
-        console.log(response.address);
-        console.log(response.address.road);
+        
+        // console.log(response.address);
+        // console.log(response.address.road);
 
         let road = response.address.road;
         let neighbourhood = response.address.neighbourhood;

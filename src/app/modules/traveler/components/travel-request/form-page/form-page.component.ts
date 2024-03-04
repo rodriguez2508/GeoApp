@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -18,6 +18,9 @@ import { OpenRouteService } from '../../../../../services/map/open-route.service
 // -- services
 // -- components
 import { FooterPageComponent } from '../footer-page/footer-page.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TripTravelerService } from '../../../../../services/trip/trip-traveler.service';
+import { I_Places } from '../../../../../interface/places.interface';
 // -- components
 
 @Component({
@@ -27,18 +30,29 @@ import { FooterPageComponent } from '../footer-page/footer-page.component';
   templateUrl: './form-page.component.html',
   styleUrl: './form-page.component.scss',
 })
-export class FormPageComponent implements OnInit,AfterViewInit{
+export class FormPageComponent implements OnInit,AfterViewInit,OnChanges{
   // ----------------------------------
   // -- Variables
   // ----------------------------------
 
-  _role: string = 'undefined';
-  coord: Coordinate = [];
-  address_coord: string = '';
-  coord_destination: Coordinate = [];
-  address_coord_destination: string = '';
 
-  title_page: string = 'Formulario de Viaje';
+  private _snackBar = inject(MatSnackBar)
+
+  // -- Rol del usuario conectado
+  _role: string = 'undefined';
+  // --coordenadas de la posicion actual del usuario
+  coord: Coordinate = [];
+  // --lugar de la posicion actual del usuario
+  address_coord: string = '';
+  // --coordenadas de la posicion destino del usuario
+  coord_destination: Coordinate = [];
+  // --lugar de la posicion destino del usuario
+    address_coord_destination: string = '';
+
+
+  @Input() favoriteMarkers:I_Places[] = [];
+  
+  title_page: string = 'Solicitud de viaje';
   form_request: FormGroup;
 
   form: any = {
@@ -46,10 +60,10 @@ export class FormPageComponent implements OnInit,AfterViewInit{
     email: null,
     password: null,
   };
-  isSuccessful = false;
-  isSignUpFailed = false;
-  errorMessage = '';
-  checkAllvehicleType:boolean = false;
+  // -- para mostrar el mapa con la ruta si existen las 2 coordenadas (origen y destino )
+  showMap = false;
+  
+  checkAllvehicleType:boolean = true;
 
 
   footerDisplayed = false;
@@ -63,6 +77,7 @@ export class FormPageComponent implements OnInit,AfterViewInit{
     private router: Router,
     private route: ActivatedRoute,
     private fb: FormBuilder,
+    private tripTravelerService: TripTravelerService,
     private dataService: DataService,
     private openRouteService: OpenRouteService
   ) {
@@ -78,6 +93,16 @@ export class FormPageComponent implements OnInit,AfterViewInit{
 
     this.form_request = this.f_createRequestForm();
   }
+  ngOnChanges(changes: SimpleChanges): void {
+    
+    if ('coord' in changes || 'coord_destination' in changes ) {
+       
+      // -- Verifica que las coordenadas de origen y destino existan y sean diferente a CERO
+      if( (this.coord && (this.coord[0] != 0 && this.coord[1] != 0) && (this.coord[1] != 0 && this.coord[1] != 0)) && (this.coord_destination && (this.coord_destination[0] != 0 && this.coord_destination[1] != 0) && (this.coord_destination[1] != 0 && this.coord_destination[1] != 0)) ){
+        this.showMap = true;
+      }
+    }
+  }
 
   ngOnInit(): void {
  
@@ -88,7 +113,7 @@ export class FormPageComponent implements OnInit,AfterViewInit{
   }
 
   ngAfterViewInit(): void {}
-
+   
   onSubmit(): void {
 
     // Tip: si los datos del formulario son incorrectos
@@ -107,7 +132,7 @@ export class FormPageComponent implements OnInit,AfterViewInit{
       placeOrigin: [this.coord[0]+','+this.coord[1], [Validators.required, , this.customCoordValidator()]],
     
       placeDestination: [this.coord_destination[0]+','+this.coord_destination[1], [Validators.required, , this.customCoordValidator()]],
-      personNumber: ['1', [Validators.required]],
+      personNumber: ['0', [Validators.required]],
       vehicleType: ['', [Validators.required]],
       maxTimeWaiting: ['15', [Validators.required]],
       travelPeferences: ['', []],
@@ -132,6 +157,48 @@ export class FormPageComponent implements OnInit,AfterViewInit{
   }
   
 
+  // ----------------------------------
+  // TODO: funcion para guardar formulario de solicitud de viaje   
+  // ----------------------------------
+  saveTravelRequest(){
+
+    // Tip: si los datos del formulario son incorrectos
+    if (this.form_request.invalid) {
+      this.form_request.markAllAsTouched();
+
+
+      const config = this.dataService.openSnackBar('warning');
+      this._snackBar.open('Verifique el formulario', 'CLOSE', config);
+
+      return;
+    }
+
+    // this.dataService.showMsjInData('procesando..', 'warning', '');
+
+    this.tripTravelerService.saveTravelRequest(this.form_request.value).subscribe({
+      next: (data: any) => {
+ 
+
+        const config = this.dataService.openSnackBar('success');
+        this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
+  
+      },
+      error: (errorData) => {
+
+        console.log(errorData)
+
+        const config = this.dataService.openSnackBar('danger');
+        this._snackBar.open('Credenciales Incorrectas', 'CLOSE', config);
+
+      },
+      complete: () => {
+
+      },
+    });
+
+
+  }
+
   goToMap(): void {
     // window.location.assign(
     //   '/traveler/travel-request?view=map');
@@ -151,8 +218,8 @@ export class FormPageComponent implements OnInit,AfterViewInit{
         // const displayName = response.name;
         // const address = response.address; 
 
-        console.log(response.address);
-        console.log(response.address.road);
+        // console.log(response.address);
+        // console.log(response.address.road);
 
         let road = response.address.road;
         let neighbourhood = response.address.neighbourhood;

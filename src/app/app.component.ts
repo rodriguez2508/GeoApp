@@ -5,7 +5,7 @@ import { ChildrenOutletContexts, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/shared/navbar/navbar.component';
 import { DataComponent } from './components/shared/data/data.component';
 import { DataService } from './services/data/data.service';
-import { SessionService } from './services/services/session.service';
+import { SessionService } from './services/session/session.service';
 import { I_UserSessionStorage } from './interface/user.interface';
 import { StorageService } from './services/storage/storage.service';
 import { Subscription } from 'rxjs';

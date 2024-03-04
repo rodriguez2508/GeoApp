@@ -89,6 +89,9 @@ dependencies:
   ngx-bootstrap:
     specifier: ^12.0.0
     version: 12.0.0(@angular/animations@17.0.9)(@angular/common@17.0.9)(@angular/core@17.0.9)(@angular/forms@17.0.9)(rxjs@7.8.1)
+  ngx-cookie-service:
+    specifier: ^17.1.0
+    version: 17.1.0(@angular/common@17.0.9)(@angular/core@17.0.9)
   ngx-fullscreen:
     specifier: ^0.0.0
     version: 0.0.0
@@ -7101,6 +7104,17 @@ packages:
       '@angular/core': 17.0.9(rxjs@7.8.1)(zone.js@0.14.3)
       '@angular/forms': 17.0.9(@angular/common@17.0.9)(@angular/core@17.0.9)(@angular/platform-browser@17.0.9)(rxjs@7.8.1)
       rxjs: 7.8.1
+      tslib: 2.6.2
+    dev: false
+
+  /ngx-cookie-service@17.1.0(@angular/common@17.0.9)(@angular/core@17.0.9):
+    resolution: {integrity: sha512-m4YI9IEgTaEBDMCz7oeVsO6UX14EmCzg29cTL6yxW8f7oye9wv56egi+3C4wAVSRPkI+cWlqnIOr+XyHwYQYmg==}
+    peerDependencies:
+      '@angular/common': ^17.0.0
+      '@angular/core': ^17.0.0
+    dependencies:
+      '@angular/common': 17.0.9(@angular/core@17.0.9)(rxjs@7.8.1)
+      '@angular/core': 17.0.9(rxjs@7.8.1)(zone.js@0.14.3)
       tslib: 2.6.2
     dev: false
 

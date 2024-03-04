@@ -2,6 +2,11 @@
 // --Interfaz para usuario que inicia sesion
 // ------------
 
+export interface I_SignInGoogle { 
+  user: string;
+  password: string; 
+}
+
 
 export interface I_SignIn { 
     user_name: string;

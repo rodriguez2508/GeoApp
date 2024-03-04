@@ -1,10 +1,23 @@
 export const environment = {
     production: true,
-    AUTH_API: 'https://geoloc-app.onrender.com/api/v1/auth/',
     socketUrl: 'https://geoloc-app.onrender.com',
     appVersion: '0.0.9', 
     appName: 'LINKI',
+    
+    // --API BACKEND
 
+    AUTH_API: 'https://geoloc-app.onrender.com/api/v1/auth/',
+
+    // -- api que maneja los viajes
+    TRIP_API: 'https://geoloc-app.onrender.com/api/v1/trip/',
+    
+    FAVORITES_PLACES_API: 'https://geoloc-app.onrender.com/api/v1/favorites-places/',
+   
+    // --API BACKEND
+    
+    
+    
+    
     // -----------------------------
     // -- API KEY
     // -----------------------------

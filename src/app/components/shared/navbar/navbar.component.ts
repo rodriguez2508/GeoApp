@@ -21,7 +21,7 @@ import {
 import { environment } from '../../../../environments/environment';
 
 import { DataService } from '../../../services/data/data.service';
-import { SessionService } from '../../../services/services/session.service';
+import { SessionService } from '../../../services/session/session.service';
 import { ShareAppService } from '../../../services/share-app.service';
 import { I_UserSessionStorage } from '../../../interface/user.interface';
 import { NavbarTravelerComponent } from '../../../modules/traveler/components/shared/navbar/navbar-traveler.component';

@@ -4,12 +4,16 @@ import {
   Input,
   OnChanges,
   SimpleChanges,
+  inject,
 } from '@angular/core';
 
 // --interfaces
 import { I_UserMap } from '../../../../../interface/user.interface';
 import { Coordinate } from 'ol/coordinate';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FavoritesPlacesService } from '../../../../../services/map/favorites-places.service';
+import { I_Places } from '../../../../../interface/places.interface';
+import { MatSnackBar } from '@angular/material/snack-bar';
 // --interfaces
 @Component({
   selector: 'app-p-map',
@@ -19,6 +23,10 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrl: './p-map.component.scss',
 })
 export class PMapComponent implements OnChanges, AfterViewInit {
+  
+  
+  private _snackBar = inject(MatSnackBar)
+
   @Input() connected_users: I_UserMap[] = [];
   @Input() connected_TravelerUsers: I_UserMap[] = [];
   @Input() connected_DriverUsers: I_UserMap[] = [];
@@ -29,28 +37,19 @@ export class PMapComponent implements OnChanges, AfterViewInit {
   @Input() coord_destination: Coordinate = [];
 
   constructor(
-    private route: ActivatedRoute, 
+    private route: ActivatedRoute,
     private router: Router,
-  ) {}
-  ngOnChanges(changes: SimpleChanges): void {}
-  ngAfterViewInit(): void {}
+    private favoritePlacesService: FavoritesPlacesService
+  ) { }
+  ngOnChanges(changes: SimpleChanges): void { }
+  ngAfterViewInit(): void { }
 
-  reloadWithParams() {
-    // window.location.assign(
-    //   '/traveler/travel-request?view=form&lon=' +
-    //     this.coord[0] +
-    //     '&lat=' +
-    //     this.coord[1] +
-    //     '&lon_d=' +
-    //     this.coord_destination[0] +
-    //     '&lat_d=' +
-    //     this.coord_destination[1]
-    // );
+  reloadWithParams(view: string = 'form') {
 
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        view: 'form',
+        view: view,
         lon: this.coord[0],
         lat: this.coord[1],
         lon_d: this.coord_destination[0],
@@ -58,4 +57,20 @@ export class PMapComponent implements OnChanges, AfterViewInit {
       }
     });
   }
+
+  saveFavoritePlace() {
+
+    if(this.address != 'Buscando...'){
+      
+      const dataPlace: I_Places = {
+        coordinates: `${this.coord_destination[0],this.coord_destination[1]}`,
+        name: this.address,
+        description: ''
+      };
+      this.favoritePlacesService.savePlace(dataPlace);
+    
+    }
+    
+  }
+
 }

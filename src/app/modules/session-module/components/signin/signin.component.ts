@@ -16,7 +16,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FirebaseApp } from '@angular/fire/app';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { SessionService } from '../../../../services/services/session.service';
+import { SessionService } from '../../../../services/session/session.service';
 import { DataService } from '../../../../services/data/data.service';
 import { I_UserSessionStorage } from '../../../../interface/user.interface';
 import { I_SignIn } from '../../../../interface/session.interface';
@@ -110,7 +110,7 @@ export class SigninComponent implements OnInit, AfterViewInit {
   // ----------------------------------  
   private f_createLoginForm(): FormGroup {
     return this.fb.group({
-      // 'user_type': [this._role === undefined ? 'traveler' : this._role, [Validators.required]],
+      
       'user_name': ['', [Validators.required, Validators.minLength(3)]],
       'password': ['', [Validators.required, Validators.minLength(6)]],
     });

@@ -10,7 +10,7 @@ import { I_SignUp } from '../../../../interface/session.interface';
 // -- Interfaces
 
 // -- Services
-import { SessionService } from '../../../../services/services/session.service';
+import { SessionService } from '../../../../services/session/session.service';
 import { DataService } from '../../../../services/data/data.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../../../environments/environment';
