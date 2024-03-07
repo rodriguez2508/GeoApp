@@ -1,8 +1,10 @@
 import {
   AfterViewInit,
   Component,
+  EventEmitter,
   Input,
   OnChanges,
+  Output,
   SimpleChanges,
   inject,
 } from '@angular/core';
@@ -36,6 +38,8 @@ export class PMapComponent implements OnChanges, AfterViewInit {
   @Input() coord: Coordinate = [];
   @Input() coord_destination: Coordinate = [];
 
+  @Output() footerDisplayed = new EventEmitter<boolean>(false);
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -58,12 +62,18 @@ export class PMapComponent implements OnChanges, AfterViewInit {
     });
   }
 
+
+  hideFooter(){
+    this.footerDisplayed.emit(false);
+  }
+ 
+
   saveFavoritePlace() {
 
     if(this.address != 'Buscando...'){
       
       const dataPlace: I_Places = {
-        coordinates: `${this.coord_destination[0],this.coord_destination[1]}`,
+        coordinates: `${this.coord_destination[0]},${this.coord_destination[1]}`,
         name: this.address,
         description: ''
       };

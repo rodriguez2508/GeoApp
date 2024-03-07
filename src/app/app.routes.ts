@@ -4,42 +4,45 @@ import { PublicRouteGuardService } from './modules/session-module/guard/public-r
 
 export const routes: Routes = [
 
-    
-    { 
+
+    {
         path: 'public',
         canActivate: [PublicRouteGuardService],
-        loadChildren: () => import('./modules/public-module/public.module').then((m) => m.PublicModule) },
-        
-    { 
-        path: 'map', 
-        canActivate: [SessionGuardService], 
-        loadChildren: () => import('./modules/map-module/map.module').then((m) => m.MapModule) },
+        loadChildren: () => import('./modules/public-module/public.module').then((m) => m.PublicModule)
+    },
 
-    { 
-        path: 'session', 
-        canActivate: [PublicRouteGuardService], 
-        loadChildren: () => import('./modules/session-module/session.module').then((m) => m.SessionModule) },
+    {
+        path: 'map',
+        canActivate: [SessionGuardService],
+        loadChildren: () => import('./modules/map-module/map.module').then((m) => m.MapModule)
+    },
+
+    {
+        path: 'session',
+        canActivate: [PublicRouteGuardService],
+        loadChildren: () => import('./modules/session-module/session.module').then((m) => m.SessionModule)
+    },
 
 
-        { 
-            path: 'traveler', 
-            canActivate: [SessionGuardService], 
-            loadChildren: () => import('./modules/traveler/traveler.module').then((m) => m.TravelerModule) },
-    
+    {
+        path: 'traveler',
+        canActivate: [SessionGuardService],
+        loadChildren: () => import('./modules/traveler/traveler.module').then((m) => m.TravelerModule)
+    },
 
-            
-    // -----------------------------------
-    // -----------------------------------
+
+
     {
         path: '',
         redirectTo: 'session/signin',
         pathMatch: 'full'
     },
-    {
-        path: '**',
-        redirectTo: 'session/signin',
-        pathMatch: 'full'
-    },
-    
- 
+    // {
+    //     path: '**',
+    //     redirectTo: 'session/signin',
+    //     pathMatch: 'full'
+    // },
+
+
 ];
+

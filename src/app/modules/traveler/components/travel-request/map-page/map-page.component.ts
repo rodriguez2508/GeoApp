@@ -105,6 +105,7 @@ export class MapPageComponent {
   map: Map = new Map();
 
   @Input() userData: I_UserSessionStorage = {
+    id: '',
     ci: '',
     name: '',
     email: '',

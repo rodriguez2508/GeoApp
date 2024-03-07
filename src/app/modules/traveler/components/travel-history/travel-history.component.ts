@@ -16,6 +16,7 @@ export class TravelHistoryComponent {
   
   
   userData: I_UserSessionStorage = { 
+    id: '',
     ci: '',
     name: '',
     email: '',

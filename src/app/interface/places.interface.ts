@@ -9,9 +9,21 @@ export interface I_Places {
   description:string
   
 }
+
+export interface I_Places_ {
+
+  coordinates:string,
+  description:string,
+  id:string,
+  name:string,
+  user_id:string
+  
+}
+
+
 export interface I_Places_db {
 
-  user_ci:string,
+  user_id:string,
   placeData:I_Places
     
 }

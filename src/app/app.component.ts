@@ -30,6 +30,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
 
   userLoginOn: boolean = false;
   userData: I_UserSessionStorage = {
+    id: '',
     ci: '',
     name: '',
     email: '',

@@ -90,6 +90,7 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges, OnDestr
   
   client: I_UserMap;
   userData: I_UserSessionStorage = {
+    id: '',
     ci: '',
     name: '',
     email: '',

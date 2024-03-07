@@ -20,9 +20,7 @@
   <!-- <p class=" w3-col">{{distance}}</p> -->
 </div>
 
-<div
-  class="w3-row w3-col bg-dark set-height-s-40 w3-container d-flex "
->
+<div class="w3-row w3-col bg-dark set-height-s-40 w3-container d-flex">
   @if (favoriteMarkers.length == 0) {
   <!-- elemento -->
   <div class="w-100 d-flex align-items-center mr-3">
@@ -33,12 +31,18 @@
   }@else {
 
   <ul class="w3-row w3-col w3-ul">
- 
-    <li class="w3-col d-flex align-items-center mr-3">
-      <!-- elemento --> 
-        <h4 class="text-warning container w3-section">Dirección 1</h4>
-        <i class="fa fa-2x fa-location-dot text-warning"></i> 
+    @for (item of favoriteMarkers; track $index) {
+
+    <li (click)="selectPlace(item.coordinates)" class="w3-col button d-flex align-items-center mr-3 border-bottom border-white mb-1">
+      <!-- elemento -->
+      <div class="w3-col l10 m10 s10">
+        <h4 class="text-warning container w3-section">{{ item.name }}</h4>
+      </div>
+      <div class="w3-col l1 m1 s1">
+        <i class="fa fa-2x fa-location-dot text-warning"></i>
+      </div>
     </li>
+    }
   </ul>
 
   }

@@ -1,3 +1,4 @@
+import { I_Places } from './../../../../interface/places.interface';
 import { Component } from '@angular/core';
 
 import { Coordinate } from 'ol/coordinate';
@@ -20,7 +21,6 @@ import { SocketioService } from '../../../../services/socketio.service';
 import { I_UserMap, I_UserSessionStorage } from '../../../../interface/user.interface';
 import { StorageService } from '../../../../services/storage/storage.service';
 import { FavoritesPlacesService } from '../../../../services/map/favorites-places.service';
-import { I_Places } from '../../../../interface/places.interface';
 // -- Services
 
 @Component({
@@ -47,6 +47,7 @@ export class TravelRequestComponent {
   favoriteMarkers: I_Places[] = [];
   connected_users: I_UserMap[] = [];
   userData: I_UserSessionStorage = {
+    id: '',
     ci: '',
     name: '',
     email: '',
@@ -99,7 +100,7 @@ export class TravelRequestComponent {
 
     this.type_user = this.userData.type_user === 'traveler' ? 'Conductor' : 'Viajero';
 
-    this.getFavoritePlaces(this.userData.ci);
+    this.getFavoritePlaces(this.userData.id);
 
   }
   ngOnInit() {
@@ -129,6 +130,10 @@ export class TravelRequestComponent {
     }
   }
 
+
+  // -------------------------------------------
+  // TODO -- cancela la busqueda de la localizacion y vueve a obtener localizacion del usuario
+  // -------------------------------------------
   reload_location() {
 
     this.geolocService.stopWatchingPosition();
@@ -137,12 +142,10 @@ export class TravelRequestComponent {
   }
 
   // -------------------------------------------
-  // -- obtener localizacion del usuario
+  // TODO -- obtener localizacion del usuario
   // -------------------------------------------
   async getLocation() {
-
-
-
+ 
     this.geolocService.startWatchingPosition((position: Coordinate) => {
 
       // Aquí puedes manejar la nueva posición del usuario 
@@ -182,7 +185,7 @@ export class TravelRequestComponent {
 
 
   // -------------------------------------------
-  // -- TODO obtener estado del socket 
+  // TODO -- obtener estado del socket 
   // -------------------------------------------
 
   async getSocketStatus() {
@@ -206,7 +209,7 @@ export class TravelRequestComponent {
 
 
   // -------------------------------------------
-  // -- obtener lista de usuarios conectados
+  // TODO -- obtener lista de usuarios conectados
   // -------------------------------------------
   async getConnectedUsers() {
 
@@ -233,20 +236,34 @@ export class TravelRequestComponent {
 
   }
 
+  // ---------------------------------------------------
+  // TODO -- Obtiene los lugares favoritos del usuario
+  // ---------------------------------------------------
+  getFavoritePlaces(user_id: string) {
 
 
-  getFavoritePlaces(user_ci: string) {
+    this.favoritePlacesService.getPlaceByUser(user_id).subscribe(
+      {
+        next: (data) => {
+ 
+          if (data && data.length != 0) {
+               
+            for (let i = 0; i < data.length; i++) {
+              this.favoriteMarkers[i] = {
+                coordinates: data[i].coordinates,
+                description: data[i].description,
+                name: data[i].name,
+              };
+            }
+          }
 
+            console.log(this.favoriteMarkers)
 
-    this.favoritePlacesService.getPlaceByUser(user_ci).subscribe(
-      res => {
-
-        console.log(res)
-
-      },
-      err => {
-       console.log(err)
-      }
+          },
+          error: (error) => {
+            console.log(error)
+          }
+        }
 
     );
 

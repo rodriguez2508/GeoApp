@@ -42,6 +42,7 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   @Input() userLoginOn: boolean = false;
   @Input() userData: I_UserSessionStorage = {
+    id: '',
     ci: '',
     name: '',
     email: '',

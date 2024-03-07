@@ -34,6 +34,7 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
   
   connected_users: I_UserMap[] = [];
   userData: I_UserSessionStorage = {
+    id: '',
     ci: '',
     name: '',
     email: '',

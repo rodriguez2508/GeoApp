@@ -1,20 +1,27 @@
-<section [classList]="'w3-row fixed-bottom pb-2  '" style="background-color: #212223b0;">
-  @switch (methodToShowFooter) {  @case ('map') {
- 
-  <app-p-map
-  [address]="address"
-  [distance]="distance"
-  [coord]="coord"
-  [coord_destination]="coord_destination"
-  ></app-p-map>
+<section
+  [classList]="'w3-row fixed-bottom '"
+  style="background-color: #212223b0"
+>
+  @switch (methodToShowFooter) { @case ('map') {
 
-  }  @case ('button') {
- 
-    <app-p-search
+  <app-p-map
     (footerDisplayed)="hideFooter($event)"
     [address]="address"
     [distance]="distance"
-    ></app-p-search>
-  
-    } }
+    [coord]="coord"
+    [coord_destination]="coord_destination"
+  ></app-p-map>
+
+  } @case ('button') {
+
+  <app-p-search
+    (footerDisplayed)="hideFooter($event)"
+    (placeSelected)="selectPlace($event)"
+    [address]="address"
+    [distance]="distance"
+    [userData]="userData"
+    [favoriteMarkers]="favoriteMarkers"
+  ></app-p-search>
+
+  } }
 </section>

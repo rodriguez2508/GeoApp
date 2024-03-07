@@ -23,9 +23,12 @@ export class PSearchComponent implements OnChanges, AfterViewInit {
   @Output() footerDisplayed = new EventEmitter<boolean>(false);
 
   @Input() favoriteMarkers:I_Places[] = [];
+  @Input() userData:any;
+
+  @Output() placeSelected = new EventEmitter<string>();
 
   constructor(
-    private dataService: DataService,
+    private dataService: DataService
     
   ){
 
@@ -33,10 +36,17 @@ export class PSearchComponent implements OnChanges, AfterViewInit {
   }
   ngOnChanges(changes: SimpleChanges): void {
     
+    // if ('favoriteMarkers' in changes) {
+
+    //   console.log(this.favoriteMarkers)
+        
+    // }
+
   }
   ngAfterViewInit(): void {
+ 
+    // this.getFavoritePlaces(this.userData.ci);
 
-    console.log(this.favoriteMarkers)
     
   }
    
@@ -48,4 +58,10 @@ export class PSearchComponent implements OnChanges, AfterViewInit {
     this.footerDisplayed.emit(false);
   }
  
+
+  selectPlace(coordinates: string){
+    this.placeSelected.emit(coordinates);
+  }
+
+
 }

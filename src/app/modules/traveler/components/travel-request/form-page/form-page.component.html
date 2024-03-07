@@ -489,10 +489,13 @@
 
   <app-footer-page
     (panelDisplayed)="showFooterOnButton()"
+    (placeSelected)="selectPlace($event)"
     [methodToShowFooter]="methodToShowFooter"
     [address]="address"
     [coord]="coord"
     [coord_destination]="coord_destination"
+    [userData]="userData"
+    [favoriteMarkers]="favoriteMarkers"
   ></app-footer-page>
 
   }

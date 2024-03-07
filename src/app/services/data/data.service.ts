@@ -19,6 +19,7 @@ export class DataService {
 
   private loggedInSubject = new BehaviorSubject<boolean>(false);
   private userDataSubject = new BehaviorSubject<I_UserSessionStorage>({
+    id: '',
     ci: '',
     name: '',
     email: '',

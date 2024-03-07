@@ -2,6 +2,7 @@ import { Coordinate } from "ol/coordinate";
 
 
 export interface I_UserSessionStorage {
+  id: string;
   ci: string;
   name: string;
   email: string;

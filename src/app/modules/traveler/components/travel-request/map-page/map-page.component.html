@@ -82,6 +82,7 @@
   @if(footerDisplayed){
 
   <app-footer-page
+    (panelDisplayed)="showFooterOnMap()"
     [connected_users]="connected_users"
     [methodToShowFooter]="methodToShowFooter"
     [address]="address"

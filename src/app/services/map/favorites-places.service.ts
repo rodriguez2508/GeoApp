@@ -32,15 +32,25 @@ export class FavoritesPlacesService {
   // ----------------------------------
   savePlace(dataForm: I_Places): Observable<any> {
 
-    const url = BASE_URL + 'save';
+    const token = this.storageService.f_getToken();
+
+    const headers = new HttpHeaders({
+      'Authorization': 'Bearer ' + token, // Ejemplo de encabezado de autorización si es necesario
+      'Content-Type': 'application/json' // Ejemplo de encabezado de tipo de contenido si es necesario
+    });
+
+    const url = BASE_URL ;
 
     console.log('Favorite Places save', dataForm);
-    const user_ci: string = this.storageService.getUser().ci;
+    const user_id: string = this.storageService.getUser().id;
 
     const placeData: I_Places_db = {
-      user_ci: user_ci,
+      user_id: user_id,
       placeData: dataForm
     };
+
+   
+
     return this.http.post<I_Places_db>(url, placeData).pipe(
 
       tap((data: any) => {
@@ -61,10 +71,10 @@ export class FavoritesPlacesService {
   // ----------------------------------
   updatePlace(id:string, place:I_Places): Observable<I_Places_db> {
 
-    const user_ci: string = this.storageService.getUser().ci;
+    const user_id: string = this.storageService.getUser().id;
 
     const placeData: I_Places_db = {
-      user_ci: user_ci,
+      user_id: user_id,
       placeData: place
     };
 
@@ -77,7 +87,7 @@ export class FavoritesPlacesService {
       'Content-Type': 'application/json' // Ejemplo de encabezado de tipo de contenido si es necesario
     });
 
-    return this.http.put<I_Places_db>(url, place, { headers }).pipe(
+    return this.http.put<I_Places_db>(url, place).pipe(
       tap((data: any) => {
         // Realizar acciones con los datos si es necesario
       }),
@@ -93,14 +103,14 @@ export class FavoritesPlacesService {
 
     const token = this.storageService.f_getToken();
 
-    const url = `${BASE_URL}/delete?place_id=${id}`;
+    const url = `${BASE_URL}/place_id=${id}`;
 
     const headers = new HttpHeaders({
       'Authorization': 'Bearer ' + token, // Ejemplo de encabezado de autorización si es necesario
       'Content-Type': 'application/json' // Ejemplo de encabezado de tipo de contenido si es necesario
     });
 
-    return this.http.delete<I_Places_db>(url, { headers }).pipe(
+    return this.http.delete<I_Places_db>(url).pipe(
       tap((data: any) => {
         // Realizar acciones con los datos si es necesario
       }),
@@ -112,27 +122,33 @@ export class FavoritesPlacesService {
    // ----------------------------------
   // TODO: funcion para obtener Lugares   
   // ----------------------------------
-  getPlaceByUser(user_ci:string): Observable<I_Places_db[]> { 
+  getPlaceByUser(user_id:string): Observable<any> { 
 
-    // const url = 'http://localhost:3000/api/v1/favorites_places/by_user/?user_ci=99082509300';
-    
     const token = this.storageService.f_getToken();
 
-    const url = `${BASE_URL}get?user_ci=${user_ci}`;
-
-    
     const headers = new HttpHeaders({
       'Authorization': 'Bearer ' + token, // Ejemplo de encabezado de autorización si es necesario
       'Content-Type': 'application/json' // Ejemplo de encabezado de tipo de contenido si es necesario
     });
-
     
-    return this.http.get<I_Places_db[]>(url, {headers}).pipe(
-      tap((data: any) => {
+
+    const url = `${BASE_URL}by_user/${user_id}`;
+
+  return this.http.get<any>(url).pipe(
+    tap((data: any) => {
+      if (!data || data.length === 0) {
+        console.log('No data found');
+        // Puedes manejar esto según tus necesidades
+      } else {
+        console.log(data);
         // Realizar acciones con los datos si es necesario
-      }),
-      
-    );
+      }
+    }),
+    catchError((error) => {
+      console.error(error);
+      return throwError('Error retrieving items');
+    })
+  );
 
 
 

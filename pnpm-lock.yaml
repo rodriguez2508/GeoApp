@@ -41,6 +41,9 @@ dependencies:
   '@angular/router':
     specifier: ^17.0.0
     version: 17.0.9(@angular/common@17.0.9)(@angular/core@17.0.9)(@angular/platform-browser@17.0.9)(rxjs@7.8.1)
+  '@angular/service-worker':
+    specifier: ^17.0.0
+    version: 17.2.3(@angular/common@17.0.9)(@angular/core@17.0.9)
   '@angular/ssr':
     specifier: ^17.0.9
     version: 17.0.10(@angular/common@17.0.9)(@angular/core@17.0.9)
@@ -147,7 +150,7 @@ dependencies:
 devDependencies:
   '@angular-devkit/build-angular':
     specifier: ^17.0.9
-    version: 17.0.10(@angular/compiler-cli@17.0.9)(@angular/localize@17.1.1)(@angular/platform-server@17.0.9)(@types/express@4.17.21)(@types/node@18.19.6)(karma@6.4.2)(typescript@5.2.2)
+    version: 17.0.10(@angular/compiler-cli@17.0.9)(@angular/localize@17.1.1)(@angular/platform-server@17.0.9)(@angular/service-worker@17.2.3)(@types/express@4.17.21)(@types/node@18.19.6)(karma@6.4.2)(typescript@5.2.2)
   '@angular/cli':
     specifier: ^17.0.9
     version: 17.0.10
@@ -204,7 +207,7 @@ packages:
       - chokidar
     dev: true
 
-  /@angular-devkit/build-angular@17.0.10(@angular/compiler-cli@17.0.9)(@angular/localize@17.1.1)(@angular/platform-server@17.0.9)(@types/express@4.17.21)(@types/node@18.19.6)(karma@6.4.2)(typescript@5.2.2):
+  /@angular-devkit/build-angular@17.0.10(@angular/compiler-cli@17.0.9)(@angular/localize@17.1.1)(@angular/platform-server@17.0.9)(@angular/service-worker@17.2.3)(@types/express@4.17.21)(@types/node@18.19.6)(karma@6.4.2)(typescript@5.2.2):
     resolution: {integrity: sha512-RWVu5Pdg6VdO3v1i0oI+HGr/NE4rhbNelM43w+9TqrzDtwmvckWsadSp0H88cPhQ4YGY5ldGKyQufO1UItR26w==}
     engines: {node: ^18.13.0 || >=20.9.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
     peerDependencies:
@@ -246,6 +249,7 @@ packages:
       '@angular/compiler-cli': 17.0.9(@angular/compiler@17.0.9)(typescript@5.2.2)
       '@angular/localize': 17.1.1(@angular/compiler-cli@17.0.9)(@angular/compiler@17.0.9)
       '@angular/platform-server': 17.0.9(@angular/animations@17.0.9)(@angular/common@17.0.9)(@angular/compiler@17.0.9)(@angular/core@17.0.9)(@angular/platform-browser@17.0.9)
+      '@angular/service-worker': 17.2.3(@angular/common@17.0.9)(@angular/core@17.0.9)
       '@babel/core': 7.23.2
       '@babel/generator': 7.23.0
       '@babel/helper-annotate-as-pure': 7.22.5
@@ -688,6 +692,18 @@ packages:
       rxjs: 7.8.1
       tslib: 2.6.2
     dev: false
+
+  /@angular/service-worker@17.2.3(@angular/common@17.0.9)(@angular/core@17.0.9):
+    resolution: {integrity: sha512-PWaQQfx9mEVs1UHRz/VCMjNu4v+YMhH97TkznfhxZvpzUd8JszSQP48V7bkBLEYHziqwuirPIu3hOTu1Bp7lfQ==}
+    engines: {node: ^18.13.0 || >=20.9.0}
+    hasBin: true
+    peerDependencies:
+      '@angular/common': 17.2.3
+      '@angular/core': 17.2.3
+    dependencies:
+      '@angular/common': 17.0.9(@angular/core@17.0.9)(rxjs@7.8.1)
+      '@angular/core': 17.0.9(rxjs@7.8.1)(zone.js@0.14.3)
+      tslib: 2.6.2
 
   /@angular/ssr@17.0.10(@angular/common@17.0.9)(@angular/core@17.0.9):
     resolution: {integrity: sha512-BjDyt5JM393ibLE7jlTWajCiddK2A588koeroHtIJOBCfRgjQBXumBxMfFSIVUC48AxUG7oHWK+ZxmiQCxZNAQ==}
