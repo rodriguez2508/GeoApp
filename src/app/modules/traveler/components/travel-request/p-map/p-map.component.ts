@@ -16,6 +16,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FavoritesPlacesService } from '../../../../../services/map/favorites-places.service';
 import { I_Places } from '../../../../../interface/places.interface';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DataService } from '../../../../../services/data/data.service';
 // --interfaces
 @Component({
   selector: 'app-p-map',
@@ -25,8 +26,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrl: './p-map.component.scss',
 })
 export class PMapComponent implements OnChanges, AfterViewInit {
-  
-  
+
+
   private _snackBar = inject(MatSnackBar)
 
   @Input() connected_users: I_UserMap[] = [];
@@ -43,7 +44,8 @@ export class PMapComponent implements OnChanges, AfterViewInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private favoritePlacesService: FavoritesPlacesService
+    private favoritePlacesService: FavoritesPlacesService,
+    private dataService: DataService
   ) { }
   ngOnChanges(changes: SimpleChanges): void { }
   ngAfterViewInit(): void { }
@@ -63,24 +65,50 @@ export class PMapComponent implements OnChanges, AfterViewInit {
   }
 
 
-  hideFooter(){
+  hideFooter() {
     this.footerDisplayed.emit(false);
   }
- 
+
 
   saveFavoritePlace() {
 
-    if(this.address != 'Buscando...'){
-      
+    if (this.address != 'Buscando...') {
+
       const dataPlace: I_Places = {
         coordinates: `${this.coord_destination[0]},${this.coord_destination[1]}`,
         name: this.address,
         description: ''
       };
-      this.favoritePlacesService.savePlace(dataPlace);
-    
+
+
+
+
+      this.favoritePlacesService.savePlace(dataPlace).subscribe({
+        next: (response: any) => {
+
+          console.log(response)
+
+          const config = this.dataService.openSnackBar('success');
+          this._snackBar.open('Se ha guardado el lugar..', 'CLOSE', config);
+
+          this.hideFooter();
+          return;
+        },
+        error: (error: any) => {
+
+          const config = this.dataService.openSnackBar('success');
+          this._snackBar.open('Ha ocurrido un error en su petición..', 'CLOSE', config);
+          this.hideFooter();
+          console.error('Error register places:', error);
+
+        },
+        complete: () => {
+          // Realizar acciones adicionales cuando el observable se completa, si es necesario
+        },
+      });
+
     }
-    
+
   }
 
 }

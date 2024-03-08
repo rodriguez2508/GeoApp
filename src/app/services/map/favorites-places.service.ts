@@ -32,26 +32,19 @@ export class FavoritesPlacesService {
   // ----------------------------------
   savePlace(dataForm: I_Places): Observable<any> {
 
-    const token = this.storageService.f_getToken();
-
-    const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token, // Ejemplo de encabezado de autorización si es necesario
-      'Content-Type': 'application/json' // Ejemplo de encabezado de tipo de contenido si es necesario
-    });
-
-    const url = BASE_URL ;
-
-    console.log('Favorite Places save', dataForm);
+    const url = `${BASE_URL}` ;
+ 
     const user_id: string = this.storageService.getUser().id;
-
+ 
     const placeData: I_Places_db = {
       user_id: user_id,
-      placeData: dataForm
+      coordinates: dataForm.coordinates,
+      name: dataForm.name,
+      description: dataForm.description
     };
 
-   
-
-    return this.http.post<I_Places_db>(url, placeData).pipe(
+    console.log('Favorite Places save', placeData); 
+    return this.http.post<any>(url, placeData).pipe(
 
       tap((data: any) => {
 
@@ -75,17 +68,19 @@ export class FavoritesPlacesService {
 
     const placeData: I_Places_db = {
       user_id: user_id,
-      placeData: place
+      coordinates: place.coordinates,
+      description: place.description,
+      name: place.name
     };
 
-    const token = this.storageService.f_getToken();
+    // const token = this.storageService.f_getToken();
 
     const url = `${BASE_URL}/update?place_id=${id}`;
 
-    const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token, // Ejemplo de encabezado de autorización si es necesario
-      'Content-Type': 'application/json' // Ejemplo de encabezado de tipo de contenido si es necesario
-    });
+    // const headers = new HttpHeaders({
+    //   'Authorization': 'Bearer ' + token, // Ejemplo de encabezado de autorización si es necesario
+    //   'Content-Type': 'application/json' // Ejemplo de encabezado de tipo de contenido si es necesario
+    // });
 
     return this.http.put<I_Places_db>(url, place).pipe(
       tap((data: any) => {
@@ -101,14 +96,14 @@ export class FavoritesPlacesService {
   // ----------------------------------
   deletePlace(id:string): Observable<I_Places_db> {
 
-    const token = this.storageService.f_getToken();
+    // const token = this.storageService.f_getToken();
 
     const url = `${BASE_URL}/place_id=${id}`;
 
-    const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token, // Ejemplo de encabezado de autorización si es necesario
-      'Content-Type': 'application/json' // Ejemplo de encabezado de tipo de contenido si es necesario
-    });
+    // const headers = new HttpHeaders({
+    //   'Authorization': 'Bearer ' + token, // Ejemplo de encabezado de autorización si es necesario
+    //   'Content-Type': 'application/json' // Ejemplo de encabezado de tipo de contenido si es necesario
+    // });
 
     return this.http.delete<I_Places_db>(url).pipe(
       tap((data: any) => {
@@ -124,12 +119,12 @@ export class FavoritesPlacesService {
   // ----------------------------------
   getPlaceByUser(user_id:string): Observable<any> { 
 
-    const token = this.storageService.f_getToken();
+    // const token = this.storageService.f_getToken();
 
-    const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token, // Ejemplo de encabezado de autorización si es necesario
-      'Content-Type': 'application/json' // Ejemplo de encabezado de tipo de contenido si es necesario
-    });
+    // const headers = new HttpHeaders({
+    //   'Authorization': 'Bearer ' + token, // Ejemplo de encabezado de autorización si es necesario
+    //   'Content-Type': 'application/json' // Ejemplo de encabezado de tipo de contenido si es necesario
+    // });
     
 
     const url = `${BASE_URL}by_user/${user_id}`;

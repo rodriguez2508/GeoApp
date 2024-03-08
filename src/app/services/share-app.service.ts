@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 export class ShareAppService {
 
   titleApp:string = 'Linki';
-  textData:string = 'Hola, somos Linki-Project, gracias por usar nuestra aplicaión.';
+  textData:string = 'Descubre LINKI! La forma más fácil y rápida de solicitar un servicio de transporte. #TransporteSeguro #ViajesConEstilo #DescargaYa';
 
   constructor() { }
 

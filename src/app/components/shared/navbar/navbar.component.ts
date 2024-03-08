@@ -51,9 +51,9 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     phone: '',
     type_user: ''
   };
-  
-  rating:number = 0.0;
-  rating_start:number[] = [0, 1, 0, 0 , 0];
+
+  rating: number = 0.0;
+  rating_start: number[] = [0, 1, 0, 0, 0];
   appVersion: string = environment.appVersion;
   appName: string = environment.appName;
   titleApp: string = this.appName + ' | ' + this.appVersion;
@@ -70,12 +70,12 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     private shareappService: ShareAppService
   ) {
     this.route.queryParams.subscribe((params) => { });
-     
+
   }
 
   async ngOnInit(): Promise<void> {
- 
-    
+
+
   }
 
   ngOnChanges(changes: SimpleChanges): void { }
@@ -115,8 +115,8 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
       // this.dataService.showMsjInData('Cerrando Sesión...', 'success', '/session/login');
 
       const config = this.dataService.openSnackBar('success');
-      const snackBarRef = this._snackBar.open('Cerrando Sesión...', 'CLOSE', config ); 
-  
+      const snackBarRef = this._snackBar.open('Cerrando Sesión...', 'CLOSE', config);
+
       snackBarRef.afterDismissed().subscribe(() => {
 
         this.router.navigateByUrl('session/login');
@@ -152,15 +152,22 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.shareappService.compartir().then(
       () => {
         // -- mostrar mensaje en la pantalla
-        this.dataService.showMsj(
-          'Éxito!',
-          'Contenido compartido con éxito',
-          'success'
-        );
+        // this.dataService.showMsj(
+        //   'Éxito!',
+        //   'Contenido compartido con éxito',
+        //   'success'
+        // );
+
+        const config = this.dataService.openSnackBar('success');
+        this._snackBar.open('Contenido compartido con éxito.', 'CLOSE', config);
 
         console.log('Contenido compartido con éxito.');
       },
-      () => console.error('Error al compartir el contenido.')
+      () => {
+        const config = this.dataService.openSnackBar('success');
+        this._snackBar.open('Error al compartir el contenido.', 'CLOSE', config);
+        console.error('Error al compartir el contenido.')
+      }
     );
   }
 

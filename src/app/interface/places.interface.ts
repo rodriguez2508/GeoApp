@@ -10,18 +10,18 @@ export interface I_Places {
   
 }
 
-export interface I_Places_ {
+export interface I_Places_db {
 
   coordinates:string,
   description:string,
-  id:string,
+  id?:string,
   name:string,
   user_id:string
   
 }
 
 
-export interface I_Places_db {
+export interface I_Places_db_ {
 
   user_id:string,
   placeData:I_Places
