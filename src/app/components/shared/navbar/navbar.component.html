@@ -21,15 +21,15 @@
         <!-- ---------------- -->
         <!-- Verificar tipo de usuario conectado -->
         <!-- ---------------- -->
-        @if(userData.type_user == 'traveler'){
+        @if(userData.user_type == 'traveler'){
 
         <i class="fa fa-person fa-1x text-white"></i>
 
-        }@else if (userData.type_user == 'driver') {
+        }@else if (userData.user_type == 'driver') {
 
         <i class="fa fa-driver fa-1x text-white"></i>
 
-        }@else if (userData.type_user == 'admin') { } @else {
+        }@else if (userData.user_type == 'admin') { } @else {
         <i class="fa fa-user fa-1x text-white"></i>
         }
 
@@ -113,7 +113,7 @@
             <!-- Verificar tipo de usuario conectado -->
             <!-- ---------------- -->
 
-            @if(userData.type_user =='traveler' ){
+            @if(userData.user_type =='traveler' ){
 
             <!-- -------------- -->
             <!-- INFORMACION DE PERFIL TRAVELER-->
@@ -134,7 +134,7 @@
 
 
             }
-            @else if (userData.type_user == 'driver') {
+            @else if (userData.user_type == 'driver') {
 
             <!-- -------------- -->
             <!-- INFORMACION DE PERFIL DRIVER -->
@@ -157,7 +157,7 @@
               </div>
             </li>
 
-            }@else if (userData.type_user == 'admin') { }
+            }@else if (userData.user_type == 'admin') { }
 
             <li [class]="'nav-item btn btn-md mt-2 '">
               <a
@@ -240,7 +240,7 @@
     ' position-absolute w3-row w3-col l12 m12 s12 bg-dark '
   "
 >
-  @if (userData.type_user == 'traveler') {
+  @if (userData.user_type == 'traveler') {
 
   <!-- -------- -->
   <!-- -------- NAVBAR Traveler -->
@@ -250,7 +250,7 @@
   <!-- -------- NAVBAR Traveler -->
   <!-- -------- -->
 
-  }@else if(userData.type_user == 'driver'){ }
+  }@else if(userData.user_type == 'driver'){ }
 </header>
 
 }

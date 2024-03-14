@@ -97,7 +97,7 @@ export class OlMapComponent implements OnInit, AfterViewInit, OnChanges, OnDestr
     exp: 0,
     iat: 0,
     phone: '',
-    type_user: ''
+    user_type: ''
   };
   
   @Input() connected_users: I_UserMap[] = []; // Asegúrate de inicializar correctamente la lista

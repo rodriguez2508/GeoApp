@@ -9,7 +9,7 @@ export interface I_UserSessionStorage {
   exp: number;
   iat: number;
   phone: string;
-  type_user:string; 
+  user_type:string; 
 }
 
 export interface I_UserDrivers {

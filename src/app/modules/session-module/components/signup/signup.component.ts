@@ -96,7 +96,7 @@ export class SignupComponent implements OnInit, AfterViewInit {
 
       return;
     }
-    if (await this.dataService.showQuestion(`Está seguro de haber elegido el tipo de usuario correcto? ${this.f.user_type == 'traveler' ? 'viajero' : this.f.user_type == 'driver' ? 'conductor' : 'administrador'}`, this.f.user_type, 'warning')) {
+    if (await this.dataService.showQuestion(`Está seguro de haber elegido el tipo de usuario correcto? ${this.form_register.value.user_type == 'traveler' ? 'Viajero' : this.form_register.value.user_type == 'driver' ? 'Conductor' : 'Administrador'}`, this.form_register.value.user_type, 'warning')) {
       // -- llamar funcion iniciar sesion
       this.f_signup();
     }
@@ -127,16 +127,19 @@ export class SignupComponent implements OnInit, AfterViewInit {
     this.sessionService.signup(this.form_register.value).subscribe({
       next: (response: any) => {
 
-        if (response.type_user == 'traveler') return this.goToTravelerView();
-        else if (response.type_user == 'driver') return this.goToDriverView();
-        else if (response.type_user == 'admin') return this.goToTravelerView();
+        const config = this.dataService.openSnackBar('success');
+        this._snackBar.open('Se ha completado su petición.', 'CLOSE', config);
+
+        if (response.user_type == 'traveler') return this.goToTravelerView();
+        else if (response.user_type == 'driver') return this.goToDriverView();
+        else if (response.user_type == 'admin') return this.goToTravelerView();
 
         return;
       },
       error: (error: any) => {
 
         const config = this.dataService.openSnackBar('success');
-        const snackBarRef = this._snackBar.open('Ha ocurrido un error en su petición..', 'CLOSE', config);
+        this._snackBar.open('Ha ocurrido un error en su petición..', 'CLOSE', config);
 
         console.error('Error getting Registrarse:', error);
 

@@ -41,10 +41,10 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
     exp: 0,
     iat: 0,
     phone: '',
-    type_user: ''
+    user_type: ''
   };
   
-  type_user:string = '';
+  user_type:string = '';
 
   constructor(private geolocService: GeolocService, private dataService: DataService, private socketioService: SocketioService) {
      
@@ -58,7 +58,7 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // this.first_iteration = 1;
     
-    this.type_user = this.userData.type_user==='traveler'? 'Conductor': 'Viajero';
+    this.user_type = this.userData.user_type==='traveler'? 'Conductor': 'Viajero';
 
   }
   ngOnInit() {

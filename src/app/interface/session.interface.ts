@@ -4,12 +4,12 @@
 
 export interface I_SignInGoogle { 
   user: string;
-  password: string; 
+  user_type:string;
 }
 
 
 export interface I_SignIn { 
-    user_name: string;
+    user: string;
     password: string; 
     user_type:string;
   }

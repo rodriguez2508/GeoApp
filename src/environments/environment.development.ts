@@ -7,7 +7,7 @@ export const environment = {
   // --API BACKEND
  
   AUTH_API: 'http://localhost:3000/api/v1/auth/',
-  TRIP_API: 'http://localhost:3000/api/v1/trip/',
+  TRIP_API: 'http://localhost:3000/api/v1/travel/',
   FAVORITES_PLACES_API: 'http://localhost:3000/api/v1/places/',
  
 

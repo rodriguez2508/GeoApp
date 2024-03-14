@@ -46,9 +46,9 @@ export class PublicRouteGuardService {
     this.dataService.setuserData(user);
 
     // console.log(user)
-    if (user.type_user == 'traveler') return this.goToTravelerView();
-    else if (user.type_user == 'driver') return this.goToDriverView();
-    else if (user.type_user == 'admin') return this. goToTravelerView();
+    if (user.user_type == 'traveler') return this.goToTravelerView();
+    else if (user.user_type == 'driver') return this.goToDriverView();
+    else if (user.user_type == 'admin') return this. goToTravelerView();
 
     return this.router.navigate(['/traveler/travel-request']);
   }

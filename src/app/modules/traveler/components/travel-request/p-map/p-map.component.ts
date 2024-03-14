@@ -34,7 +34,7 @@ export class PMapComponent implements OnChanges, AfterViewInit {
   @Input() connected_TravelerUsers: I_UserMap[] = [];
   @Input() connected_DriverUsers: I_UserMap[] = [];
 
-  @Input() address: string = 'Buscando...';
+  @Input() address: string = 'buscando..';
   @Input() distance: string = '0';
   @Input() coord: Coordinate = [];
   @Input() coord_destination: Coordinate = [];
@@ -72,21 +72,16 @@ export class PMapComponent implements OnChanges, AfterViewInit {
 
   saveFavoritePlace() {
 
-    if (this.address != 'Buscando...') {
+    if (!this.address.includes('buscando..') || !this.address.includes('Buscando...')) {
 
       const dataPlace: I_Places = {
         coordinates: `${this.coord_destination[0]},${this.coord_destination[1]}`,
-        name: this.address,
-        description: ''
+        name: '',
+        address: this.address
       };
-
-
-
 
       this.favoritePlacesService.savePlace(dataPlace).subscribe({
         next: (response: any) => {
-
-          console.log(response)
 
           const config = this.dataService.openSnackBar('success');
           this._snackBar.open('Se ha guardado el lugar..', 'CLOSE', config);

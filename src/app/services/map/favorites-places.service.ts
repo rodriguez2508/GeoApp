@@ -40,7 +40,7 @@ export class FavoritesPlacesService {
       user_id: user_id,
       coordinates: dataForm.coordinates,
       name: dataForm.name,
-      description: dataForm.description
+      address: dataForm.address
     };
 
     console.log('Favorite Places save', placeData); 
@@ -69,7 +69,7 @@ export class FavoritesPlacesService {
     const placeData: I_Places_db = {
       user_id: user_id,
       coordinates: place.coordinates,
-      description: place.description,
+      address: place.address,
       name: place.name
     };
 

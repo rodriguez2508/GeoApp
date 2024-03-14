@@ -112,7 +112,7 @@ export class MapPageComponent {
     exp: 0,
     iat: 0,
     phone: '',
-    type_user: ''
+    user_type: ''
   };
   @Input() connected_users: I_UserMap[] = [];
   client: I_UserMap;
@@ -317,18 +317,7 @@ export class MapPageComponent {
     // EVENTO CLICK
     //  ------------------------------
   }
-
-  // // --------------------------------------------
-  // // -- Actualizar mapa segun latitud y longitud
-  // // --------------------------------------------
-  // private updateMap() {
-  //   // Agregar el control ZoomToExtent al mapa
-
-  //   // this.center = transform([this.lon, this.lat], 'EPSG:4326', 'EPSG:3857');
-  //   // this.extent = [this.center[0] - 50000, this.center[1] - 50000, this.center[0] + 50000, this.center[1] + 50000];
-
-  //   this.map.render;
-  // }
+ 
 
   centerMap() {
     // this.map.getView().setCenter(Proj.fromLonLat([this.lon, this.lat]));
@@ -338,7 +327,7 @@ export class MapPageComponent {
       'EPSG:4326',
       'EPSG:3857'
     );
-    this.map.getView().animate({ center: coordinate }, { duration: 1000 });
+    this.map.getView().animate({ center: coordinate, zoom: 15 }, { duration: 1000 });
   }
 
   // --------------------------------------------
@@ -642,18 +631,17 @@ export class MapPageComponent {
   // --------------------------------------------
   // --------------------------------------------
 
-  reloadWithParams() {
-    // window.location.assign(
-    //   '/traveler/travel-request?view=form&lon=' +
-    //     this.coord[0] +
-    //     '&lat=' +
-    //     this.coord[1] +
-    //     '&lon_d=' +
-    //     this.coord_destination[0] +
-    //     '&lat_d=' +
-    //     this.coord_destination[1]
-    // );
+  goToFavoritesPlaces(): void {
+   
+    this.router.navigate(['/traveler/favorites-places'], { 
+      queryParams: {
+         
+      },
+    });
+  }
 
+  reloadWithParams() {
+     
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {

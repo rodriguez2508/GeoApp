@@ -1,0 +1,53 @@
+<section
+  class="_form-favorites-places set-height-100 w3-row w3-col w3-container text-white"
+>
+  <div class="w3-row w3-col m10 s10 _center-h-sb">
+    <h3>{{ title_page }}</h3>
+  </div>
+  <div class="w3-row w3-col m2 s2 mt-2">
+    <button (click)="goToMap()" class="btn border-0 text-white">
+      <i class="fa fa-2x fa-close"></i> 
+    </button>
+  </div>
+
+  <div class="w3-row w3-col d-flex _center-h-sb">
+  <!--  --> 
+    <h4 class="w3-col l10 m10 s10 text-secondary">Tus Marcadores</h4>
+    <i
+      class="w3-col l2 m2 s2 fa fa-2x fa-flag-checkered mt-3 text-center text-warning"
+    ></i>
+    <!-- <p class=" w3-col">{{distance}}</p> -->
+  </div> 
+
+  <div class="w3-row w3-col mt-2 set-height-s-85 d-flex">
+    @if (favoriteMarkers.length == 0) {
+    <!-- elemento -->
+    <div class="w-100 d-flex align-items-center mr-3">
+      <h4 class="text-warning opacity-25 container w3-section">
+        No se encontraron marcadores
+      </h4>
+    </div>
+    }@else {
+
+    <ul class="w3-row w3-col w3-ul">
+      @for (item of favoriteMarkers; track $index) {
+
+      <li
+        class="w3-col button d-flex align-items-center mr-3 border-bottom border-white mb-1"
+      >
+        <!-- elemento -->
+        <div class="w3-col l10 m10 s10">
+          <h4 class="text-warning container w3-section">{{ item.name }}</h4>
+          <p class="text-warning container w3-section">{{ item.address }}</p>
+        </div>
+        <div class="w3-col l1 m1 s1">
+          <i class="fa fa-2x fa-location-dot text-warning"></i>
+        </div>
+      </li>
+      }
+    </ul>
+
+    }
+  </div>
+ 
+</section>

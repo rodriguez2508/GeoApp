@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
 // --components
-import { PUsersonlineComponent } from '../../shared/p-usersonline/p-usersonline.component';
 import { PMapComponent } from '../p-map/p-map.component';
 import { PSearchComponent } from '../p-search/p-search.component';
 // --components
@@ -18,7 +17,7 @@ import { I_Places } from '../../../../../interface/places.interface';
 @Component({
   selector: 'app-footer-page',
   standalone: true,
-  imports: [PUsersonlineComponent, PMapComponent, PSearchComponent],
+  imports: [PMapComponent, PSearchComponent],
   templateUrl: './footer-page.component.html',
   styleUrl: './footer-page.component.scss'
 })
@@ -41,7 +40,7 @@ export class FooterPageComponent implements OnInit, OnChanges {
     exp: 0,
     iat: 0,
     phone: '',
-    type_user: ''
+    user_type: ''
   };
   @Input() favoriteMarkers: I_Places[] = [];
 

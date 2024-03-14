@@ -37,7 +37,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     exp: 0,
     iat: 0,
     phone: '',
-    type_user: ''
+    user_type: ''
   };
 
   constructor( 

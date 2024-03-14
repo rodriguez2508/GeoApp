@@ -49,7 +49,7 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     exp: 0,
     iat: 0,
     phone: '',
-    type_user: ''
+    user_type: ''
   };
 
   rating: number = 0.0;
@@ -119,7 +119,7 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
 
       snackBarRef.afterDismissed().subscribe(() => {
 
-        this.router.navigateByUrl('session/login');
+        this.goToTravelerLogin();
       });
     } else {
       // Hacer algo si se cancela
@@ -169,6 +169,14 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
         console.error('Error al compartir el contenido.')
       }
     );
+  }
+
+  goToTravelerLogin(): void {
+    this.router.navigate(['/session/signin'], {
+      queryParams: {
+        role: 'traveler',
+      },
+    });
   }
 
   get role(): string | undefined {

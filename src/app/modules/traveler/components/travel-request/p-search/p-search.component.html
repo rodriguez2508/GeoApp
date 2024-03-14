@@ -33,10 +33,11 @@
   <ul class="w3-row w3-col w3-ul">
     @for (item of favoriteMarkers; track $index) {
 
-    <li (click)="selectPlace(item.coordinates)" class="w3-col button d-flex align-items-center mr-3 border-bottom border-white mb-1">
+    <li  (click)="selectPlace(item.coordinates); hideFooter()" class="w3-col button d-flex align-items-center mr-3 border-bottom border-white mb-1">
       <!-- elemento -->
       <div class="w3-col l10 m10 s10">
         <h4 class="text-warning container w3-section">{{ item.name }}</h4>
+        <p class="text-warning container w3-section">{{ item.address }}</p>
       </div>
       <div class="w3-col l1 m1 s1">
         <i class="fa fa-2x fa-location-dot text-warning"></i>
@@ -53,13 +54,7 @@
 >
   <div class="w3-row w3-col">
     <div class="w3-row w3-col _center-h">
-      <button
-        type="button"
-        class="w3-col m6 s6 btn btn-sm text-success p-0 w3-right"
-      >
-        <label class="w3-col w3-section m-0 p-0 w3-large">Seleccionar</label>
-        <i class="fa fa-check-circle fa-2x"></i>
-      </button>
+      
 
       <button
         type="button"

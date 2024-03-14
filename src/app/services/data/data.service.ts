@@ -26,7 +26,7 @@ export class DataService {
     exp: 0,
     iat: 0,
     phone: '',
-    type_user: ''
+    user_type: ''
   });
 
   loggedIn$ = this.loggedInSubject.asObservable();

@@ -45,13 +45,14 @@ export class SessionService {
   // ----------------------------------
   // TODO funcion para iniciar sesion  
   // ----------------------------------
-  signin(credentials: I_SignIn): Observable<any> {
+  signin(credentials: {user_name:string , password:string, user_type:string}): Observable<any> {
 
     const url = AUTH_API + 'login';
 
-    const userData: I_SignInGoogle = {
+    const userData: I_SignIn = {
       user: credentials.user_name,
-      password: credentials.password
+      password: credentials.password,
+      user_type: credentials.user_type
     };
 
     return this.http.post<any>(url, userData).pipe(
@@ -74,12 +75,13 @@ export class SessionService {
   // ----------------------------------
   // TODO funcion para iniciar sesion google
   // ----------------------------------
-  signin_google(email: string): Observable<any> {
+  signin_google(credentials: I_SignInGoogle ): Observable<any> {
 
     const url = AUTH_API + 'login_google';
 
-    const userData: { user: string} = {
-      user: email, 
+    const userData: { user: string, user_type: string} = {
+      user: credentials.user, 
+      user_type: credentials.user_type, 
     };
 
     return this.http.post<any>(url, userData).pipe(
@@ -167,7 +169,7 @@ export class SessionService {
 
     this.dataService.setLoggedIn(false); 
     this.storageService.clean();
-    this.auth.signOut();
+    // this.auth.signOut();
 
   }
 

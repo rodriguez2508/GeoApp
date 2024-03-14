@@ -23,10 +23,10 @@ export class TravelHistoryComponent {
     exp: 0,
     iat: 0,
     phone: '',
-    type_user: ''
+    user_type: ''
    };
 
-  type_user: string = '';
+  user_type: string = '';
   viewToShow: string = 'map';
 
   constructor(

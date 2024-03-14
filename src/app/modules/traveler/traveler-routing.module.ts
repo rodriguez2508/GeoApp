@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { TravelRequestComponent } from './components/travel-request/travel-request.component';   
 import { TravelAlertsComponent } from './components/travel-alerts/travel-alerts.component';
 import { TravelHistoryComponent } from './components/travel-history/travel-history.component';
+import { PFavoritesPlacesComponent } from './components/shared/p-favorites-places/p-favorites-places.component';
 
 const routes: Routes = [
 
@@ -20,6 +21,11 @@ const routes: Routes = [
       {
         path: 'travel-history', 
         component: TravelHistoryComponent
+      }, 
+
+      {
+        path: 'favorites-places', 
+        component: PFavoritesPlacesComponent
       }, 
     ]
   }

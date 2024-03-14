@@ -19,7 +19,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SessionService } from '../../../../services/session/session.service';
 import { DataService } from '../../../../services/data/data.service';
 import { I_UserSessionStorage } from '../../../../interface/user.interface';
-import { I_SignIn } from '../../../../interface/session.interface';
+import { I_SignIn, I_SignInGoogle } from '../../../../interface/session.interface';
 import { environment } from '../../../../../environments/environment';
 
 
@@ -111,6 +111,7 @@ export class SigninComponent implements OnInit, AfterViewInit {
   private f_createLoginForm(): FormGroup {
     return this.fb.group({
       
+      'user_type': ['traveler', [Validators.required]],
       'user_name': ['', [Validators.required, Validators.minLength(3)]],
       'password': ['', [Validators.required, Validators.minLength(6)]],
     });
@@ -148,9 +149,9 @@ export class SigninComponent implements OnInit, AfterViewInit {
           const user = this.storageService.decodeToken(data.token);
           // const user = this.storageService.getUser();
           console.log(user)
-          if (user.type_user == 'traveler') this.goToTravelerView();
-          else if (user.type_user == 'driver') this.goToDriverView();
-          else if (user.type_user == 'admin') this.goToTravelerView();
+          if (user.user_type == 'traveler') this.goToTravelerView();
+          else if (user.user_type == 'driver') this.goToDriverView();
+          else if (user.user_type == 'admin') this.goToTravelerView();
 
 
         });
@@ -181,8 +182,9 @@ export class SigninComponent implements OnInit, AfterViewInit {
     // Tip: si los datos del formulario son incorrectos
     if (email) {
 
+      const user_type = this.form_login.value.user_type;
 
-      this.sessionService.signin_google(email).subscribe({
+      this.sessionService.signin_google({user: email, user_type}).subscribe({
         next: (data: any) => {
 
 
@@ -195,9 +197,9 @@ export class SigninComponent implements OnInit, AfterViewInit {
             const user = this.storageService.decodeToken(data.token);
             // const user = this.storageService.getUser();
             console.log(user)
-            if (user.type_user == 'traveler') this.goToTravelerView();
-            else if (user.type_user == 'driver') this.goToDriverView();
-            else if (user.type_user == 'admin') this.goToTravelerView();
+            if (user.user_type == 'traveler') this.goToTravelerView();
+            else if (user.user_type == 'driver') this.goToDriverView();
+            else if (user.user_type == 'admin') this.goToTravelerView();
 
 
           });

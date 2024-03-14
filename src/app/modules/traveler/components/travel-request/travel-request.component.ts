@@ -54,10 +54,10 @@ export class TravelRequestComponent {
     exp: 0,
     iat: 0,
     phone: '',
-    type_user: ''
+    user_type: ''
   };
 
-  type_user: string = '';
+  user_type: string = '';
   viewToShow: string = 'map';
 
   constructor(
@@ -97,15 +97,16 @@ export class TravelRequestComponent {
   ngAfterViewInit(): void {
 
     // this.first_iteration = 1;
-
-    this.type_user = this.userData.type_user === 'traveler' ? 'Conductor' : 'Viajero';
+    this.userData = this.storageService.getUser();
+    
+    this.user_type = this.userData.user_type === 'traveler' ? 'Conductor' : 'Viajero';
 
     this.getFavoritePlaces(this.userData.id);
 
   }
   ngOnInit() {
 
-    this.userData = this.storageService.getUser();
+    
 
     if (this.viewToShow == 'map') {
 
@@ -251,7 +252,7 @@ export class TravelRequestComponent {
             for (let i = 0; i < data.length; i++) {
               this.favoriteMarkers[i] = {
                 coordinates: data[i].coordinates,
-                description: data[i].description,
+                address: data[i].address,
                 name: data[i].name,
               };
             }
