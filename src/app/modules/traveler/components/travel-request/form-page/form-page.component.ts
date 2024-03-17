@@ -22,12 +22,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TripTravelerService } from '../../../../../services/trip/trip-traveler.service';
 import { I_Places } from '../../../../../interface/places.interface';
 import { I_UserSessionStorage } from '../../../../../interface/user.interface';
+import { PMapRouteComponent } from '../../shared/p-map-route/p-map-route.component';
 // -- components
 
 @Component({
   selector: 'app-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, FooterPageComponent],
+  imports: [ReactiveFormsModule, FooterPageComponent, PMapRouteComponent],
   templateUrl: './form-page.component.html',
   styleUrl: './form-page.component.scss',
 })
@@ -74,6 +75,11 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   showMap = false;
 
   checkAllvehicleType: boolean = false;
+  saveTravel =
+    {
+      ongoing: false,
+      pending: false
+    };
 
 
   footerDisplayed = false;
@@ -94,12 +100,13 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   ) {
     this.route.queryParams.subscribe((params) => {
 
-      // -- Validacion que las coordenadas por parametro mo sean igual a 0 nu sean undefined
+      // -- Validacion que las coordenadas por parametro no sean igual a 0 ni sean undefined
       // --coord origen
       // this.coord = params['lon'] && params['lat'] ? [params['lon'], params['lat']] : [];
-      this.coord = params['lon'] && params['lon'] !== 0 && params['lon'] !== undefined && params['lat'] && params['lat'] !== 0 && params['lat'] !== undefined ? [params['lon'], params['lat']] : [];
+      this.coord = params['lon'] && params['lon'] !== 0 && params['lon'] !== undefined && params['lat'] && params['lat'] !== 0 && params['lat'] !== undefined ? [parseFloat(params['lon']), parseFloat(params['lat'])] : [];
       // --coord destino
-      this.coord_destination = params['lon_d'] && params['lon_d'] !== 0 && params['lon_d'] !== undefined && params['lat_d'] && params['lat_d'] !== 0 && params['lat_d'] !== undefined ? [params['lon_d'], params['lat_d']] : [];
+      this.coord_destination = params['lon_d'] && params['lon_d'] !== 0 && params['lon_d'] !== undefined && params['lat_d'] && params['lat_d'] !== 0 && params['lat_d'] !== undefined ? [ parseFloat(params['lon_d']), parseFloat(params['lat_d']) ] : [];
+
 
     });
 
@@ -109,8 +116,9 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
     if ('coord' in changes || 'coord_destination' in changes) {
 
+      console.log('coord in changes', this.coord, this.coord_destination )
       // -- Verifica que las coordenadas de origen y destino existan y sean diferente a CERO
-      if ((this.coord && (this.coord[0] != 0 && this.coord[1] != 0) && (this.coord[1] != 0 && this.coord[1] != 0)) && (this.coord_destination && (this.coord_destination[0] != 0 && this.coord_destination[1] != 0) && (this.coord_destination[1] != 0 && this.coord_destination[1] != 0))) {
+      if (this.checkCoordinates('origin') && this.checkCoordinates('destination')) {
         this.showMap = true;
       }
     }
@@ -119,7 +127,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
       const coordenadasArray: string[] = this.placeSelected.split(',');
 
-      this.coord_destination = [+coordenadasArray[0], +coordenadasArray[1]];
+      this.coord_destination = [parseFloat(coordenadasArray[0]), parseFloat(coordenadasArray[1])];
 
       if (this.checkCoordinates('destination')) this.getAddress(this.coord_destination, 'destination');
 
@@ -128,17 +136,34 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
   ngOnInit(): void {
 
-    if (this.checkCoordinates('origin')) this.getAddress(this.coord, 'origin');
-    if (this.checkCoordinates('destination')) this.getAddress(this.coord_destination, 'destination');
-
+   
   }
 
-  ngAfterViewInit(): void { }
+  ngAfterViewInit(): void { 
+
+     // -- Verificar las coordenadas y agregarlas a los campos del form
+     if (this.checkCoordinates('origin') && this.checkCoordinates('destination')) {
+      
+      this.getAddress(this.coord, 'origin');
+      this.getAddress(this.coord_destination, 'destination');
+      
+      this.showMap = true;
+    } 
+ 
+
+     // -- verificar que existan viajes en curso
+     if(this.userData.id != ''){
+      this.getTravels(this.userData.id, 'ongoing');
+      this.getTravels(this.userData.id, 'pending');
+     }
+     
+     
+  }
 
   onSubmit(): void {
 
     // Tip: si los datos del formulario son incorrectos
-    if (this.form_request.invalid) {
+    if (this.form_request.invalid || this.address_coord == 'Definir su ubicación' || this.address_coord == 'Error de conexión.' || this.address_coord_destination == 'Definir destino' || this.address_coord_destination == 'Error de conexión.'  ) {
       this.form_request.markAllAsTouched();
 
       console.log('form is invalid');
@@ -158,10 +183,14 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // -- crear el formulario
   // ----------------------------------
   private f_createRequestForm(): FormGroup {
-    return this.fb.group({
-      placeOrigin: [`${this.coord[0]},${this.coord[1]}`, [Validators.required, , this.customCoordValidator()]],
 
-      placeDestination: [`${this.coord_destination[0]},${this.coord_destination[1]}`, [Validators.required, , this.customCoordValidator()]],
+    const coord_origin = `${this.coord[0]},${this.coord[1]}`;
+    const coord_destination = `${this.coord_destination[0]},${this.coord_destination[1]}`;
+
+    return this.fb.group({
+      placeOrigin: [coord_origin, [Validators.required, , this.customCoordValidator(coord_origin)]],
+
+      placeDestination: [coord_destination, [Validators.required, , this.customCoordValidator(coord_destination)]],
       personNumber: ['0', [Validators.required]],
       vehicleType: ['', [Validators.required]],
       maxTimeWaiting: ['15', [Validators.required]],
@@ -172,13 +201,16 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // ----------------------------------
   // -- validaciones del formulario
   // ----------------------------------
-  customCoordValidator(): ValidatorFn {
+  customCoordValidator(coord:string): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-      const coordinates = control.value?.split(",") ?? [];
-      const x1Coord = parseInt(coordinates[0], 10);
-      const x2Coord = parseInt(coordinates[1], 10);
+      const coordinates = coord.split(",") ?? [];
+      const x1Coord = parseFloat(coordinates[0]);
+      const x2Coord = parseFloat(coordinates[1]);
 
-      if (isNaN(x1Coord) || x1Coord === 0 && isNaN(x2Coord) || x2Coord === 0) {
+
+      console.log('customCoordValidator',x1Coord)
+
+      if (isNaN(x1Coord) || x1Coord == 0 && isNaN(x2Coord) || x2Coord == 0) {
         return { coordInvalid: true };
       }
 
@@ -192,12 +224,22 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // ----------------------------------
   saveTravelRequest() {
 
+
+    if (!this.saveTravel.ongoing || !this.saveTravel.pending) {
+
+      this.goToTravelHistory();
+      const config = this.dataService.openSnackBar('success');
+      this._snackBar.open('Aun tiene un viaje pendiente', 'CLOSE', config);
+
+      return;
+
+    }
     // origin_address: 
     //   destination_address: string;
 
     this.form_request.value.origin_address = this.address_coord;
     this.form_request.value.destination_address = this.address_coord_destination;
- 
+
     console.log(this.form_request.value)
     this.tripTravelerService.saveTravelRequest(this.form_request.value, this.userData.id).subscribe({
       next: (data: any) => {
@@ -223,7 +265,57 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   }
+
+
+  // ---------------------------------------------------
+  //TODO -- Obtiene los viajes del usuario
+  // ---------------------------------------------------
+  getTravels(user_id: string, status: string = 'ongoing') {
+
+
+    // StatusTravel :
+    // --> 1 Pendiente
+    // --> 2 En curso
+    // --> 3 Completado
+    this.tripTravelerService.getTravels(user_id, status).subscribe(
+      {
+        next: (data) => {
+
+          if (data && data.length != 0) {
+
+            if(status == 'ongoing'){
+              this.saveTravel.ongoing = false;
+            }
+            if(status == 'pending'){
+              this.saveTravel.pending = false;
+            }
+
+          }
+
+          else {
+            if(status == 'ongoing'){
+              this.saveTravel.ongoing = true;
+            }
+            if(status == 'pending'){
+              this.saveTravel.pending = true;
+            }
+          }
+
+          
+          
+
+
+        },
+        error: (error) => {
  
+          console.log(error)
+        }
+      }
+
+    );
+
+  }
+
   // TODO ---------------------------------------
   // -- Ir a la ruta del mapa  
   // 
@@ -239,16 +331,16 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
     });
 
   }
- // TODO ---------------------------------------
+  // TODO ---------------------------------------
   // -- Ir a la ruta del mapa  
   // 
   goToTravelHistory(): void {
     // window.location.assign(
     //   '/traveler/travel-request?view=map');
 
-    this.router.navigate(['/traveler/travel-history'], { 
+    this.router.navigate(['/traveler/travel-history'], {
       queryParams: {
-         
+
       }
     });
 
@@ -276,7 +368,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // -- Para obtener la direccion de la coordenada marcada de la api 
   // 
   private getAddress(coord: Coordinate, addresType: string) {
- 
+
     this.openRouteService.getStreetInformation(coord).subscribe({
       next: (response: any) => {
         // const displayName = response.name;
@@ -334,14 +426,14 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // -- para seleccionar lugar favorito al seleccionar de la lista y agregarlo al campo Destino del Form 
   // 
   selectPlace(event: string) {
-     
+
     const coordenadasArray: string[] = event.split(',');
 
     this.coord_destination = [+coordenadasArray[0], +coordenadasArray[1]];
 
     if (this.checkCoordinates('destination')) this.getAddress(this.coord_destination, 'destination');
   }
- 
+
   checkedAllvehicleType() {
     this.checkAllvehicleType = !this.checkAllvehicleType;
   }

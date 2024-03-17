@@ -2,12 +2,12 @@
   class="_form-favorites-places set-height-75 w3-row w3-col w3-container text-white"
 > 
  
-  <div class="w3-row w3-col mt-2 set-height-s-65 d-flex">
+  <div class="w3-row w3-col mt-2 set-height-s-70 d-flex">
     @if (travels.length == 0) {
     <!-- elemento -->
     <div class="w-100 d-flex align-items-center mr-3">
       <h4 class="text-warning opacity-25 container w3-section">
-        No se encontraron Viajes
+        No se han encontrado viajes
       </h4>
     </div>
     }@else {
@@ -16,7 +16,7 @@
       @for (item of travels; track $index) {
 
       <li
-        class="w3-col button align-items-center mr-3 border-bottom border-white mb-1"
+        class="w3-col button align-items-center border-bottom border-white mb-1 bg-dark bg-opacity-75"
       >
         <!-- -------------- -->
         <!-- Lugar origen del viajero -->

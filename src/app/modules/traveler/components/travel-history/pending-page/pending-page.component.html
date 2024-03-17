@@ -1,1 +1,69 @@
-<p>pending-page works!</p>
+<section
+  class="_form-favorites-places set-height-75 w3-row w3-col w3-container text-white"
+> 
+ 
+  <div class="w3-row w3-col mt-2 set-height-s-70 d-flex">
+    @if (travels.length == 0) {
+    <!-- elemento -->
+    <div class="w-100 d-flex align-items-center mr-3">
+      <h4 class="text-warning opacity-25 container w3-section">
+        No se han encontrado viajes
+      </h4>
+    </div>
+    }@else {
+
+    <ul class="w3-row w3-col w3-ul">
+      @for (item of travels; track $index) {
+
+      <li
+        class="w3-col button align-items-center border-bottom border-white mb-1 bg-dark bg-opacity-75"
+      >
+        <!-- -------------- -->
+        <!-- Lugar origen del viajero -->
+        <!-- -------------- -->
+        <div
+          class="w3-row w3-col form-control bg-transparent text-white border-0 border-bottom border-secondary mb-1"
+        > 
+          <label
+            class="w3-col"
+            for="placeOrigin"
+            title="Ruta de origen del viaje "
+          >
+            <i class="fa fa-dot-circle text-primary me-1 w3-left"></i>
+            Desde</label
+          > 
+          <p
+            [class]="' w3-col '"
+          >
+            {{ item.origin_address }} 
+          </p>
+        </div>
+
+         <!-- -------------- -->
+        <!-- Lugar origen del viajero -->
+        <!-- -------------- -->
+        <div
+          class="w3-row w3-col form-control bg-transparent text-white border-0 border-bottom border-secondary mb-1"
+        > 
+          <label
+            class="w3-col"
+            for="placeOrigin"
+            title="Ruta de origen del viaje "
+          >
+            <i class="fa fa-dot-circle text-danger me-1 w3-left"></i>
+            Hasta</label
+          > 
+          <p
+            [class]="' w3-col '"
+          >
+            {{ item.destination_address }} 
+          </p>
+        </div>
+
+      </li>
+      }
+    </ul>
+
+    }
+  </div>
+</section>

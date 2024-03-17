@@ -96,17 +96,18 @@ export class TravelRequestComponent {
   }
   ngAfterViewInit(): void {
 
-    // this.first_iteration = 1;
-    this.userData = this.storageService.getUser();
-    
-    this.user_type = this.userData.user_type === 'traveler' ? 'Conductor' : 'Viajero';
-
-    this.getFavoritePlaces(this.userData.id);
-
+   
   }
   ngOnInit() {
 
+     // this.first_iteration = 1;
+     this.userData = this.storageService.getUser();
     
+     this.user_type = this.userData.user_type === 'traveler' ? 'Conductor' : 'Viajero';
+ 
+     this.getFavoritePlaces(this.userData.id);
+
+     
 
     if (this.viewToShow == 'map') {
 

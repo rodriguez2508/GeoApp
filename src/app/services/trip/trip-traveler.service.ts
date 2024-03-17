@@ -52,7 +52,7 @@ export class TripTravelerService {
       origin_address: dataForm.origin_address,
       destination_address: dataForm.destination_address,
       
-      status: 'all',
+      status: 'pending',
       traveler_id: user_id,
       driver_id: "",
       vehicleType: 'all',

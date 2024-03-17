@@ -1,57 +1,7 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-} from '@angular/core'; 
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
-// -- Openlayers
-import 'ol/ol.css';
-import Map from 'ol/Map';
-import View from 'ol/View';
-import TileLayer from 'ol/layer/Tile';
-import XYZ from 'ol/source/XYZ';
-import { OSM, Vector } from 'ol/source';
-import * as Proj from 'ol/proj';
-import { Coordinate, toStringHDMS } from 'ol/coordinate';
-import {
-  defaults as defaultControls,
-  Control,
-  ZoomToExtent,
-  Zoom,
-  ZoomSlider,
-  Rotate,
-  MousePosition,
-  FullScreen,
-  OverviewMap,
-  ScaleLine,
-} from 'ol/control';
-import { fromLonLat, toLonLat, transform } from 'ol/proj';
 
-import { Feature, Overlay } from 'ol';
-import VectorSource from 'ol/source/Vector';
-import VectorLayer from 'ol/layer/Vector';
-import { Stroke, Style } from 'ol/style';
-import { LineString } from 'ol/geom';
-// -- Openlayers
-// --interfaces
-import { I_DestinationMarker } from '../../../../../interface/marker.interface';
-import {
-  I_UserMap,
-  I_UserSessionStorage,
-} from '../../../../../interface/user.interface';
-// --interfaces
-
-// -- services
-import { OlMapMarkerService } from '../../../../../services/map/ol-map-marker.service';
-import { DataService } from '../../../../../services/data/data.service';
-import { OpenRouteService } from '../../../../../services/map/open-route.service';
-// -- services
 // -- constant
 import {
   DEFAULT_HEIGHT,
@@ -62,36 +12,49 @@ import {
   DEFAULT_WIDTH,
   DEFAULT_ZOOM,
 } from '../../../data/data-map';
-// -- constant
-import { FooterPageComponent } from '../footer-page/footer-page.component';
-import { ActivatedRoute, Router } from '@angular/router';
+// --
+import { Feature, View } from 'ol';
+import Map from 'ol/Map';
+import { Coordinate } from 'ol/coordinate';
+import VectorLayer from 'ol/layer/Vector';
+import { transform } from 'ol/proj';
+import VectorSource from 'ol/source/Vector';
+import TileLayer from 'ol/layer/Tile';
+import { OSM } from 'ol/source';
+import * as Proj from 'ol/proj';
+import { Extent, defaults as defaultInteractions } from 'ol/interaction';
+import { ZoomToExtent, Zoom, Rotate, ScaleLine } from 'ol/control';
+import { LineString } from 'ol/geom';
+import { Style, Stroke } from 'ol/style';
+
+// --
+import { I_DestinationMarker } from '../../../../../interface/marker.interface';
 import { I_Places } from '../../../../../interface/places.interface';
+import { I_UserSessionStorage, I_UserMap } from '../../../../../interface/user.interface';
+// --
+import { OlMapMarkerService } from '../../../../../services/map/ol-map-marker.service';
+import { OpenRouteService } from '../../../../../services/map/open-route.service';
+import { getCenter } from 'ol/extent';
 
 @Component({
-  selector: 'app-map-page',
+  selector: 'app-p-map-route',
   standalone: true,
-  imports: [FooterPageComponent],
-  templateUrl: './map-page.component.html',
-  styleUrl: './map-page.component.scss',
+  imports: [],
+  templateUrl: './p-map-route.component.html',
+  styleUrl: './p-map-route.component.scss'
 })
-export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
-  @Input() lat: number = DEFAULT_LAT;
-  @Input() lon: number = DEFAULT_LON;
+export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
+
   @Input() zoom: number = DEFAULT_ZOOM;
-  @Input() socket_status: boolean = DEFAULT_SOCKET_STATUS;
-  @Input() location_status: boolean = DEFAULT_LOCATION_STATUS;
   @Input() width: string | number = DEFAULT_WIDTH;
   @Input() height: string | number = DEFAULT_HEIGHT;
 
-  @Input() favoriteMarkers:I_Places[] = [];
-  
-  @Output() movestart = new EventEmitter<any>();
-  @Output() moveend = new EventEmitter<any>();
-  @Output() reload_location = new EventEmitter<void>();
- 
+  @Input() favoriteMarkers: I_Places[] = [];
+
   // --
-  coord: Coordinate = [this.lon, this.lat];
-  coord_destination: Coordinate = [0, 0]; 
+  @Input() coord: Coordinate = [0, 0];
+  @Input() coord_destination: Coordinate = [0, 0];
+
 
   // ------------------
   // -- Marcadores
@@ -123,17 +86,13 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   // Agregar el control ZoomToExtent al mapa
-  center = transform(this.coord, 'EPSG:4326', 'EPSG:3857');
-  extent = [
-    this.center[0] - 50000,
-    this.center[1] - 50000,
-    this.center[0] + 50000,
-    this.center[1] + 50000,
-  ];
+  extent = [this.coord[0], this.coord[1], this.coord_destination[0], this.coord_destination[1]];
+  center = getCenter(this.extent);
+  // center = transform(this.coord, 'EPSG:4326', 'EPSG:3857');
 
   private movestartListener: any; // Mantén una referencia al oyente del evento para poder eliminarlo más tarde
   private moveendtListener: any; // Mantén una referencia al oyente del evento para poder eliminarlo más tarde
-  
+
   private mapEl: any;
   private popupEl: any;
   private hasAddedTu: boolean = false;
@@ -143,107 +102,70 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
 
   address: string = 'buscando..';
   distance: string = '0';
-  
+
   // --
   connected_TravelerUsers: I_UserMap[] = [];
   connected_DriverUsers: I_UserMap[] = [];
 
   constructor(
-    private route: ActivatedRoute, 
+    private route: ActivatedRoute,
     private router: Router,
     private elementRef: ElementRef,
-    private markerService: OlMapMarkerService, 
+    private markerService: OlMapMarkerService,
     private openRouteService: OpenRouteService
   ) {
- 
+
     this.client = {
-      id: this.userData.ci,
+      id: this.userData.id,
       name: this.userData.name,
-      markerColor: 'success',
-      currentPosition: {lat:this.lat, long:this.lon}
+      markerColor: 'primary',
+      currentPosition: { lat: this.coord[1], long: this.coord[0] }
     };
   }
+
+
+  ngAfterViewInit(): void {
+
+
+    const coord_origin = Proj.fromLonLat(this.coord);
+    const coord_destination = Proj.fromLonLat(this.coord_destination);
+    const extent = [coord_origin[0], coord_origin[1], coord_destination[0], coord_destination[1]];
+      // Ajusta el centro y el zoom del mapa para que la extensión sea visible
+      this.map.getView().fit(extent ); // Puedes ajustar el padding según tus necesidades
+
+
+  }
+  ngOnChanges(changes: SimpleChanges): void {
+
+  }
+
+
 
   ngOnInit(): void {
     this.mapEl = this.elementRef.nativeElement.querySelector('#map');
 
     // -- inicializa el mapa
-    this.setSize();
-    this.initMap();
-  }
 
-  ngAfterViewInit(): void {
-    // this.client = {
-    //   id: this.userData.ci,
-    //   name: this.userData.name,
-    //   markerColor: 'success',
-    //   currentPosition: {lat:this.lat, long:this.lon}
-    // };
-  }
 
-  ngOnDestroy(): void {}
+    if (this.checkCoordinates('origin') && this.checkCoordinates('destination')) {
 
-  // --------------------------------------------
-  // -- se activa si cambia la latitud y longitud
-  // --------------------------------------------
-  ngOnChanges(changes: SimpleChanges): void {
-    if ('client' in changes) {
-      this.client = {
-        id: this.userData.ci,
-        name: this.userData.name,
-        markerColor: 'success',
-        currentPosition: {lat:this.lat, long:this.lon}
-      };
-    }
+      this.setSize();
 
-    // --------------------
-    // Controla los cambios en las coordenadas y usuarios activos
-    // --------------------
-    if (this.map && this.socket_status && this.location_status) {
-      
-      if (!this.hasAddedTu) {
-        this.coord = [this.lon, this.lat]; 
-        this.client.name += ' (Tú)';
-        this.client.markerColor = 'success';
-        this.initMarker(this.coord, this.client);
-        this.centerMap();
-        this.hasAddedTu = true;
-      }
-      if ('lat' in changes || 'lon' in changes) {
-        // Si cambia alguna de las propiedades lat, lon, o zoom, actualiza el mapa
-        this.coord = [this.lon, this.lat]; 
+      const extent = [this.coord[0], this.coord[1], this.coord_destination[0], this.coord_destination[1]];
+      this.center = getCenter(extent);
+      this.initMap();
 
-        
-        console.log('COORD CLIENT update');
+      // -- marcador origen
+      this.initMarker(this.coord, this.client);
+      // -- marcador destino
+      this.initMarkerDestination(this.coord_destination);
+      // -- trazar la ruta:
+      this.drawRoute(this.coord, this.coord_destination);
 
-        // Actualiza tus marcadores
-
-        this.initMarker(this.coord, this.client);
-      } else if ('connected_users' in changes) {
-        // console.log('connected_user update', this.connected_DriverUsers)
-
-        // this.getAndUpdateConnectedTravelerUsers();
-        this.getAndUpdateConnectedDriverUsers();
-
-        // Eliminar los marcadores que no están en this.connected_users
-        const indexToRemove = this.markers.findIndex(
-          (marker) =>
-            !this.connected_DriverUsers.some(
-              (user) => user.id === marker.get('client').id
-            )
-        );
-
-        if (
-          indexToRemove !== -1 &&
-          this.markers[indexToRemove].get('client').id != 'destination' &&
-          this.markers[indexToRemove].get('client').id != this.client.id
-        )
-          this.clearMarker(this.markers[indexToRemove].get('client').id);
-
-        this.setMarkersForConnectedUsers();
-      }
     }
   }
+
+
 
   // --------------------------------------------
   // -- Inicializar el mapa
@@ -271,6 +193,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
     // controles
     // ----------------------------------
     this.map = new Map({
+      interactions: defaultInteractions({ dragPan: false, mouseWheelZoom:false }),
       target: this.mapEl,
       layers: [
         new TileLayer({
@@ -280,50 +203,19 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
       ],
       view: new View({
         // projection: 'EPSG:4326',
-        center: Proj.fromLonLat(this.coord),
-        minZoom: 6,
-        maxZoom: 19,
-        zoom: this.zoom,
+        center: Proj.fromLonLat(this.center),
+        // minZoom: 6,
+        // maxZoom: 19,
+         zoom: this.zoom,
       }),
       controls: [rotateControl, scaleLine],
     });
 
-    //  ------------------------------
-    // EVENTO CLICK
-    //  ------------------------------
-    this.map.on('singleclick', (event) => {
-      // console.log(`Has hecho clic en las coordenadas (${event.coordinate[0]}, ${event.coordinate[1]}).`);
 
-      //  -- Inicializa el marcador destino
-      this.coord_destination = transform(
-        event.coordinate,
-        'EPSG:3857',
-        'EPSG:4326'
-      );
-      this.initMarkerDestination(this.coord_destination);
-
-      // console.log('name street', this.openRouteService.getStreetInformation(coord_destination))
-
-      if (this.location_status) {
-        this.showFooterOnMap();
-
-        if (this.footerDisplayed && this.socket_status && this.location_status) {
-          this.getAddress(this.coord_destination);
-        }
-        // const startPoint = [this.lon, this.lat];
-        // const endPoint = coord_destination;
-        // this.drawRoute(startPoint, endPoint);
-        // this.updateMarkers();
-      }
-    });
-
-    //  ------------------------------
-    // EVENTO CLICK
-    //  ------------------------------
   }
- 
 
-  centerMap() {
+
+  centerMap(zoom: number = 15) {
     // this.map.getView().setCenter(Proj.fromLonLat([this.lon, this.lat]));
     // Función de callback para centrar el mapa en las coordenadas actuales
     const coordinate: Coordinate = transform(
@@ -331,7 +223,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
       'EPSG:4326',
       'EPSG:3857'
     );
-    this.map.getView().animate({ center: coordinate, zoom: 15 }, { duration: 1000 });
+    this.map.getView().animate({ center: coordinate, zoom: zoom }, { duration: 1000 });
   }
 
   // --------------------------------------------
@@ -344,6 +236,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
       styles.width = coerceCssPixelValue(this.width) || DEFAULT_WIDTH;
     }
   }
+
 
   // --------------------------------------------
   // --------------------------------------------
@@ -388,7 +281,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
   private getAddress(coord: Coordinate) {
     this.openRouteService.getStreetInformation(coord).subscribe({
       next: (response: any) => {
-        
+
         // console.log(response.address);
         // console.log(response.address.road);
 
@@ -398,9 +291,8 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
         let city = response.address.city;
         let state = response.address.state;
 
-        const address = `${road === undefined ? '' : road + ','} ${
-          neighbourhood === undefined ? '' : neighbourhood + ','
-        } ${city === undefined ? state : city }`;
+        const address = `${road === undefined ? '' : road + ','} ${neighbourhood === undefined ? '' : neighbourhood + ','
+          } ${city === undefined ? state : city}`;
 
         // const distance = response.features[0]?.properties?.distance;
 
@@ -426,34 +318,12 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
   // --------------------------------------------
   // --------------------------------------------
 
-  // --------------------------------------------
-  // --------------------------------------------
-  // -- popupEl EN EL MAPA
-  // --------------------------------------------
-  // --------------------------------------------
-  initPopup() {
-    this.popupEl = this.elementRef.nativeElement.querySelector('#popup');
-    this.popupEl.style.borderRadius = '10px';
-    this.popupEl.style.padding = '10px';
-    this.popupEl.style.display = 'none';
-  }
 
-  // --------------------------------------------
-  // --------------------------------------------
-  // -- popupEl EN EL MAPA
-  // --------------------------------------------
-  // --------------------------------------------
-
-  // --------------------------------------------
-  // --------------------------------------------
-  // -- MARCADORES EN EL MAPA
-  // --------------------------------------------
-  // --------------------------------------------
 
   // --------------------------------------------
   // -- inicializar marcador en el mapa
   // --------------------------------------------
-   public initMarker(
+  public initMarker(
     coord: Coordinate,
     client: I_UserMap | I_DestinationMarker,
     type: string = ''
@@ -494,7 +364,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
       id: 'destination',
       name: '',
       markerColor: 'danger',
-      currentPosition:{
+      currentPosition: {
         lat: coord[1],
         long: coord[0],
       }
@@ -597,71 +467,29 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
   // --------------------------------------------
   // --------------------------------------------
 
-  // --------------------------------------------
-  // --------------------------------------------
-  // -- FOOTER
-  // --------------------------------------------
-  // --------------------------------------------
 
-  showFooterOnMap() {
-    this.footerDisplayed = !this.footerDisplayed;
-    if (!this.footerDisplayed) {
-      this.clearMarker('destination');
-      this.address = 'Buscando...';
-      // this.distance = '0';
-      this.coord_destination = [0, 0];
-    }
-    this.methodToShowFooter = 'map';
-  } 
+  // TODO ---------------------------------------
+  // -- comprueba que las coordenadas esten en formato correcto
+  // 
+  checkCoordinates(type: string): boolean {
 
-  getConnectedUsersByType(userType: string): I_UserMap[] {
-    // return this.connected_users.filter(
-    //   (user: I_UserMap) => user. === userType
-    // );
-    return this.connected_users;
+    //  -- si el tipo de coord es origen 
+    if (type === 'origin')
+      if (this.coord && this.coord[0] != 0 && this.coord[1] != 0 && this.coord[0] !== undefined && this.coord[1] != undefined) return true;
+
+    //  -- si el tipo de coord es destino 
+    if (type === 'destination')
+      if (this.coord_destination && this.coord_destination[0] != 0 && this.coord_destination[1] != 0 && this.coord_destination[0] !== undefined && this.coord_destination[1] != undefined) return true;
+
+    return false;
+
   }
 
-  getAndUpdateConnectedTravelerUsers(): void {
-    this.connected_TravelerUsers = this.getConnectedUsersByType('traveler');
-  }
 
-  getAndUpdateConnectedDriverUsers(): void {
-    this.connected_DriverUsers = this.getConnectedUsersByType('driver');
-  }
 
-  // --------------------------------------------
-  // --------------------------------------------
-  // -- FOOTER
-  // --------------------------------------------
-  // --------------------------------------------
 
-  goToFavoritesPlaces(): void {
-   
-    this.router.navigate(['/traveler/favorites-places'], { 
-      queryParams: {
-         
-      },
-    });
-  }
-
-  reloadWithParams() {
-     
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {
-        view: 'form',
-        lon: this.coord[0],
-        lat: this.coord[1],
-        lon_d: this.coord_destination[0],
-        lat_d: this.coord_destination[1]
-      }
-    });
-  }
-
-  f_reload_location() {
-    this.reload_location.emit();
-  }
 }
+
 
 // --------------------------------------------
 // -- Propiedades de estilos necesarias para pintar el mapa

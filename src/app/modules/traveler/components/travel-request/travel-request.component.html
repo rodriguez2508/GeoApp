@@ -2,7 +2,7 @@
   <!-- Cambio aqui -->
   @if(viewToShow == 'map' && (!location_status || !socket_status)){
 
-  <div
+  <!-- <div
     [class]="
       (!location_status
         ? 'panel-error-connection-gps set-height-87'
@@ -10,7 +10,7 @@
       ' align-content-between w-100 position-absolute '
     "
     style="z-index: 2"
-  >
+  > -->
     @if(!socket_status && location_status){
     <!-- <label
       class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge bg-danger"
@@ -20,7 +20,7 @@
     <label
       class="panel-error-connection w3-col w3-container border-top border-bottom border-dark bg-danger w3-xlarge _center-h"
     >
-      conectando ..
+      conectando espere..
       <span
         class="btn btn-sm btn-primary spinner-border spinner-border-sm"
       ></span>
@@ -40,17 +40,17 @@
 
     } @default{
 
-    <label
+    <!-- <label
       class="panel-error-connection w3-col w3-container border-top border-bottom border-dark bg-danger w3-xlarge _center-h"
     >
       obteniendo ubicación ..
       <span
         class="btn btn-sm btn-primary spinner-border spinner-border-sm"
       ></span>
-    </label>
+    </label> -->
 
     } }
-  </div>
+  <!-- </div> -->
 
   }
 
@@ -64,6 +64,7 @@
         <!-- -------------- -->
         @if(viewToShow == 'map'){
         <app-map-page
+          (reload_location)="reload_location()"
           [lat]="lat"
           [lon]="lon"
           [zoom]="zoom"

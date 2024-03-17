@@ -2,7 +2,51 @@
   <div id="map" class="map">
     <!-- <div class="position-absolute popover text-white bg-dark" id="popup"></div> -->
 
-    @if(location_status && socket_status && !footerDisplayed){
+    <!-- TODO -->
+    <!-- CUANDO NO EXISTE UBICACION -->
+    <!-- ------------------------------ -->
+    @if(!location_status && !footerDisplayed){
+
+    <!-- ... -->
+    <button
+      id="btn_centerPosition"
+      (click)="f_reload_location()"
+      [class]="
+        'w3-black border border-danger border-3 btn position-absolute text-danger w3-round-xxlarge'
+      "
+      type="button"
+    >
+      Reconectar
+      <i [class]="'fa fa-location-crosshairs w3-xlarge p-1 text-danger'"></i>
+    </button>
+
+    <!-- ... -->
+    <button
+      id="btn_navigation"
+      type="button"
+      class="w3-black border border-danger border-3 btn position-absolute text-danger w3-round-xxlarge"
+    >
+      <i class="fa fa-route w3-xlarge text-danger"></i>
+    </button>
+
+    <!-- ... -->
+
+    <!-- ... -->
+    <button
+      id="btn_markers"
+      type="button"
+      class="w3-black border border-danger border-3 btn position-absolute text-danger w3-round-xxlarge"
+    >
+      <i class="fa fa-folder w3-xlarge text-danger"></i>
+    </button>
+
+    <!-- ... -->
+
+    } @if(location_status && socket_status && !footerDisplayed){
+
+    <!-- TODO -->
+    <!-- CUANDO EXISTE UBICACION -->
+    <!-- ------------------------------ -->
 
     <!-- ... -->
     <button
@@ -32,14 +76,16 @@
     <!-- ... -->
     <button
       id="btn_markers"
-       (click)="goToFavoritesPlaces()"
+      (click)="goToFavoritesPlaces()"
       type="button"
-      class="btn btn-md position-absolute bg-dark text-warning border border-warning"
+      class="btn btn-md position-absolute text-white bg-dark border border-warning"
     >
       <i class="fa fa-folder w3-xlarge"></i>
     </button>
 
-    <!-- ... -->
+    <!-- TODO -->
+    <!-- CUANDO HAY CONEXION AL SERVIDOR -->
+    <!-- ------------------------------ -->
 
     @if(socket_status){
     <button
@@ -76,10 +122,7 @@
     <!-- ... -->
   </div>
 
-  <!-- Popup -->
-  <div id="popup"></div>
-
-  @if(footerDisplayed){
+  @if(footerDisplayed && location_status && socket_status ){
 
   <app-footer-page
     (panelDisplayed)="showFooterOnMap()"

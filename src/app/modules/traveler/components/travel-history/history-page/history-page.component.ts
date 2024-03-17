@@ -61,7 +61,7 @@ export class HistoryPageComponent implements OnChanges, AfterViewInit {
       {
         next: (data) => {
 
-          console.log(data)
+          // console.log(data)
           if (data && data.length != 0) {
 
             for (let i = 0; i < data.length; i++) {
@@ -81,7 +81,7 @@ export class HistoryPageComponent implements OnChanges, AfterViewInit {
             }
           }
 
-          console.log(this.travels)
+          // console.log(this.travels)
 
         },
         error: (error) => {

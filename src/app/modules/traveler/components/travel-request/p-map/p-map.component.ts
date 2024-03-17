@@ -72,37 +72,43 @@ export class PMapComponent implements OnChanges, AfterViewInit {
 
   saveFavoritePlace() {
 
-    if (!this.address.includes('buscando..') || !this.address.includes('Buscando...')) {
+    if (this.address == 'buscando..' || this.address == 'Buscando...' || this.address == 'Error de conexión.' ) {
 
-      const dataPlace: I_Places = {
-        coordinates: `${this.coord_destination[0]},${this.coord_destination[1]}`,
-        name: '',
-        address: this.address
-      };
+      const config = this.dataService.openSnackBar('danger');
+      this._snackBar.open('No se ha podido identificar el lugar.', 'CLOSE', config);
 
-      this.favoritePlacesService.savePlace(dataPlace).subscribe({
-        next: (response: any) => {
-
-          const config = this.dataService.openSnackBar('success');
-          this._snackBar.open('Se ha guardado el lugar..', 'CLOSE', config);
-
-          this.hideFooter();
-          return;
-        },
-        error: (error: any) => {
-
-          const config = this.dataService.openSnackBar('success');
-          this._snackBar.open('Ha ocurrido un error en su petición..', 'CLOSE', config);
-          this.hideFooter();
-          console.error('Error register places:', error);
-
-        },
-        complete: () => {
-          // Realizar acciones adicionales cuando el observable se completa, si es necesario
-        },
-      });
-
+      this.hideFooter();
+      return;
     }
+
+    const dataPlace: I_Places = {
+      coordinates: `${this.coord_destination[0]},${this.coord_destination[1]}`,
+      name: '',
+      address: this.address
+    };
+
+    this.favoritePlacesService.savePlace(dataPlace).subscribe({
+      next: (response: any) => {
+
+        const config = this.dataService.openSnackBar('success');
+        this._snackBar.open('Se ha guardado el lugar..', 'CLOSE', config);
+
+        this.hideFooter();
+        return;
+      },
+      error: (error: any) => {
+
+        const config = this.dataService.openSnackBar('danger');
+        this._snackBar.open('Ha ocurrido un error en su petición..', 'CLOSE', config);
+        this.hideFooter();
+        console.error('Error register places:', error);
+
+      },
+      complete: () => {
+        // Realizar acciones adicionales cuando el observable se completa, si es necesario
+      },
+    });
+
 
   }
 

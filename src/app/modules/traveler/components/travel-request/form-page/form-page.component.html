@@ -21,8 +21,16 @@
       @if(showMap){
 
       <div
-        class="w3-row w3-col set-height-20"
-      ></div>
+        class="w3-row w3-col set-height-30"
+      >
+        <app-p-map-route
+          [userData]="userData"
+          [coord]="coord"
+          [coord_destination]="coord_destination"
+          [width]="'100%'"
+          [height]="'30vh'"
+        ></app-p-map-route>
+    </div>
 
       }@else {
 
