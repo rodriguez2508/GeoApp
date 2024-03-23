@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Establecer un nombre para el lugar</h2>
+<mat-dialog-content> 
+  <mat-form-field>
+    <mat-label>Nombre del Lugar..</mat-label>
+    <input matInput [(ngModel)]="data.name" />
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Dejar vacío!</button>
+  <button mat-button [mat-dialog-close]="data.name" cdkFocusInitial>
+    Guardar
+  </button>
+</mat-dialog-actions>

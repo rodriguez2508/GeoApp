@@ -2,6 +2,7 @@ import { AfterViewInit, Component, Input, OnChanges, OnDestroy, OnInit, SimpleCh
 import {
   AbstractControl,
   FormBuilder,
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
   ValidationErrors,
@@ -25,10 +26,13 @@ import { I_UserSessionStorage } from '../../../../../interface/user.interface';
 import { PMapRouteComponent } from '../../shared/p-map-route/p-map-route.component';
 // -- components
 
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
 @Component({
   selector: 'app-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, FooterPageComponent, PMapRouteComponent],
+  imports: [ReactiveFormsModule, FooterPageComponent, PMapRouteComponent, MatCardModule, MatButtonModule, MatIconModule],
   templateUrl: './form-page.component.html',
   styleUrl: './form-page.component.scss',
 })
@@ -39,6 +43,10 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   private _snackBar = inject(MatSnackBar)
+
+  showHiddenInput: boolean = false;
+  personNumber:number = 1;
+
 
   // -- Rol del usuario conectado
   _role: string = 'undefined';
@@ -162,6 +170,12 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
   onSubmit(): void {
 
+
+    this.form_request.value.origin_address = this.address_coord;
+    this.form_request.value.destination_address = this.address_coord_destination;
+    this.form_request.value.personNumber = `${this.personNumber}`;
+
+    
     // Tip: si los datos del formulario son incorrectos
     if (this.form_request.invalid || this.address_coord == 'Definir su ubicación' || this.address_coord == 'Error de conexión.' || this.address_coord_destination == 'Definir destino' || this.address_coord_destination == 'Error de conexión.'  ) {
       this.form_request.markAllAsTouched();
@@ -186,13 +200,14 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
     const coord_origin = `${this.coord[0]},${this.coord[1]}`;
     const coord_destination = `${this.coord_destination[0]},${this.coord_destination[1]}`;
+    const personNumber = `${this.personNumber}`;
 
     return this.fb.group({
       placeOrigin: [coord_origin, [Validators.required, , this.customCoordValidator(coord_origin)]],
 
-      placeDestination: [coord_destination, [Validators.required, , this.customCoordValidator(coord_destination)]],
-      personNumber: ['0', [Validators.required]],
-      vehicleType: ['', [Validators.required]],
+      placeDestination: [coord_destination, [Validators.required, this.customCoordValidator(coord_destination)]],
+      personNumber: [personNumber, [Validators.required]],
+      // vehicleType: ['', [Validators.required]],
       maxTimeWaiting: ['15', [Validators.required]],
       travelPeferences: ['', []],
     });
@@ -207,8 +222,6 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
       const x1Coord = parseFloat(coordinates[0]);
       const x2Coord = parseFloat(coordinates[1]);
 
-
-      console.log('customCoordValidator',x1Coord)
 
       if (isNaN(x1Coord) || x1Coord == 0 && isNaN(x2Coord) || x2Coord == 0) {
         return { coordInvalid: true };
@@ -236,9 +249,6 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
     }
     // origin_address: 
     //   destination_address: string;
-
-    this.form_request.value.origin_address = this.address_coord;
-    this.form_request.value.destination_address = this.address_coord_destination;
 
     console.log(this.form_request.value)
     this.tripTravelerService.saveTravelRequest(this.form_request.value, this.userData.id).subscribe({
@@ -377,6 +387,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
         // console.log(response.address);
         // console.log(response.address.road);
 
+        console.log(response.address)
         let road = response.address.road;
         let neighbourhood = response.address.neighbourhood;
         let suburb = response.address.suburb;
@@ -399,7 +410,14 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
       error: (error: any) => {
         // Manejar errores al obtener el estado del socket
         // console.error('Error en la solicitud a ORS:', error);
-        this.address_coord = 'Error de conexión.';
+        if (addresType == 'origin') {
+          this.address_coord = 'Error de conexión.';
+
+        } else {
+          this.address_coord_destination = 'Error de conexión.';
+
+        }
+        
         // this.distance = '0';
       },
       complete: () => {
@@ -412,7 +430,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // TODO ---------------------------------------
   // -- muestra y oculta el footer en el formulario,  
   // 
-  showFooterOnButton() {
+  showFooter() {
     this.footerDisplayed = !this.footerDisplayed;
     this.address = 'Definir destino';
     if (!this.footerDisplayed) {
@@ -440,6 +458,21 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // ----------------------------------
   // -- para obtener el valor de los campos del form
   // ----------------------------------
+
+  handleRadioChange(event: any) {
+    const selectedValue = event.target.value;
+
+    console.log(selectedValue);
+    if (selectedValue === 'n') {
+        this.showHiddenInput = true; 
+        this.personNumber = 0;
+    } else {
+        this.showHiddenInput = false; 
+        this.personNumber = parseInt(selectedValue);
+    }
+
+   
+}
 
   public get f(): any {
     return this.form_request.controls;

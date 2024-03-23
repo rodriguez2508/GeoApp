@@ -393,14 +393,15 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
         // console.log(response.address.road);
 
         let road = response.address.road;
+        let town = response.address.town;
         let neighbourhood = response.address.neighbourhood;
         let suburb = response.address.suburb;
         let city = response.address.city;
         let state = response.address.state;
 
-        const address = `${road === undefined ? '' : road + ','} ${
+        const address = `${road === undefined ? '' : road + ','} ${town === undefined ? '' : town + ','} ${
           neighbourhood === undefined ? '' : neighbourhood + ','
-        } ${city === undefined ? state : city }`;
+        } ${city === undefined ? '' : city}  ${state === undefined ? '' : state }`;
 
         // const distance = response.features[0]?.properties?.distance;
 

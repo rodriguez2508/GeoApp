@@ -131,7 +131,7 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
     const coord_destination = Proj.fromLonLat(this.coord_destination);
     const extent = [coord_origin[0], coord_origin[1], coord_destination[0], coord_destination[1]];
       // Ajusta el centro y el zoom del mapa para que la extensión sea visible
-      this.map.getView().fit(extent ); // Puedes ajustar el padding según tus necesidades
+      this.map.getView().fit(extent, {padding: [5, 5 ,5, 5]} ); // Puedes ajustar el padding según tus necesidades
 
 
   }
@@ -193,7 +193,7 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
     // controles
     // ----------------------------------
     this.map = new Map({
-      interactions: defaultInteractions({ dragPan: false, mouseWheelZoom:false }),
+      interactions: defaultInteractions({ dragPan: true, mouseWheelZoom:false }),
       target: this.mapEl,
       layers: [
         new TileLayer({
@@ -208,7 +208,7 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
         // maxZoom: 19,
          zoom: this.zoom,
       }),
-      controls: [rotateControl, scaleLine],
+      controls: [rotateControl, scaleLine, zoomControl],
     });
 
 

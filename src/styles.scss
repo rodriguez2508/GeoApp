@@ -31,7 +31,16 @@ $linki-f-theme: mat.define-light-theme((color: (primary: $linki-f-primary,
 
 /* You can add global styles to this file, and also import other style files */
 
-@import url('https://fonts.googleapis.com/css?family=Roboto');
+// @import url('https://fonts.googleapis.com/css?family=Roboto');
+
+@viewport{
+  zoom: 1;;
+  user-zoom: fixed;
+}
+:root{
+ touch-action: pan-x pan-y;
+ height: 100%;
+}
 
 html,
 body {

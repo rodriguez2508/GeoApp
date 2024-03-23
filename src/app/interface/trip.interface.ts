@@ -16,6 +16,7 @@
 
 export interface I_FormTravelRequest {
 
+    id?: string;
     origin_coordinate: string;
     destination_coordinate: string; 
     origin_address: string; 
@@ -24,9 +25,10 @@ export interface I_FormTravelRequest {
     driver_id?: string; 
     traveler_id: string; 
 
-    vehicleType: string; 
+    vehicleType?: string; 
     personNumber: string; 
     maxTimeWaiting: string; 
     travelPeferences: string; 
+    dateCreated?: Date; 
   }
    

@@ -15,6 +15,7 @@ export const DEFAULT_ICON = 'assets/img/dot.png';
 export const DEFAULT_ANCHOR = [0.5, 1]; 
 export const MARKER_COLOR: { [key: string]: number[] } = {
     'success': [53, 140, 0, 1],
+    'primary': [10, 27, 300, 1],
     'warning': [245, 172, 8],
     'danger': [255, 0, 0, 1],
     'info': [127, 255, 127, 0.5],

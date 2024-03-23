@@ -1,23 +1,38 @@
+
 import {
   AfterViewInit,
   Component,
   EventEmitter,
+  Inject,
   Input,
   OnChanges,
   Output,
   SimpleChanges,
   inject,
 } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 // --interfaces
 import { I_UserMap } from '../../../../../interface/user.interface';
-import { Coordinate } from 'ol/coordinate';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FavoritesPlacesService } from '../../../../../services/map/favorites-places.service';
 import { I_Places } from '../../../../../interface/places.interface';
+// --interfaces
+
+import { FavoritesPlacesService } from '../../../../../services/map/favorites-places.service';
+import { Coordinate } from 'ol/coordinate';
+
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DataService } from '../../../../../services/data/data.service';
-// --interfaces
+import {
+  MatDialog,
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+  MatDialogTitle,
+  MatDialogContent,
+  MatDialogActions,
+  MatDialogClose,
+} from '@angular/material/dialog';
+import { AddFavoritesPlacesComponent } from './../../shared/p-favorites-places/add-favorites-places/add-favorites-places.component';
+
 @Component({
   selector: 'app-p-map',
   standalone: true,
@@ -45,7 +60,8 @@ export class PMapComponent implements OnChanges, AfterViewInit {
     private route: ActivatedRoute,
     private router: Router,
     private favoritePlacesService: FavoritesPlacesService,
-    private dataService: DataService
+    private dataService: DataService,
+    public dialog: MatDialog
   ) { }
   ngOnChanges(changes: SimpleChanges): void { }
   ngAfterViewInit(): void { }
@@ -69,21 +85,35 @@ export class PMapComponent implements OnChanges, AfterViewInit {
     this.footerDisplayed.emit(false);
   }
 
+  openDialog(): void {
+    const dialogRef = this.dialog.open(AddFavoritesPlacesComponent, {
+      data: {},
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      // console.log('The dialog was closed', result);
+      const name = result ? result : ''; 
+      this.saveFavoritePlace(name);
+      // this.animal = result;
 
-  saveFavoritePlace() {
+      
+    });
+  } 
+
+  saveFavoritePlace(name:string = '') {
 
     if (this.address == 'buscando..' || this.address == 'Buscando...' || this.address == 'Error de conexión.' ) {
 
       const config = this.dataService.openSnackBar('danger');
       this._snackBar.open('No se ha podido identificar el lugar.', 'CLOSE', config);
 
-      this.hideFooter();
+      
       return;
     }
 
     const dataPlace: I_Places = {
       coordinates: `${this.coord_destination[0]},${this.coord_destination[1]}`,
-      name: '',
+      name: name,
       address: this.address
     };
 
@@ -112,4 +142,4 @@ export class PMapComponent implements OnChanges, AfterViewInit {
 
   }
 
-}
+} 

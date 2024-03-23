@@ -1,8 +1,10 @@
 <section
   class="_form-favorites-places set-height-75 w3-row w3-col w3-container text-white"
-> 
- 
-  <div class="w3-row w3-col mt-2 set-height-s-70 d-flex">
+>
+  <!--  -->
+  <!-- INFO DEL VIAJE -->
+  <!--  -->
+  <div class="w3-row w3-col mt-2 set-height-s-70">
     @if (travels.length == 0) {
     <!-- elemento -->
     <div class="w-100 d-flex align-items-center mr-3">
@@ -19,51 +21,73 @@
         class="w3-col button align-items-center border-bottom border-white mb-1 bg-dark bg-opacity-75"
       >
         <!-- -------------- -->
-        <!-- Lugar origen del viajero -->
+        <!--TODO Tiempo y accion eliminar viaje -->
         <!-- -------------- -->
         <div
           class="w3-row w3-col form-control bg-transparent text-white border-0 border-bottom border-secondary mb-1"
-        > 
-          <label
-            class="w3-col"
-            for="placeOrigin"
-            title="Ruta de origen del viaje "
-          >
-            <i class="fa fa-dot-circle text-primary me-1 w3-left"></i>
-            Desde</label
-          > 
+        >
           <p
-            [class]="' w3-col '"
+            class="w3-col l10 m10 s10 text-center text-warning"
+            title="Tiempo restante para que expire el viaje"
           >
-            {{ item.origin_address }} 
+            <i class="fa fa-stopwatch fa-2x me-1 w3-center"></i>
+            Faltan <strong>{{ time.min  }}:{{time.sec}}</strong> minutos
           </p>
+
+          <button class="w3-col l2 m2 s2 btn btn-outline-danger text-center "> <i class="fa fa-2x fa-trash "></i> </button> 
         </div>
 
-         <!-- -------------- -->
-        <!-- Lugar origen del viajero -->
+        <!-- -------------- -->
+        <!-- Ruta del viaje -->
         <!-- -------------- -->
         <div
           class="w3-row w3-col form-control bg-transparent text-white border-0 border-bottom border-secondary mb-1"
-        > 
-          <label
-            class="w3-col"
-            for="placeOrigin"
-            title="Ruta de origen del viaje "
-          >
-            <i class="fa fa-dot-circle text-danger me-1 w3-left"></i>
-            Hasta</label
-          > 
-          <p
-            [class]="' w3-col '"
-          >
-            {{ item.destination_address }} 
+        >
+          <p class="w3-col" title="Ruta del viaje ">
+            <i class="fa fa-route fa-2x me-1 w3-left"></i>
+            Desde <strong>{{ item.origin_address }}</strong> Hasta
+            <strong>{{ item.destination_address }}</strong>
           </p>
         </div>
-
       </li>
       }
     </ul>
 
+    <!-- Mapa con la ruta origen destino -->
+    @if(showMap){
+
+    <div class="w3-row w3-col set-height-30">
+      <app-p-map-route
+        [userData]="userData"
+        [coord]="coord"
+        [coord_destination]="coord_destination"
+        [width]="'100%'"
+        [height]="'30vh'"
+      ></app-p-map-route>
+    </div>
+
+    }@else {
+
+    <div
+      class="w3-row w3-col pt-5 set-height-30 border-bottom border-secondary"
+    >
+      <p class="text-danger fw-bold text-uppercase text-center">
+        No se ha seleccionado una ruta válida.
+      </p>
+      <i class="fa fa-2x fa-map-location w-100 text-center"></i>
+    </div>
+
     }
+  
+
+
+  <!--TODO  -->
+  <!-- OFERTAS DE CONDUCTORES -->
+  <!--  -->
+
+    <div class="w3-row w3-col"></div>
+
+  }
   </div>
+
 </section>

@@ -1,50 +1,49 @@
-<section
+<mat-card
   class="_form-traveler-request set-height-100 w3-row w3-col w3-container text-white"
 >
-  <div class="w3-row w3-col m10 s10 _center-h-sb">
-    <h3>{{ title_page }}</h3>
-  </div>
-  <div class="w3-row w3-col m2 s2 mt-2">
-    <button (click)="goToMap()" class="btn border-0 text-white">
-      <i class="fa fa-2x fa-close"></i> 
-    </button>
+  <mat-card-header class="w3-row w3-col">
+    <div class="w3-row w3-col l10 m10 s10 _center-h-sb">
+      <h3>{{ title_page }}</h3>
+    </div>
+
+    <div class="w3-col l2 m2 s2 _center-h">
+      <button (click)="goToMap()" class="btn border-0 text-white">
+        <i class="fa fa-2x fa-close"></i>
+      </button>
+    </div>
+  </mat-card-header>
+
+  <!-- Mapa con la ruta origen destino -->
+  @if(showMap){
+
+  <div class="w3-row w3-col set-height-30">
+    <app-p-map-route
+      [userData]="userData"
+      [coord]="coord"
+      [coord_destination]="coord_destination"
+      [width]="'100%'"
+      [height]="'30vh'"
+    ></app-p-map-route>
   </div>
 
-  <div class="w3-row w3-col d-flex _center-h-sb">
+  }@else {
+
+  <div class="w3-row w3-col pt-5 set-height-30 border-bottom border-secondary">
+    <p class="text-danger fw-bold text-uppercase text-center">
+      No se ha seleccionado una ruta válida.
+    </p>
+    <i class="fa fa-2x fa-map-location w-100 text-center"></i>
+  </div>
+
+  }
+
+  <mat-card-content class="w3-row w3-col d-flex _center-h-sb">
     <!-- Inputs y Forms -->
     <form
-      class="w3-row w3-col l8 m8 set-height-s-90 align-content-between p-3 border border-warning rounded-2"
+      class="w3-row w3-col l8 m8 set-height-s-60 align-content-between"
       [formGroup]="form_request"
       (ngSubmit)="onSubmit()"
     >
-      <!-- Mapa con la ruta origen destino -->
-      @if(showMap){
-
-      <div
-        class="w3-row w3-col set-height-30"
-      >
-        <app-p-map-route
-          [userData]="userData"
-          [coord]="coord"
-          [coord_destination]="coord_destination"
-          [width]="'100%'"
-          [height]="'30vh'"
-        ></app-p-map-route>
-    </div>
-
-      }@else {
-
-      <div
-        class="w3-row w3-col pt-5 set-height-30 border-bottom border-secondary"
-      >
-        <p class="text-danger fw-bold text-uppercase text-center">
-          No se ha seleccionado una ruta válida.
-        </p>
-        <i class="fa fa-2x fa-map-location w-100 text-center"></i>
-      </div>
-
-      }
-
       <div class="w3-row w3-col m-auto">
         <div class="w3-col d-flex">
           <h6>Ruta</h6>
@@ -52,23 +51,26 @@
         <!-- -------------- -->
         <!-- Lugar origen del viajero -->
         <!-- -------------- -->
-        <div class="w3-row w3-col form-control bg-transparent text-white border-0 border-bottom border-secondary mb-1">
+        <div
+          class="w3-row w3-col form-control bg-transparent text-white border-0 border-bottom border-secondary mb-1"
+        >
           <input
             formControlName="placeOrigin"
             hidden
             type="text"
-            class="form-control "
+            class="form-control"
             name="placeOrigin"
             id="placeOrigin"
             placeholder="Lugar de origen "
-            type="text"
             [class.is-invalid]="f.placeOrigin.invalid && f.placeOrigin.touched"
           />
           <label
             class="w3-col"
             for="placeOrigin"
             title="Ruta de origen del viaje "
-            > <i class="fa fa-dot-circle text-primary me-1 w3-left"></i> Desde</label
+          >
+            <i class="fa fa-dot-circle text-primary me-1 w3-left"></i>
+            Desde</label
           >
 
           @if(f.placeOrigin.invalid && (f.placeOrigin.dirty ||
@@ -80,14 +82,16 @@
             [class]="address_coord == '' ? 'text-secondary ' : '' + ' w3-col '"
           >
             {{ address_coord !== "" ? address_coord : "Definir su ubicación" }}
-            <i class="fa fa-map-location w3-right"></i> 
+            <i class="fa fa-map-location w3-right"></i>
           </p>
         </div>
 
         <!-- -------------- -->
         <!-- Lugar destino del viajero -->
         <!-- -------------- -->
-        <div class="w3-row w3-col form-control bg-transparent text-white border-0 border-bottom border-secondary mb-1">
+        <div
+          class="w3-row w3-col form-control bg-transparent text-white border-0 border-bottom border-secondary mb-1"
+        >
           <input
             formControlName="placeDestination"
             type="text"
@@ -95,7 +99,6 @@
             name="placeDestination"
             id="placeDestination"
             placeholder="Lugar de destino "
-            type="text"
             hidden
             [value]="coord_destination[0] + ',' + coord_destination[1]"
             [class.is-invalid]="
@@ -103,16 +106,19 @@
             "
           />
           <label
+            (click)="showFooter()"
             class="w3-col"
             for="placeDestination"
             title="Ruta de destino del viaje "
-            > <i class="fa fa-dot-circle text-danger me-1 w3-left"></i> Hasta</label
+          >
+            <i class="fa fa-dot-circle text-danger me-1 w3-left"></i>
+            Hasta</label
           >
 
           @if(f.placeDestination.invalid && (f.placeDestination.dirty ||
           f.placeDestination.touched) ){
           @if(f.placeDestination.errors?.['coordInvalid'] ){
-          <div [classList]="'text-danger'">Destino is required.</div>
+          <div [classList]="'text-danger'">Destino is invalid.</div>
           } @if(f.placeDestination.errors?.['required'] ){
           <div [classList]="'text-danger'">Destino is required.</div>
           } @if(f.placeDestination.errors?.['minlength']){
@@ -124,7 +130,7 @@
           } }
 
           <p
-            (click)="showFooterOnButton()"
+            (click)="showFooter()"
             [class]="
               address_coord_destination == ''
                 ? 'text-secondary '
@@ -142,14 +148,138 @@
         </div>
 
         <!-- -------------- -->
-        <!-- Indicador de Tipo de Conductor -->
+        <!-- TODO cantidad de personas -->
         <!-- -------------- -->
+        <div class="w3-col pt-1">
+          <p class="border-top border-secondary">Cantidad de personas (*)</p>
 
+          <input
+            type="number"
+            name="personNumber"
+            min="1"
+            formControlName="personNumber"
+            class="form-control"
+            required
+            [value]="personNumber"
+            [hidden]="!showHiddenInput"
+            [class.is-invalid]="
+              f.personNumber.invalid && f.personNumber.touched
+            "
+          />
+
+          <div class="w3-row w3-col d-flex overflow-x-auto">
+            <!-- Tipo 1 personas-->
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                type="radio"
+                value="1"
+                id="p-1"
+                name="numberPerson_"
+                class="custom-control-input"
+                checked
+                required
+                (change)="handleRadioChange($event)"
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="p-1" class="custom-control-description btn w-100">
+                1
+              </label>
+            </div>
+
+            <!-- Tipo 2 personas-->
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                type="radio"
+                value="2"
+                id="p-2"
+                name="numberPerson_"
+                class="custom-control-input"
+                required
+                (change)="handleRadioChange($event)"
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="p-2" class="custom-control-description btn w-100">
+                2
+              </label>
+            </div>
+
+            <!-- Tipo 3 personas -->
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                type="radio"
+                value="3"
+                id="p-3"
+                name="numberPerson_"
+                class="custom-control-input"
+                required
+                (change)="handleRadioChange($event)"
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="p-3" class="custom-control-description btn w-100">
+                3
+              </label>
+            </div>
+
+            <!-- Tipo 4 personas -->
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                type="radio"
+                value="4"
+                id="p-4"
+                name="numberPerson_"
+                class="custom-control-input"
+                required
+                (change)="handleRadioChange($event)"
+              />
+              <span class="custom-control-indicator"></span>
+              <label for="p-4" class="custom-control-description btn w-100">
+                4
+              </label>
+            </div>
+
+            <!-- Tipo otra cant personas -->
+            <div
+              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
+            >
+              <input
+                type="radio"
+                value="n"
+                id="p-n"
+                name="numberPerson_"
+                class="custom-control-input"
+                required
+                (change)="handleRadioChange($event)"
+              />
+              <span class="custom-control-indicator"></span>
+              <label
+                for="p-n"
+                class="custom-control-description btn btn-sm w-100"
+              >
+                otra cantidad
+              </label>
+            </div>
+
+            <!--  -->
+          </div>
+        </div>
+
+        <!-- -------------- -->
+        <!-- TODO Indicador de Tipo de Conductor -->
+        <!-- -------------- -->
+        <!-- 
         <div class="w3-col border-bottom border-secondary pt-1">
           <p class="border-top border-secondary">Tipo de Conductor (*)</p>
 
           <div class="w3-row w3-col d-flex overflow-x-auto">
-            <!-- Tipo Moto -->
+            
             <div
               class="custom-control custom-radio ml-2 w3-col m6 s6 _center-h"
             >
@@ -171,7 +301,7 @@
               </label>
             </div>
 
-            <!-- Tipo Car -->
+            
 
             <div
               class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
@@ -190,8 +320,7 @@
                 <i class="fa fa-car fa-2 text-secondary"></i>
               </label>
             </div>
-
-            <!-- Tipo Camion -->
+ 
             <div
               class="custom-control custom-radio ml-2 w3-col m6 s6 _center-h"
             >
@@ -209,8 +338,7 @@
                 <i class="fa fa-truck fa-2 text-secondary"></i>
               </label>
             </div>
-
-            <!-- Tipo Van -->
+ 
             <div
               class="custom-control custom-radio ml-2 w3-col m6 s6 _center-h"
             >
@@ -228,8 +356,7 @@
                 <i class="fa fa-van-shuttle fa-2 text-secondary"></i>
               </label>
             </div>
-
-            <!-- Tipo Otro -->
+ 
             <div
               class="custom-control custom-radio ml-2 w3-col m6 s6 _center-h"
             >
@@ -238,8 +365,7 @@
                 class="custom-control-input"
                 id="other"
                 (change)="checkedAllvehicleType()"
-              />
-              <!-- <span class="custom-control-indicator"></span> -->
+              /> 
               <label
                 for="other"
                 class="custom-control-description btn w-100 text-uppercase text-white"
@@ -248,141 +374,10 @@
               </label>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- -------------- -->
-        <!-- cantidad de acompañantes -->
-        <!-- -------------- -->
-        <div class="w3-col pt-1">
-          <p class="border-top border-secondary">
-            Cantidad de acompañantes (*)
-          </p>
-
-          <div class="w3-row w3-col d-flex overflow-x-auto">
-            
-             <!-- Tipo 0 personas-->
-             <div
-             class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
-           >
-             <input
-               formControlName="personNumber"
-               type="radio"
-               name="personNumber"
-               value="0"
-               id="p-0"
-               class="custom-control-input"
-               required
-             />
-             <span class="custom-control-indicator"></span>
-             <label for="p-0" class="custom-control-description btn w-100">
-               ninguno
-             </label>
-           </div>
-
-            <!-- Tipo 1 personas-->
-            <div
-              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
-            >
-              <input
-                formControlName="personNumber"
-                type="radio"
-                name="personNumber"
-                value="1"
-                id="p-1"
-                class="custom-control-input"
-                required
-              />
-              <span class="custom-control-indicator"></span>
-              <label for="p-1" class="custom-control-description btn w-100">
-                1
-              </label>
-            </div>
-
-            <!-- Tipo 2 personas-->
-            <div
-              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
-            >
-              <input
-                formControlName="personNumber"
-                type="radio"
-                name="personNumber"
-                value="2"
-                id="p-2"
-                class="custom-control-input"
-                required
-              />
-              <span class="custom-control-indicator"></span>
-              <label for="p-2" class="custom-control-description btn w-100">
-                2
-              </label>
-            </div>
-
-            <!-- Tipo 4 personas -->
-            <div
-              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
-            >
-              <input
-                formControlName="personNumber"
-                type="radio"
-                name="personNumber"
-                value="3"
-                id="p-3"
-                class="custom-control-input"
-                required
-              />
-              <span class="custom-control-indicator"></span>
-              <label for="p-3" class="custom-control-description btn w-100">
-                3
-              </label>
-            </div>
-
-            <!-- Tipo 4 personas -->
-            <div
-              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
-            >
-              <input
-                formControlName="personNumber"
-                type="radio"
-                name="personNumber"
-                value="4"
-                id="p-4"
-                class="custom-control-input"
-                required
-              />
-              <span class="custom-control-indicator"></span>
-              <label for="p-4" class="custom-control-description btn w-100">
-                4
-              </label>
-            </div>
-
-            <!-- Tipo otra cant personas -->
-            <div
-              class="custom-control custom-radio mb-0 w3-col m6 s6 _center-h"
-            >
-              <input
-                formControlName="personNumber"
-                type="radio"
-                name="personNumber"
-                value="n"
-                id="p-n"
-                class="custom-control-input"
-                required
-              />
-              <span class="custom-control-indicator"></span>
-              <label
-                for="p-n"
-                class="custom-control-description btn btn-sm w-100"
-              >
-                otra cantidad
-              </label>
-            </div>
-
-            <!--  -->
-          </div>
-        </div>
-
-        <!-- -------------- -->
-        <!-- Tiempo Máximo de Espera del viajero -->
+        <!-- TODO Tiempo Máximo de Espera del viajero -->
         <!-- -------------- -->
         <div class="w3-col border-bottom border-secondary pt-1">
           <p class="border-top border-secondary">Tiempo máximo de espera (*)</p>
@@ -450,7 +445,7 @@
         </div>
 
         <!-- -------------- -->
-        <!-- preferencias del viajero -->
+        <!-- TODO preferencias del viajero -->
         <!-- -------------- -->
         <div class="w3-row w3-col form-floating mb-3 mt-3 w3-section">
           <textarea
@@ -481,30 +476,46 @@
           } }
         </div>
 
+        <mat-card class="w3-row w3-col bg-dark bg-opacity-75">
+          <mat-card-content class="w3-row w3-col">
+            <i class="fa fa-warning text-warning"></i>
+            "Por favor revise cuidadosamente los detalles de su solicitud de
+            viaje para evitar posibles errores."</mat-card-content
+          >
+        </mat-card>
+
         <!-- -------------- -->
-        <!-- Botones -->
+        <!-- TODO Botones -->
         <!-- -------------- -->
-        <div class="w3-row w3-col w3-section _center-h">
-          <button class=" btn btn-warning rounded-5 " type="submit">
+
+        <mat-card-actions class="_center-h">
+          <button class="btn btn-warning rounded-5" type="submit">
             Publicar Oferta <i class="fa fa-paper-plane ps-2"></i>
           </button>
-        </div>
+        </mat-card-actions>
+
+        <div class="w3-row w3-col w3-section _center-h"></div>
       </div>
     </form>
-  </div>
+  </mat-card-content>
 
-  @if(footerDisplayed){
+  <!-- TODO -->
+  <!-- Footer -->
+  <!--  -->
+</mat-card>
 
-  <app-footer-page
-    (panelDisplayed)="showFooterOnButton()"
-    (placeSelected)="selectPlace($event)"
-    [methodToShowFooter]="methodToShowFooter"
-    [address]="address"
-    [coord]="coord"
-    [coord_destination]="coord_destination"
-    [userData]="userData"
-    [favoriteMarkers]="favoriteMarkers"
-  ></app-footer-page>
+@if(footerDisplayed){
 
-  }
-</section>
+<app-footer-page
+class="z-index-1031"
+  (panelDisplayed)="showFooter()"
+  (placeSelected)="selectPlace($event)"
+  [methodToShowFooter]="methodToShowFooter"
+  [address]="address"
+  [coord]="coord"
+  [coord_destination]="coord_destination"
+  [userData]="userData"
+  [favoriteMarkers]="favoriteMarkers"
+></app-footer-page>
+
+}

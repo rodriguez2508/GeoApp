@@ -39,7 +39,6 @@ export class TripTravelerService {
     // "status": "asdas",  
     // "driver_id": "asdas",   
     // "traveler_id": "67e900c9-1240-4e4d-80d5-aa8f9e018934",
-    // "vehicleType": "1",
     // "personNumber": "string", 
     // "maxTimeWaiting": "15",
     // "travelPeferences": "" 
@@ -55,7 +54,6 @@ export class TripTravelerService {
       status: 'pending',
       traveler_id: user_id,
       driver_id: "",
-      vehicleType: 'all',
       personNumber: dataForm.personNumber,
       maxTimeWaiting: dataForm.maxTimeWaiting,
       travelPeferences: dataForm.travelPeferences,
@@ -107,10 +105,32 @@ export class TripTravelerService {
   // ----------------------------------
   // TODO: funcion para actualizar formulario de solicitud de viaje   
   // ----------------------------------
-  updateTravelRequest() {
+  updateTravelRequest(data: any, id:string) {
+  
+    // "origin_coordinate": "0,0",
+    // "destination_coordinate": "0,0",
+    // "destination_address": "some",
+    // "origin_address": "sdada",
+    // "status": "asdas",  
+    // "driver_id": "asdas",   
+    // "traveler_id": "67e900c9-1240-4e4d-80d5-aa8f9e018934",
+    // "personNumber": "string", 
+    // "maxTimeWaiting": "15",
+    // "travelPeferences": "" 
+     
 
-    const url = BASE_URL + 'update';
+    const url = BASE_URL + id ; 
 
+    return this.http.patch<any>(url, data).pipe(
+
+      tap((data: any) => {
+
+        console.log('Travel Request', data);
+      }),
+
+
+      catchError(this.handleError)
+    );
 
   }
 
