@@ -8,7 +8,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
-} from '@angular/core'; 
+} from '@angular/core';
 
 // -- Openlayers
 import 'ol/ol.css';
@@ -38,6 +38,8 @@ import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import { Stroke, Style } from 'ol/style';
 import { LineString } from 'ol/geom';
+import { getCenter } from 'ol/extent';
+
 // -- Openlayers
 // --interfaces
 import { I_DestinationMarker } from '../../../../../interface/marker.interface';
@@ -66,6 +68,7 @@ import {
 import { FooterPageComponent } from '../footer-page/footer-page.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { I_Places } from '../../../../../interface/places.interface';
+import { StorageService } from '../../../../../services/storage/storage.service';
 
 @Component({
   selector: 'app-map-page',
@@ -75,23 +78,23 @@ import { I_Places } from '../../../../../interface/places.interface';
   styleUrl: './map-page.component.scss',
 })
 export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
-  @Input() lat: number = DEFAULT_LAT;
-  @Input() lon: number = DEFAULT_LON;
+  @Input() lat: number = 0;
+  @Input() lon: number = 0;
   @Input() zoom: number = DEFAULT_ZOOM;
-  @Input() socket_status: boolean = DEFAULT_SOCKET_STATUS;
+  @Input() socket_status: boolean = true;
   @Input() location_status: boolean = DEFAULT_LOCATION_STATUS;
   @Input() width: string | number = DEFAULT_WIDTH;
   @Input() height: string | number = DEFAULT_HEIGHT;
 
-  @Input() favoriteMarkers:I_Places[] = [];
-  
+  @Input() favoriteMarkers: I_Places[] = [];
+
   @Output() movestart = new EventEmitter<any>();
   @Output() moveend = new EventEmitter<any>();
   @Output() reload_location = new EventEmitter<void>();
- 
+
   // --
-  coord: Coordinate = [this.lon, this.lat];
-  coord_destination: Coordinate = [0, 0]; 
+  coord: Coordinate = [DEFAULT_LON, DEFAULT_LAT];
+  coord_destination: Coordinate = [0, 0];
 
   // ------------------
   // -- Marcadores
@@ -119,21 +122,24 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
     user_type: ''
   };
   @Input() connected_users: I_UserMap[] = [];
-  client: I_UserMap;
+  client: I_UserMap = {
+    id: '',
+    name: '',
+    markerColor: '',
+    currentPosition: {
+      long: 0,
+      lat: 0,
+    }
+  };
 
 
   // Agregar el control ZoomToExtent al mapa
-  center = transform(this.coord, 'EPSG:4326', 'EPSG:3857');
-  extent = [
-    this.center[0] - 50000,
-    this.center[1] - 50000,
-    this.center[0] + 50000,
-    this.center[1] + 50000,
-  ];
+  extent = [this.coord[0]- 1000, this.coord[1] - 1000, this.coord[0] + 1000, this.coord[1] + 1000];
+  center = getCenter(this.extent);
 
   private movestartListener: any; // Mantén una referencia al oyente del evento para poder eliminarlo más tarde
   private moveendtListener: any; // Mantén una referencia al oyente del evento para poder eliminarlo más tarde
-  
+
   private mapEl: any;
   private popupEl: any;
   private hasAddedTu: boolean = false;
@@ -143,28 +149,33 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
 
   address: string = 'buscando..';
   distance: string = '0';
-  
+
   // --
   connected_TravelerUsers: I_UserMap[] = [];
   connected_DriverUsers: I_UserMap[] = [];
 
   constructor(
-    private route: ActivatedRoute, 
+    private route: ActivatedRoute,
     private router: Router,
     private elementRef: ElementRef,
-    private markerService: OlMapMarkerService, 
+    private markerService: OlMapMarkerService,
+    private storageService: StorageService,
     private openRouteService: OpenRouteService
   ) {
- 
-    this.client = {
-      id: this.userData.ci,
-      name: this.userData.name,
-      markerColor: 'success',
-      currentPosition: {lat:this.lat, long:this.lon}
-    };
+
   }
 
   ngOnInit(): void {
+
+    this.userData = this.storageService.getUser();
+
+    // this.client = {
+    //   id: this.userData.ci,
+    //   name: ' (Tú)',
+    //   markerColor: 'success',
+    //   currentPosition: { lat: 0, long: 0 }
+    // };
+
     this.mapEl = this.elementRef.nativeElement.querySelector('#map');
 
     // -- inicializa el mapa
@@ -173,74 +184,74 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngAfterViewInit(): void {
-    // this.client = {
-    //   id: this.userData.ci,
-    //   name: this.userData.name,
-    //   markerColor: 'success',
-    //   currentPosition: {lat:this.lat, long:this.lon}
-    // };
+
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void { }
 
   // --------------------------------------------
   // -- se activa si cambia la latitud y longitud
   // --------------------------------------------
   ngOnChanges(changes: SimpleChanges): void {
     if ('client' in changes) {
-      this.client = {
-        id: this.userData.ci,
-        name: this.userData.name,
-        markerColor: 'success',
-        currentPosition: {lat:this.lat, long:this.lon}
-      };
+      
     }
 
     // --------------------
     // Controla los cambios en las coordenadas y usuarios activos
     // --------------------
-    if (this.map && this.socket_status && this.location_status) {
-      
-      if (!this.hasAddedTu) {
-        this.coord = [this.lon, this.lat]; 
-        this.client.name += ' (Tú)';
-        this.client.markerColor = 'success';
-        this.initMarker(this.coord, this.client);
-        this.centerMap();
-        this.hasAddedTu = true;
-      }
+    if (this.map && this.location_status) {
+
+      // if (!this.hasAddedTu) {
+        
+      // //   this.client.name = ' (Tú)';
+      // //   this.client.markerColor = 'success';
+      // //   this.initMarker([0,0], this.client);
+      //   this.centerMap();
+      //   this.hasAddedTu = true;
+      // }
       if ('lat' in changes || 'lon' in changes) {
         // Si cambia alguna de las propiedades lat, lon, o zoom, actualiza el mapa
-        this.coord = [this.lon, this.lat]; 
+        this.coord = [this.lon, this.lat];
 
+
+        if (!this.hasAddedTu && this.lon != DEFAULT_LON) {
         
+            this.client.name = ' (Tú)';
+            this.client.markerColor = 'success';
+          //   this.initMarker([0,0], this.client);
+            this.centerMap();
+            this.hasAddedTu = true;
+          }
         console.log('COORD CLIENT update');
 
         // Actualiza tus marcadores
 
-        this.initMarker(this.coord, this.client);
+        if( this.lon !== DEFAULT_LON)
+          this.initMarker(this.coord, this.client);
+
       } else if ('connected_users' in changes) {
         // console.log('connected_user update', this.connected_DriverUsers)
 
-        // this.getAndUpdateConnectedTravelerUsers();
-        this.getAndUpdateConnectedDriverUsers();
+        // ESTA LINEA NO ESTABA => this.getAndUpdateConnectedTravelerUsers();
+        // ESTA LINEA NO ESTABA => this.getAndUpdateConnectedDriverUsers();
 
-        // Eliminar los marcadores que no están en this.connected_users
-        const indexToRemove = this.markers.findIndex(
-          (marker) =>
-            !this.connected_DriverUsers.some(
-              (user) => user.id === marker.get('client').id
-            )
-        );
+        // // Eliminar los marcadores que no están en this.connected_users
+        // const indexToRemove = this.markers.findIndex(
+        //   (marker) =>
+        //     !this.connected_DriverUsers.some(
+        //       (user) => user.id === marker.get('client').id
+        //     )
+        // );
 
-        if (
-          indexToRemove !== -1 &&
-          this.markers[indexToRemove].get('client').id != 'destination' &&
-          this.markers[indexToRemove].get('client').id != this.client.id
-        )
-          this.clearMarker(this.markers[indexToRemove].get('client').id);
+        // if (
+        //   indexToRemove !== -1 &&
+        //   this.markers[indexToRemove].get('client').id != 'destination' &&
+        //   this.markers[indexToRemove].get('client').id != this.client.id
+        // )
+        //   this.clearMarker(this.markers[indexToRemove].get('client').id);
 
-        this.setMarkersForConnectedUsers();
+        // this.setMarkersForConnectedUsers();
       }
     }
   }
@@ -280,7 +291,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
       ],
       view: new View({
         // projection: 'EPSG:4326',
-        center: Proj.fromLonLat(this.coord),
+        center: Proj.fromLonLat(this.center),
         minZoom: 6,
         maxZoom: 19,
         zoom: this.zoom,
@@ -321,7 +332,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
     // EVENTO CLICK
     //  ------------------------------
   }
- 
+
 
   centerMap() {
     // this.map.getView().setCenter(Proj.fromLonLat([this.lon, this.lat]));
@@ -388,7 +399,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
   private getAddress(coord: Coordinate) {
     this.openRouteService.getStreetInformation(coord).subscribe({
       next: (response: any) => {
-        
+
         // console.log(response.address);
         // console.log(response.address.road);
 
@@ -399,9 +410,8 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
         let city = response.address.city;
         let state = response.address.state;
 
-        const address = `${road === undefined ? '' : road + ','} ${town === undefined ? '' : town + ','} ${
-          neighbourhood === undefined ? '' : neighbourhood + ','
-        } ${city === undefined ? '' : city}  ${state === undefined ? '' : state }`;
+        const address = `${road === undefined ? '' : road + ','} ${town === undefined ? '' : town + ','} ${neighbourhood === undefined ? '' : neighbourhood + ','
+          } ${city === undefined ? '' : city}  ${state === undefined ? '' : state}`;
 
         // const distance = response.features[0]?.properties?.distance;
 
@@ -454,7 +464,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
   // --------------------------------------------
   // -- inicializar marcador en el mapa
   // --------------------------------------------
-   public initMarker(
+  public initMarker(
     coord: Coordinate,
     client: I_UserMap | I_DestinationMarker,
     type: string = ''
@@ -495,7 +505,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
       id: 'destination',
       name: '',
       markerColor: 'danger',
-      currentPosition:{
+      currentPosition: {
         lat: coord[1],
         long: coord[0],
       }
@@ -613,7 +623,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
       this.coord_destination = [0, 0];
     }
     this.methodToShowFooter = 'map';
-  } 
+  }
 
   getConnectedUsersByType(userType: string): I_UserMap[] {
     // return this.connected_users.filter(
@@ -637,16 +647,16 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
   // --------------------------------------------
 
   goToFavoritesPlaces(): void {
-   
-    this.router.navigate(['/traveler/favorites-places'], { 
+
+    this.router.navigate(['/traveler/favorites-places'], {
       queryParams: {
-         
+
       },
     });
   }
 
   reloadWithParams() {
-     
+
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {

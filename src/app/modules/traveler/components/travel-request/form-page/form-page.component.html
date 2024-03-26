@@ -79,7 +79,7 @@
           } @if(f.placeOrigin.errors?.['minlength']){ } }
 
           <p
-            [class]="address_coord == '' ? 'text-secondary ' : '' + ' w3-col '"
+            [class]="address_coord == '' ? 'text-danger ' : '' + ' w3-col '"
           >
             {{ address_coord !== "" ? address_coord : "Definir su ubicación" }}
             <i class="fa fa-map-location w3-right"></i>
@@ -131,10 +131,7 @@
 
           <p
             (click)="showFooter()"
-            [class]="
-              address_coord_destination == ''
-                ? 'text-secondary '
-                : '' + ' w3-col '
+            [class]="address_coord_destination == '' ? 'text-danger ' : '' + ' w3-col '
             "
           >
             {{

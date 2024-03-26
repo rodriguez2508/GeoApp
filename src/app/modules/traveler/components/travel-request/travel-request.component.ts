@@ -40,7 +40,7 @@ export class TravelRequestComponent {
   coord_destination: Coordinate = [];
 
   zoom: number = 10;
-  socket_status: boolean = false;
+  socket_status: boolean = true;
   location_status: boolean = false;
   max_count: number = 0;
 
@@ -89,25 +89,12 @@ export class TravelRequestComponent {
 
     // this.socket_status = false;
     // this.location_status = false;
-    this.socketioService.disconnect();
-    this.geolocService.stopWatchingPosition();
-    // this.max_count = -4;
+    // this.socketioService.disconnect();
+
+    // this.geolocService.stopWatchingPosition(); 
 
   }
   ngAfterViewInit(): void {
-
-   
-  }
-  ngOnInit() {
-
-     // this.first_iteration = 1;
-     this.userData = this.storageService.getUser();
-    
-     this.user_type = this.userData.user_type === 'traveler' ? 'Conductor' : 'Viajero';
- 
-     this.getFavoritePlaces(this.userData.id);
-
-     
 
     if (this.viewToShow == 'map') {
 
@@ -115,21 +102,49 @@ export class TravelRequestComponent {
       // -- obtener localizacion  
       // -------------------------------------------
 
-      this.getLocation();
+      console.log('COMPROBAR STATUS =>', this.location_status)
+
+      if (!this.location_status) {
+
+        this.getLocation();
+
+      } else {
+        this.reload_location();
+      }
 
 
-      this.socketioService.connect();
-
-      // -------------------------------------------
-      // -- obtener estado del socket 
-      // -------------------------------------------
-      this.getSocketStatus();
-      // -------------------------------------------
-      // -- obtener lista de usuarios conectados
-      // -------------------------------------------
-      this.getConnectedUsers();
 
     }
+
+  }
+  ngOnInit() {
+
+    // this.first_iteration = 1;
+    this.userData = this.storageService.getUser();
+
+    this.user_type = this.userData.user_type === 'traveler' ? 'Conductor' : 'Viajero';
+
+    this.getFavoritePlaces(this.userData.id);
+
+
+    // TODO -- Conexion al Socket
+    this.socketioService.connect();
+
+    // -------------------------------------------
+    // -- obtener estado del socket 
+    // -------------------------------------------
+    this.getSocketStatus();
+    // -------------------------------------------
+    // -- obtener lista de usuarios conectados
+    // -------------------------------------------
+    // this.getConnectedUsers();
+    // TODO -- Conexion al Socket
+
+
+    this.geolocService.get_locationStatus().subscribe((value) => {
+
+      this.location_status = value;
+    });
   }
 
 
@@ -147,7 +162,7 @@ export class TravelRequestComponent {
   // TODO -- obtener localizacion del usuario
   // -------------------------------------------
   async getLocation() {
- 
+
     this.geolocService.startWatchingPosition((position: Coordinate) => {
 
       // Aquí puedes manejar la nueva posición del usuario 
@@ -167,17 +182,12 @@ export class TravelRequestComponent {
 
 
         // -- Enviar los datos del usuario al servidor
-        this.socketioService.sendUserData(user_);
+        // this.socketioService.sendUserData(user_);
 
         console.log('Pos.Update -> Latitude: ' + position[1] + ', Longitude: ' + position[0]);
       }
     });
 
-
-    this.geolocService.get_locationStatus().subscribe((value) => {
-
-      this.location_status = value;
-    });
     this.geolocService.get_maxcountStatus().subscribe((value) => {
       console.log(this.max_count);
       this.max_count = value;
@@ -247,9 +257,9 @@ export class TravelRequestComponent {
     this.favoritePlacesService.getPlaceByUser(user_id).subscribe(
       {
         next: (data) => {
- 
+
           if (data && data.length != 0) {
-               
+
             for (let i = 0; i < data.length; i++) {
               this.favoriteMarkers[i] = {
                 coordinates: data[i].coordinates,
@@ -259,13 +269,13 @@ export class TravelRequestComponent {
             }
           }
 
-            console.log(this.favoriteMarkers)
+          console.log(this.favoriteMarkers)
 
-          },
-          error: (error) => {
-            console.log(error)
-          }
+        },
+        error: (error) => {
+          console.log(error)
         }
+      }
 
     );
 

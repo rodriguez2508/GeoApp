@@ -43,7 +43,7 @@ export class TripTravelerService {
     // "maxTimeWaiting": "15",
     // "travelPeferences": "" 
 
-
+    console.log(dataForm)
     const travelData: I_FormTravelRequest = {
       origin_coordinate: dataForm.placeOrigin,
       destination_coordinate: dataForm.placeDestination,

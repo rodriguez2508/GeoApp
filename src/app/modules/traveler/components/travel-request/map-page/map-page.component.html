@@ -42,7 +42,16 @@
 
     <!-- ... -->
 
-    } @if(location_status && socket_status && !footerDisplayed){
+    } @if(!socket_status && !footerDisplayed){
+      <button
+      class="w3-black border border-danger border-3 btn position-absolute text-danger w3-round-xxlarge"
+      id="btn_show_drivers"
+    >
+      <i class="fa fa-car-on w3-xlarge text-danger"></i>
+        
+    </button>
+
+    } @if(location_status && !footerDisplayed){
 
     <!-- TODO -->
     <!-- CUANDO EXISTE UBICACION -->

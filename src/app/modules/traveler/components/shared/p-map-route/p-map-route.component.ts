@@ -131,11 +131,27 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
     const coord_destination = Proj.fromLonLat(this.coord_destination);
     const extent = [coord_origin[0], coord_origin[1], coord_destination[0], coord_destination[1]];
       // Ajusta el centro y el zoom del mapa para que la extensión sea visible
-      this.map.getView().fit(extent, {padding: [5, 5 ,5, 5]} ); // Puedes ajustar el padding según tus necesidades
+      this.map.getView().fit(extent, {padding: [15, 15 ,15, 15]} ); // Puedes ajustar el padding según tus necesidades
 
 
   }
   ngOnChanges(changes: SimpleChanges): void {
+
+    if ('coord_origin' in changes || 'coord_destination' in changes) {
+
+      console.log('coord in changes', this.coord, this.coord_destination)
+      // -- Verifica que las coordenadas de origen y destino existan y sean diferente a CERO
+      if (this.checkCoordinates('origin') && this.checkCoordinates('destination')) {
+        
+        // -- marcador origen
+      this.initMarker(this.coord, this.client);
+      // -- marcador destino
+      this.initMarkerDestination(this.coord_destination);
+      // -- trazar la ruta:
+      this.drawRoute(this.coord, this.coord_destination);
+      
+      }
+    }
 
   }
 

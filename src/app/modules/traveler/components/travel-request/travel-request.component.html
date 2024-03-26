@@ -1,6 +1,6 @@
 <section class="w3-row w3-col mt-15">
   <!-- Cambio aqui -->
-  @if(viewToShow == 'map' && (!location_status || !socket_status)){
+  @if(viewToShow == 'map' && (!location_status)){
 
   <!-- <div
     [class]="
@@ -11,12 +11,8 @@
     "
     style="z-index: 2"
   > -->
-    @if(!socket_status && location_status){
-    <!-- <label
-      class="w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge bg-danger"
-      style="height: 10px"
-    >
-    </label> -->
+    <!-- @if(!socket_status && location_status){
+     
     <label
       class="panel-error-connection w3-col w3-container border-top border-bottom border-dark bg-danger w3-xlarge _center-h"
     >
@@ -26,7 +22,8 @@
       ></span>
     </label>
 
-    } @switch (max_count) { @case(0){} @case(-1){
+    } -->
+     @switch (max_count) { @case(0){} @case(-1){
 
     <label
       class="panel-error-connection w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge text-center rounded-3"

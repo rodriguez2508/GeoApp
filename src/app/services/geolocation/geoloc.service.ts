@@ -148,10 +148,12 @@ export class GeolocService {
 
         // Escuchar cambios en la posición y emitirlos a través de BehaviorSubject
         this.geolocation.on('change', () => {
+          
+          this.watchGPS();
+          
           const coordinates = this.geolocation.
           getPosition();
 
-          this.watchGPS();
 
           if (coordinates) {
 

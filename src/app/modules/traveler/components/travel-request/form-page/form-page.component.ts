@@ -26,9 +26,9 @@ import { I_UserSessionStorage } from '../../../../../interface/user.interface';
 import { PMapRouteComponent } from '../../shared/p-map-route/p-map-route.component';
 // -- components
 
-import {MatButtonModule} from '@angular/material/button';
-import {MatCardModule} from '@angular/material/card';
-import {MatIconModule} from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'app-form-page',
   standalone: true,
@@ -45,7 +45,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   private _snackBar = inject(MatSnackBar)
 
   showHiddenInput: boolean = false;
-  personNumber:number = 1;
+  personNumber: number = 1;
 
 
   // -- Rol del usuario conectado
@@ -91,7 +91,6 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   footerDisplayed = false;
-  placeSelected = '';
   methodToShowFooter: string = '';
   address: string = '';
   // ----------------------------------
@@ -113,7 +112,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
       // this.coord = params['lon'] && params['lat'] ? [params['lon'], params['lat']] : [];
       this.coord = params['lon'] && params['lon'] !== 0 && params['lon'] !== undefined && params['lat'] && params['lat'] !== 0 && params['lat'] !== undefined ? [parseFloat(params['lon']), parseFloat(params['lat'])] : [];
       // --coord destino
-      this.coord_destination = params['lon_d'] && params['lon_d'] !== 0 && params['lon_d'] !== undefined && params['lat_d'] && params['lat_d'] !== 0 && params['lat_d'] !== undefined ? [ parseFloat(params['lon_d']), parseFloat(params['lat_d']) ] : [];
+      this.coord_destination = params['lon_d'] && params['lon_d'] !== 0 && params['lon_d'] !== undefined && params['lat_d'] && params['lat_d'] !== 0 && params['lat_d'] !== undefined ? [parseFloat(params['lon_d']), parseFloat(params['lat_d'])] : [];
 
 
     });
@@ -124,68 +123,75 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
     if ('coord' in changes || 'coord_destination' in changes) {
 
-      console.log('coord in changes', this.coord, this.coord_destination )
+      console.log('coord in changes', this.coord, this.coord_destination)
       // -- Verifica que las coordenadas de origen y destino existan y sean diferente a CERO
       if (this.checkCoordinates('origin') && this.checkCoordinates('destination')) {
         this.showMap = true;
       }
     }
 
-    if ('placeSelected' in changes) {
-
-      const coordenadasArray: string[] = this.placeSelected.split(',');
-
-      this.coord_destination = [parseFloat(coordenadasArray[0]), parseFloat(coordenadasArray[1])];
-
-      if (this.checkCoordinates('destination')) this.getAddress(this.coord_destination, 'destination');
-
-    }
   }
 
   ngOnInit(): void {
 
-   
+
   }
 
-  ngAfterViewInit(): void { 
+  ngAfterViewInit(): void {
 
-     // -- Verificar las coordenadas y agregarlas a los campos del form
-     if (this.checkCoordinates('origin') && this.checkCoordinates('destination')) {
-      
-      this.getAddress(this.coord, 'origin');
-      this.getAddress(this.coord_destination, 'destination');
-      
+    // -- Verificar las coordenadas y agregarlas a los campos del form
+
+    if (this.checkCoordinates('origin')) this.getAddress(this.coord, 'origin');
+
+    if (this.checkCoordinates('destination')) this.getAddress(this.coord_destination, 'destination');
+
+    if (this.checkCoordinates('origin') && this.checkCoordinates('destination')) {
+
       this.showMap = true;
-    } 
- 
+    }
 
-     // -- verificar que existan viajes en curso
-     if(this.userData.id != ''){
+
+    // -- verificar que existan viajes en curso
+    if (this.userData.id != '') {
       this.getTravels(this.userData.id, 'ongoing');
       this.getTravels(this.userData.id, 'pending');
-     }
-     
-     
+    }
+
+
   }
 
   onSubmit(): void {
 
+    const coord_origin = `${this.coord[0]},${this.coord[1]}`;
+    const coord_destination = `${this.coord_destination[0]},${this.coord_destination[1]}`;
 
-    this.form_request.value.origin_address = this.address_coord;
-    this.form_request.value.destination_address = this.address_coord_destination;
-    this.form_request.value.personNumber = `${this.personNumber}`;
+    // this.form_request.value.placeOrigin = coord_origin;
+    // this.form_request.value.placeDestination = coord_destination;
+    // this.form_request.value.origin_address = this.address_coord;
+    // this.form_request.value.destination_address = this.address_coord_destination;
+    // this.form_request.value.personNumber = `${this.personNumber}`;
 
-    
+    this.form_request.patchValue({
+      placeOrigin: coord_origin,
+      placeDestination: coord_destination,
+      origin_address: this.address_coord,
+      destination_address: this.address_coord_destination,
+      personNumber: `${this.personNumber}`
+    });
+
+    this.form_request.markAllAsTouched();
+
     // Tip: si los datos del formulario son incorrectos
-    if (this.form_request.invalid || this.address_coord == 'Definir su ubicación' || this.address_coord == 'Error de conexión.' || this.address_coord_destination == 'Definir destino' || this.address_coord_destination == 'Error de conexión.'  ) {
-      this.form_request.markAllAsTouched();
-
-      console.log('form is invalid');
+    if (this.form_request.invalid || this.address_coord == 'Definir su ubicación' || this.address_coord == 'Error de conexión.' || this.address_coord_destination == 'Definir destino' || this.address_coord_destination == 'Error de conexión.') {
 
 
-      const config = this.dataService.openSnackBar('danger');
-      this._snackBar.open('Por favor, revise el formulario', 'CLOSE', config);
+      console.log('form is invalid', this.form_request.value);
 
+
+      // const config = this.dataService.openSnackBar('danger');
+      // this._snackBar.open('Por favor, revise el formulario', 'CLOSE', config);
+
+      this.dataService.showMsj('Por favor, revise el formulario.', 'Formulario Incorrecto', 'error');
 
       return;
     }
@@ -203,10 +209,12 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
     const personNumber = `${this.personNumber}`;
 
     return this.fb.group({
-      placeOrigin: [coord_origin, [Validators.required, , this.customCoordValidator(coord_origin)]],
+      placeOrigin: [coord_origin, [Validators.required, this.customCoordValidator('origin')]],
 
-      placeDestination: [coord_destination, [Validators.required, this.customCoordValidator(coord_destination)]],
-      personNumber: [personNumber, [Validators.required]],
+      placeDestination: [coord_destination, [Validators.required, this.customCoordValidator('destination')]],
+      origin_address: [this.address_coord, [Validators.required]],
+      destination_address: [this.address_coord_destination, [Validators.required]],
+      personNumber: [personNumber, [Validators.required, Validators.min(1)]],
       // vehicleType: ['', [Validators.required]],
       maxTimeWaiting: ['15', [Validators.required]],
       travelPeferences: ['', []],
@@ -216,17 +224,27 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // ----------------------------------
   // -- validaciones del formulario
   // ----------------------------------
-  customCoordValidator(coord:string): ValidatorFn {
+  customCoordValidator(coord: string): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-      const coordinates = coord.split(",") ?? [];
-      const x1Coord = parseFloat(coordinates[0]);
-      const x2Coord = parseFloat(coordinates[1]);
 
+      if (coord === 'origin') {
+         
+        const x1Coord = this.coord[0];
+        const x2Coord = this.coord[1];
 
-      if (isNaN(x1Coord) || x1Coord == 0 && isNaN(x2Coord) || x2Coord == 0) {
-        return { coordInvalid: true };
+        if (isNaN(x1Coord) || x1Coord == 0 && isNaN(x2Coord) || x2Coord == 0) {
+          return { coordInvalid: true };
+        }
+      } else if (coord === 'destination') {
+         
+        const x1Coord = this.coord_destination[0];
+        const x2Coord = this.coord_destination[1];
+
+        if (isNaN(x1Coord) || x1Coord == 0 && isNaN(x2Coord) || x2Coord == 0) {
+          return { coordInvalid: true };
+        }
       }
-
+       
       return null;
     };
   }
@@ -237,6 +255,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // ----------------------------------
   saveTravelRequest() {
 
+    let status = -1;
 
     if (!this.saveTravel.ongoing || !this.saveTravel.pending) {
 
@@ -254,14 +273,15 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
     this.tripTravelerService.saveTravelRequest(this.form_request.value, this.userData.id).subscribe({
       next: (data: any) => {
 
-
-        this.goToTravelHistory();
+        status = 1;
+        
         const config = this.dataService.openSnackBar('success');
         this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
 
       },
       error: (errorData) => {
 
+        status = 0;
         console.log(errorData)
 
         const config = this.dataService.openSnackBar('danger');
@@ -269,6 +289,14 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
       },
       complete: () => {
+
+        if(status == -1){}
+        else if(status == 0){}
+        else if(status == 1){
+
+          this.goToTravelHistory();
+        
+        }
 
       },
     });
@@ -293,31 +321,31 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
           if (data && data.length != 0) {
 
-            if(status == 'ongoing'){
+            if (status == 'ongoing') {
               this.saveTravel.ongoing = false;
             }
-            if(status == 'pending'){
+            if (status == 'pending') {
               this.saveTravel.pending = false;
             }
 
           }
 
           else {
-            if(status == 'ongoing'){
+            if (status == 'ongoing') {
               this.saveTravel.ongoing = true;
             }
-            if(status == 'pending'){
+            if (status == 'pending') {
               this.saveTravel.pending = true;
             }
           }
 
-          
-          
+
+
 
 
         },
         error: (error) => {
- 
+
           console.log(error)
         }
       }
@@ -350,7 +378,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
     this.router.navigate(['/traveler/travel-history'], {
       queryParams: {
-
+        
       }
     });
 
@@ -417,7 +445,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
           this.address_coord_destination = 'Error de conexión.';
 
         }
-        
+
         // this.distance = '0';
       },
       complete: () => {
@@ -447,9 +475,17 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
     const coordenadasArray: string[] = event.split(',');
 
-    this.coord_destination = [+coordenadasArray[0], +coordenadasArray[1]];
+    this.coord_destination = [parseFloat(coordenadasArray[0]), parseFloat(coordenadasArray[1])];
+    const coord_destination = `${this.coord_destination[0]},${this.coord_destination[1]}`;
+    // if (this.checkCoordinates('destination')) 
 
-    if (this.checkCoordinates('destination')) this.getAddress(this.coord_destination, 'destination');
+    if (this.checkCoordinates('destination')) {
+
+      this.form_request.value.placeDestination = coord_destination;
+
+      this.getAddress(this.coord_destination, 'destination');
+      this.showMap = true;
+    }
   }
 
   checkedAllvehicleType() {
@@ -464,15 +500,15 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
     console.log(selectedValue);
     if (selectedValue === 'n') {
-        this.showHiddenInput = true; 
-        this.personNumber = 0;
+      this.showHiddenInput = true;
+      // this.personNumber = -0;
     } else {
-        this.showHiddenInput = false; 
-        this.personNumber = parseInt(selectedValue);
+      this.showHiddenInput = false;
+      this.personNumber = parseInt(selectedValue);
     }
 
-   
-}
+
+  }
 
   public get f(): any {
     return this.form_request.controls;

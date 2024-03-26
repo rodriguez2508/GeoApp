@@ -1,5 +1,5 @@
 import { TripTravelerService } from './../../../../../services/trip/trip-traveler.service';
-import { AfterViewInit, Component, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { AfterViewInit, Component, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -17,7 +17,7 @@ import { DataService } from '../../../../../services/data/data.service';
   templateUrl: './pending-page.component.html',
   styleUrl: './pending-page.component.scss'
 })
-export class PendingPageComponent implements OnChanges, AfterViewInit {
+export class PendingPageComponent implements OnChanges, OnInit,  AfterViewInit {
 
 
   private _snackBar = inject(MatSnackBar);
@@ -46,6 +46,7 @@ export class PendingPageComponent implements OnChanges, AfterViewInit {
   // --lugar de la posicion destino del usuario
   address_coord_destination: string = '';
 
+  reload:boolean = false;
   interval: any;
   time: { min: number, sec: number } = { min: 0, sec: 0 };
 
@@ -59,61 +60,35 @@ export class PendingPageComponent implements OnChanges, AfterViewInit {
   ) {
 
     this.route.queryParams.subscribe((params) => {
-
+      if(params['reload'] == '1') this.reload = true;
     });
 
 
 
   }
-  ngOnChanges(changes: SimpleChanges): void {
-
-  }
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
 
     this.userData = this.storageService.getUser();
 
-    this.getTravels(this.userData.id);
+    
 
     // --
     // -- Para el Temporizador del viaje
     // -- 
-    this.time.sec = 59;
-    console.log(this.time.min)
-    this.interval = setInterval(async () => {
+    this.time.sec = 59; 
 
-      if (this.time.sec === 0) {
-
-        if (this.time.min === 0) {
-
-
-          if (await this.dataService.showQuestion('Su viaje ha expirado, desea volver a publicarlo?', '', 'warning')) {
-            this.time.min = parseInt(this.travels[0].maxTimeWaiting);
-          } else {
-
-            this.stopInterval();
-            // --
-            // TODO cambiar estado del viaje a expired
-            // --
-            if (this.travels[0].id !== undefined)
-              this.updateTravelStatus('expired', this.travels[0].id);
-
-
-          }
-
-        } else {
-
-          // -- si los minutos != 0 y los sec = 0 resto 1 min sec = 59
-          this.time.sec = 59;
-          this.time.min--;
-
-        }
-      } else {
-        // -- si los segundos no son 0 resto 1
-        this.time.sec--;
-      }
-
-    }, 1000);
   }
+  ngOnChanges(changes: SimpleChanges): void {
+
+  }
+
+  ngAfterViewInit(): void {
+
+    this.getTravels(this.userData.id);
+    console.log('GET TRAVELS', this.userData.id)
+    
+  }
+
 
 
 
@@ -169,8 +144,10 @@ export class PendingPageComponent implements OnChanges, AfterViewInit {
             if (this.checkTravelExpiration(dateCreated, this.time.min)) {
 
               // TODO  cambiar estado del viaje a expired
-              if (this.travels[0].id !== undefined)
+              if (this.travels[0].id !== undefined )
                 this.updateTravelStatus('expired', this.travels[0].id);
+            } else{
+              this.setTimer();
             }
           }
 
@@ -186,6 +163,48 @@ export class PendingPageComponent implements OnChanges, AfterViewInit {
 
   }
 
+  // ---------------------------------------------------
+  //TODO -- Establecer el temporizador
+  // ---------------------------------------------------
+
+  setTimer(){
+
+    this.interval = setInterval(async () => {
+
+      if (this.time.sec === 0) {
+
+        if (this.time.min === 0) {
+
+
+          if (await this.dataService.showQuestion('Su viaje ha expirado, desea volver a publicarlo?', '', 'warning')) {
+            this.time.min = parseInt(this.travels[0].maxTimeWaiting);
+          } else {
+
+            this.stopInterval();
+            // --
+            // TODO cambiar estado del viaje a expired
+            // --
+            if (this.travels[0].id !== undefined)
+              this.updateTravelStatus('expired', this.travels[0].id);
+
+
+          }
+
+        } else {
+
+          // -- si los minutos != 0 y los sec = 0 resto 1 min sec = 59
+          this.time.sec = 59;
+          this.time.min--;
+
+        }
+      } else {
+        // -- si los segundos no son 0 resto 1
+        this.time.sec--;
+      }
+
+    }, 1000);
+
+  }
   // ---------------------------------------------------
   //TODO -- Actualizar estado del viaje con estado 'pending' del usuario a 'expired'
   // ---------------------------------------------------
