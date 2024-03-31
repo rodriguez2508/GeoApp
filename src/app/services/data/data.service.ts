@@ -78,11 +78,12 @@ export class DataService {
   //     }
   //   }, 4004);
   // }
-  openSnackBar(code:string) : MatSnackBarConfig<any> {
+  openSnackBar(code:string, time:number =7) : MatSnackBarConfig<any> {
     
+    console.log(code);
     if(code == 'success'){
       return {
-        duration: 7000,
+        duration: (time *1000),
         verticalPosition: 'bottom',
         horizontalPosition: 'end',
         panelClass: ['success-snackbar'],
@@ -91,7 +92,7 @@ export class DataService {
     else if(code == 'danger'){
 
       return {
-        duration: 7000,
+        duration: (time *1000),
         verticalPosition: 'bottom',
         horizontalPosition: 'end',
         panelClass: ['error-snackbar'],
@@ -101,7 +102,7 @@ export class DataService {
      else if(code == 'warning'){
 
       return {
-        duration: 7000,
+        duration: (time *1000),
         verticalPosition: 'bottom',
         horizontalPosition: 'end',
         panelClass: ['warning-snackbar'],
@@ -110,14 +111,16 @@ export class DataService {
     }
     else {
       return {
-        duration: 7000,
+        duration: (time *1000),
         verticalPosition: 'bottom',
         horizontalPosition: 'end',
-        panelClass: ['warning-snackbar'],
+        panelClass: ['warning-snackbar' ],
       };
 
     }
-     
+      
+ 
+ 
   }
 
   // -----------------------------------

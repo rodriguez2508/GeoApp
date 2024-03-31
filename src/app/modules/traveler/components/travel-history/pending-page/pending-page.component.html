@@ -5,7 +5,7 @@
   <!-- INFO DEL VIAJE -->
   <!--  -->
   <div class="w3-row w3-col mt-2 set-height-s-70">
-    @if (travels.length == 0) {
+    @if (travels$.id === '') {
     <!-- elemento -->
     <div class="w-100 d-flex align-items-center mr-3">
       <h4 class="text-warning opacity-25 container w3-section">
@@ -14,8 +14,7 @@
     </div>
     }@else {
 
-    <ul class="w3-row w3-col w3-ul">
-      @for (item of travels; track $index) {
+    <ul class="w3-row w3-col w3-ul"> 
 
       <li
         class="w3-col button align-items-center border-bottom border-white mb-1 bg-dark bg-opacity-75"
@@ -31,10 +30,14 @@
             title="Tiempo restante para que expire el viaje"
           >
             <i class="fa fa-stopwatch fa-2x me-1 w3-center"></i>
-            Faltan <strong>{{ time.min  }}:{{time.sec}}</strong> minutos
+            Faltan 
+            <strong> 
+              @if(time.min >= 0 && time.sec >= 0){ 
+                {{ time.min  }}:{{time.sec}} 
+              } @else {--:--} </strong> minutos
           </p>
 
-          <button class="w3-col l2 m2 s2 btn btn-outline-danger text-center "> <i class="fa fa-2x fa-trash "></i> </button> 
+          <button (click)="cancelTravel(travels$.id !== undefined ? travels$.id : '')" class="w3-col l2 m2 s2 btn text-center text-danger"> <i class="fa fa-2x fa-trash "></i> </button> 
         </div>
 
         <!-- -------------- -->
@@ -45,12 +48,11 @@
         >
           <p class="w3-col" title="Ruta del viaje ">
             <i class="fa fa-route fa-2x me-1 w3-left"></i>
-            Desde <strong>{{ item.origin_address }}</strong> Hasta
-            <strong>{{ item.destination_address }}</strong>
+            Desde <strong>{{ travels$.origin_address }}</strong> Hasta
+            <strong>{{ travels$.destination_address }}</strong>
           </p>
         </div>
-      </li>
-      }
+      </li> 
     </ul>
 
     <!-- Mapa con la ruta origen destino -->

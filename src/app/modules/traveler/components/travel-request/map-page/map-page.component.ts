@@ -81,7 +81,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() lat: number = 0;
   @Input() lon: number = 0;
   @Input() zoom: number = DEFAULT_ZOOM;
-  @Input() socket_status: boolean = true;
+  @Input() connection_status: boolean = true;
   @Input() location_status: boolean = DEFAULT_LOCATION_STATUS;
   @Input() width: string | number = DEFAULT_WIDTH;
   @Input() height: string | number = DEFAULT_HEIGHT;
@@ -91,6 +91,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
   @Output() movestart = new EventEmitter<any>();
   @Output() moveend = new EventEmitter<any>();
   @Output() reload_location = new EventEmitter<void>();
+  @Output() reload_connection = new EventEmitter<void>();
 
   // --
   coord: Coordinate = [DEFAULT_LON, DEFAULT_LAT];
@@ -318,7 +319,7 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
       if (this.location_status) {
         this.showFooterOnMap();
 
-        if (this.footerDisplayed && this.socket_status && this.location_status) {
+        if (this.footerDisplayed && this.connection_status && this.location_status) {
           this.getAddress(this.coord_destination);
         }
         // const startPoint = [this.lon, this.lat];
@@ -671,6 +672,20 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
 
   f_reload_location() {
     this.reload_location.emit();
+  } 
+  
+  f_reload_connection() {
+    this.reload_connection.emit();
+  }
+
+  f_rotate_btn(icon_class:string) {
+
+    const icon = this.elementRef.nativeElement.querySelector('.'+icon_class);
+    icon.classList.add("rotate-icon");
+  
+    setTimeout(() => {
+      icon.classList.remove("rotate-icon");
+    }, 1000); // Remover la clase después de un segundo (1000ms)
   }
 }
 

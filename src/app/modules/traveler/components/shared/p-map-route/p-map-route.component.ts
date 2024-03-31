@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 
@@ -17,14 +17,13 @@ import { Feature, View } from 'ol';
 import Map from 'ol/Map';
 import { Coordinate } from 'ol/coordinate';
 import VectorLayer from 'ol/layer/Vector';
-import { transform } from 'ol/proj';
+import { fromLonLat, transform } from 'ol/proj';
 import VectorSource from 'ol/source/Vector';
 import TileLayer from 'ol/layer/Tile';
 import { OSM } from 'ol/source';
-import * as Proj from 'ol/proj';
 import { Extent, defaults as defaultInteractions } from 'ol/interaction';
 import { ZoomToExtent, Zoom, Rotate, ScaleLine } from 'ol/control';
-import { LineString } from 'ol/geom';
+import { LineString, Point } from 'ol/geom';
 import { Style, Stroke } from 'ol/style';
 
 // --
@@ -34,7 +33,7 @@ import { I_UserSessionStorage, I_UserMap } from '../../../../../interface/user.i
 // --
 import { OlMapMarkerService } from '../../../../../services/map/ol-map-marker.service';
 import { OpenRouteService } from '../../../../../services/map/open-route.service';
-import { getCenter } from 'ol/extent';
+import { getCenter, getHeight } from 'ol/extent';
 
 @Component({
   selector: 'app-p-map-route',
@@ -68,6 +67,9 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
   // ------------------
 
   // --
+  // Agregar el control ZoomToExtent al mapa
+  extent = [this.coord[0] - 1000, this.coord[1] - 1000, this.coord[0] + 1000, this.coord[1] + 1000];
+  center = getCenter(this.extent);
 
   map: Map = new Map();
 
@@ -84,19 +86,7 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() connected_users: I_UserMap[] = [];
   client: I_UserMap;
 
-
-  // Agregar el control ZoomToExtent al mapa
-  extent = [this.coord[0], this.coord[1], this.coord_destination[0], this.coord_destination[1]];
-  center = getCenter(this.extent);
-  // center = transform(this.coord, 'EPSG:4326', 'EPSG:3857');
-
-  private movestartListener: any; // Mantén una referencia al oyente del evento para poder eliminarlo más tarde
-  private moveendtListener: any; // Mantén una referencia al oyente del evento para poder eliminarlo más tarde
-
   private mapEl: any;
-  private popupEl: any;
-  private hasAddedTu: boolean = false;
-
   footerDisplayed = false;
   methodToShowFooter: string = '';
 
@@ -108,11 +98,10 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
   connected_DriverUsers: I_UserMap[] = [];
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
     private elementRef: ElementRef,
     private markerService: OlMapMarkerService,
-    private openRouteService: OpenRouteService
+    private openRouteService: OpenRouteService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
 
     this.client = {
@@ -124,61 +113,86 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
 
-  ngAfterViewInit(): void {
-
-
-    const coord_origin = Proj.fromLonLat(this.coord);
-    const coord_destination = Proj.fromLonLat(this.coord_destination);
-    const extent = [coord_origin[0], coord_origin[1], coord_destination[0], coord_destination[1]];
-      // Ajusta el centro y el zoom del mapa para que la extensión sea visible
-      this.map.getView().fit(extent, {padding: [15, 15 ,15, 15]} ); // Puedes ajustar el padding según tus necesidades
-
-
-  }
-  ngOnChanges(changes: SimpleChanges): void {
-
-    if ('coord_origin' in changes || 'coord_destination' in changes) {
-
-      console.log('coord in changes', this.coord, this.coord_destination)
-      // -- Verifica que las coordenadas de origen y destino existan y sean diferente a CERO
-      if (this.checkCoordinates('origin') && this.checkCoordinates('destination')) {
-        
-        // -- marcador origen
-      this.initMarker(this.coord, this.client);
-      // -- marcador destino
-      this.initMarkerDestination(this.coord_destination);
-      // -- trazar la ruta:
-      this.drawRoute(this.coord, this.coord_destination);
-      
-      }
-    }
-
-  }
-
-
-
   ngOnInit(): void {
     this.mapEl = this.elementRef.nativeElement.querySelector('#map');
 
-    // -- inicializa el mapa
+
+    const coord_origin = this.coord;
+    console.log('coord in ngOnInit', coord_origin, this.coord)
+    // -- inicializa el mapa 
+    this.setSize();
+    this.initMap();
 
 
-    if (this.checkCoordinates('origin') && this.checkCoordinates('destination')) {
+  }
 
-      this.setSize();
+  ngAfterViewInit(): void {
 
-      const extent = [this.coord[0], this.coord[1], this.coord_destination[0], this.coord_destination[1]];
-      this.center = getCenter(extent);
-      this.initMap();
 
-      // -- marcador origen
-      this.initMarker(this.coord, this.client);
-      // -- marcador destino
-      this.initMarkerDestination(this.coord_destination);
-      // -- trazar la ruta:
-      this.drawRoute(this.coord, this.coord_destination);
 
+  }
+
+
+  ngOnChanges(changes: SimpleChanges): void {
+
+    if (('coord_origin' in changes || 'coord_destination' in changes)) {
+
+
+      console.log('coord in changes', this.coord)
+
+      // -- Verifica que las coordenadas de origen y destino existan y sean diferente a CERO
+      if (this.checkCoordinates('origin') && this.checkCoordinates('destination')) {
+
+        if (!this.coord || !this.coord_destination || isNaN(this.coord[0]) || isNaN(this.coord[1]) || isNaN(this.coord_destination[0]) || isNaN(this.coord_destination[1])) {
+          console.warn('Invalid coordinates. Cannot fit empty extent.');
+          return; // Exit the function if coordinates are invalid
+        }
+        const coord_origin = fromLonLat(this.coord);
+        const coord_destination = fromLonLat(this.coord_destination);
+
+
+        // Check for empty extent
+        if (coord_origin[0] === coord_destination[0] && coord_origin[1] === coord_destination[1]) {
+          console.warn('Empty extent. Consider handling invalid coordinates.');
+          return; // Exit if extent is empty
+        }
+
+        console.log('coord in ngOnChanges', coord_origin, this.coord)
+
+        // -- marcador origen
+        this.initMarker(this.coord, this.client);
+        // -- marcador destino
+        this.initMarkerDestination(this.coord_destination);
+        // -- trazar la ruta:
+        this.drawRoute(this.coord, this.coord_destination);
+ 
+
+        const extent = [
+          coord_origin[0],
+          coord_origin[1],
+          coord_destination[0],
+          coord_destination[1]
+        ];
+        // const height = getHeight(extent);
+        const center = getCenter(extent);
+ 
+        const resolution = this.map.getView().getResolutionForExtent(extent);
+        console.log('RESOLUTION for EXTENT => ', resolution)
+
+        const resolution_zoom = this.map.getView().getZoomForResolution(resolution);
+        console.log('RESOLUTION for EXTENT => ', resolution_zoom )
+
+        this.map.getView().animate({ center: center, zoom: (resolution_zoom !== undefined?resolution_zoom - 1 : 12) }, { duration: 1000 });
+        // Use projected coordinates for fitting
+        // this.map.getView().fit(extent, { padding: [50, 50, 50, 50] });
+
+
+        // Force change detection after modifying values
+        // this.changeDetectorRef.detectChanges();
+
+      }
     }
+
   }
 
 
@@ -188,19 +202,26 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
   // --------------------------------------------
 
   private initMap() {
-    // this.vectorSource.addFeatures(this.markers);
 
-    // this.vectorLayer = new VectorLayer({
-    //   source: this.vectorSource,
-    // });
 
-    // ----------------------------------
-    // controles
-    // ----------------------------------
+    const coord_origin = fromLonLat(this.coord);
+    const coord_destination = fromLonLat(this.coord_destination);
 
-    const zoomToExtentControl = new ZoomToExtent({
-      extent: this.extent,
-    });
+    const extent = [
+      coord_origin[0],
+      coord_origin[1],
+      coord_destination[0],
+      coord_destination[1]
+    ];
+    // const height = getHeight(extent);
+    const center = getCenter(extent);
+
+    const resolution = this.map.getView().getResolutionForExtent(extent);
+    console.log('RESOLUTION for EXTENT => ', resolution)
+
+    const resolution_zoom = this.map.getView().getZoomForResolution(resolution);
+    console.log('RESOLUTION for EXTENT => ', resolution_zoom)
+
     const zoomControl = new Zoom();
     const rotateControl = new Rotate();
     const scaleLine = new ScaleLine();
@@ -209,7 +230,8 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
     // controles
     // ----------------------------------
     this.map = new Map({
-      interactions: defaultInteractions({ dragPan: true, mouseWheelZoom:false }),
+
+      interactions: defaultInteractions({ dragPan: true }),
       target: this.mapEl,
       layers: [
         new TileLayer({
@@ -218,15 +240,15 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
         this.vectorLayer,
       ],
       view: new View({
-        // projection: 'EPSG:4326',
-        center: Proj.fromLonLat(this.center),
+        center: center, // Replace with initial coordinates if desired
+        projection: 'EPSG:3857',
+
         // minZoom: 6,
         // maxZoom: 19,
-         zoom: this.zoom,
+        zoom: resolution_zoom,
       }),
       controls: [rotateControl, scaleLine, zoomControl],
     });
-
 
   }
 

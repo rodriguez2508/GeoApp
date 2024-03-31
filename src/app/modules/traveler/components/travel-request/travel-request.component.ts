@@ -1,5 +1,5 @@
 import { I_Places } from './../../../../interface/places.interface';
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import { Coordinate } from 'ol/coordinate';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -30,7 +30,7 @@ import { FavoritesPlacesService } from '../../../../services/map/favorites-place
   templateUrl: './travel-request.component.html',
   styleUrl: './travel-request.component.scss'
 })
-export class TravelRequestComponent {
+export class TravelRequestComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   title_page = "Crear Oferta de Viaje";
@@ -40,6 +40,7 @@ export class TravelRequestComponent {
   coord_destination: Coordinate = [];
 
   zoom: number = 10;
+  status: boolean = false;
   socket_status: boolean = true;
   location_status: boolean = false;
   max_count: number = 0;
@@ -79,11 +80,24 @@ export class TravelRequestComponent {
 
       this.coord_origin = params['view'] == 'form' && params['coord'] ? params['view'] : 'map';
 
-
-
     });
 
 
+    this.reload_location();
+    this.reload_socket();
+
+
+    
+  }
+  ngOnChanges(changes: SimpleChanges): void {
+
+    if ('socket_status' in changes) {
+
+    }
+
+    if ('status' in changes) {
+
+    }
   }
   ngOnDestroy(): void {
 
@@ -117,7 +131,7 @@ export class TravelRequestComponent {
     }
 
   }
-  ngOnInit() {
+  async ngOnInit() {
 
     // this.first_iteration = 1;
     this.userData = this.storageService.getUser();
@@ -126,25 +140,14 @@ export class TravelRequestComponent {
 
     this.getFavoritePlaces(this.userData.id);
 
-
     // TODO -- Conexion al Socket
     this.socketioService.connect();
-
-    // -------------------------------------------
-    // -- obtener estado del socket 
-    // -------------------------------------------
     this.getSocketStatus();
-    // -------------------------------------------
-    // -- obtener lista de usuarios conectados
-    // -------------------------------------------
-    // this.getConnectedUsers();
-    // TODO -- Conexion al Socket
-
-
     this.geolocService.get_locationStatus().subscribe((value) => {
 
       this.location_status = value;
-    });
+    }); 
+
   }
 
 
@@ -156,6 +159,13 @@ export class TravelRequestComponent {
     this.geolocService.stopWatchingPosition();
 
     this.getLocation();
+  }
+
+  reload_socket() {
+
+    this.socketioService.disconnect();
+
+    this.socketioService.connect();
   }
 
   // -------------------------------------------
@@ -189,7 +199,7 @@ export class TravelRequestComponent {
     });
 
     this.geolocService.get_maxcountStatus().subscribe((value) => {
-      console.log(this.max_count);
+      // console.log(this.max_count);
       this.max_count = value;
     });
 
@@ -201,9 +211,12 @@ export class TravelRequestComponent {
   // -------------------------------------------
 
   async getSocketStatus() {
+
     this.socketioService.get_socketStatus().subscribe({
       next: (status: boolean) => {
+
         this.socket_status = status;
+        this.status = true;
         console.log('Socket status updated:', status);
 
       },
@@ -212,8 +225,10 @@ export class TravelRequestComponent {
         console.error('Error getting socket status:', error);
 
         this.socket_status = false;
+        this.status = false;
       },
       complete: () => {
+
         // Realizar acciones adicionales cuando el observable se completa, si es necesario
       },
     });

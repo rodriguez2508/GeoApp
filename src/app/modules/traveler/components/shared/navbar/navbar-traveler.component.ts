@@ -24,4 +24,13 @@ export class NavbarTravelerComponent {
     });
  
   }
+
+  reload() {
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+      }
+    });
+  }
 }

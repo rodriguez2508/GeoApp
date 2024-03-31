@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { LogUpdateService } from './services/workers/log-update.service';
+import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChildrenOutletContexts, RouterOutlet } from '@angular/router';
 
@@ -39,12 +40,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     phone: '',
     user_type: ''
   };
+ 
 
   constructor( 
     private dataService: DataService,
-    private sessionService:SessionService, 
-    private storageService:StorageService,  
-  ){
+    // private logUpdateService:LogUpdateService
+  ){ 
 
     this.subscriptionLoggedIn = this.dataService.loggedIn$.subscribe(value => {
       this.userLoginOn = value;

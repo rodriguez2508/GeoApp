@@ -12,12 +12,15 @@
           "/manifest.webmanifest",
           "/*.css",
           "/*.js"
+        ],
+        "urls": [
+          "https://openlayers.org/en/v6.1.1/css/ol.css"
         ]
       }
     },
     {
       "name": "assets",
-      "installMode": "lazy",
+      "installMode": "prefetch",
       "updateMode": "prefetch",
       "resources": {
         "files": [
@@ -29,19 +32,36 @@
   ],
   "dataGroups": [
     {
-      "name": "api-exclusion",
-      "urls": ["/api/**"],
+      "name": "api-performance",
+      "urls": [
+        "https://geoloc-app.onrender.com/api/v1/**"
+      ],
       "version": 1,
       "cacheConfig": {
-        "maxSize": 0,
+        "maxSize": 50,
         "maxAge": "0s",
-        "strategy": "performance"
+        "strategy": "freshness",
+        "timeout": "30s"
+
+      }
+    },
+    {
+      "name": "app-performance",
+      "urls": [
+        "https://geoloc-app.onrender.com/traveler/*travel-request*",
+        "https://geoloc-app.onrender.com/traveler/*travel-history*"
+      ],
+      "version": 1,
+      "cacheConfig": {
+        "maxSize": 200,
+        "maxAge": "1d",
+        "strategy": "freshness",
+        "timeout": "30s"
+
       }
     }
 
-  ],
-  "navigationUrls": [
-    "!/**/api/*",
-    "/**/*"
   ]
+   
 }
+

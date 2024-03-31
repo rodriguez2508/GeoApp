@@ -1,5 +1,5 @@
 import { TripTravelerService } from './../../../../../services/trip/trip-traveler.service';
-import { AfterViewInit, Component, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
+import { AfterViewInit, Component, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -9,6 +9,7 @@ import { StorageService } from '../../../../../services/storage/storage.service'
 import { PMapRouteComponent } from '../../shared/p-map-route/p-map-route.component';
 import { Coordinate } from 'ol/coordinate';
 import { DataService } from '../../../../../services/data/data.service';
+import { BehaviorSubject, Observable, take } from 'rxjs';
 
 @Component({
   selector: 'app-pending-page',
@@ -17,13 +18,33 @@ import { DataService } from '../../../../../services/data/data.service';
   templateUrl: './pending-page.component.html',
   styleUrl: './pending-page.component.scss'
 })
-export class PendingPageComponent implements OnChanges, OnInit,  AfterViewInit {
+export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, OnDestroy {
 
 
   private _snackBar = inject(MatSnackBar);
 
-  title_page: string = 'Lugares Favoritos';
-  travels: I_FormTravelRequest[] = [];
+  title_page: string = '';
+
+  travels$: I_FormTravelRequest = {
+    id: '',
+    origin_coordinate: '',
+    destination_coordinate: '',
+    destination_address: '',
+    origin_address: '',
+    status: '',
+    driver_id: '',
+    traveler_id: '',
+    vehicleType: '',
+    personNumber: '',
+    maxTimeWaiting: '',
+    travelPeferences: ''
+  };
+
+  travelsSubject = new BehaviorSubject<I_FormTravelRequest>(this.travels$);
+  travelID: string = '';
+  subscription: any;
+
+  // travels: I_FormTravelRequest[] = [];
   userData: I_UserSessionStorage = {
     id: '',
     ci: '',
@@ -46,9 +67,8 @@ export class PendingPageComponent implements OnChanges, OnInit,  AfterViewInit {
   // --lugar de la posicion destino del usuario
   address_coord_destination: string = '';
 
-  reload:boolean = false;
   interval: any;
-  time: { min: number, sec: number } = { min: 0, sec: 0 };
+  time: { min: number, sec: number } = { min: -1, sec: 59 };
 
 
   constructor(
@@ -60,22 +80,22 @@ export class PendingPageComponent implements OnChanges, OnInit,  AfterViewInit {
   ) {
 
     this.route.queryParams.subscribe((params) => {
-      if(params['reload'] == '1') this.reload = true;
+
     });
 
 
+  }
+  ngOnDestroy(): void {
 
   }
   ngOnInit(): void {
 
     this.userData = this.storageService.getUser();
+    // this.reload_travels();
 
-    
+    if (this.userData.id != '')
+      this.getTravels(this.userData.id);
 
-    // --
-    // -- Para el Temporizador del viaje
-    // -- 
-    this.time.sec = 59; 
 
   }
   ngOnChanges(changes: SimpleChanges): void {
@@ -84,79 +104,215 @@ export class PendingPageComponent implements OnChanges, OnInit,  AfterViewInit {
 
   ngAfterViewInit(): void {
 
-    this.getTravels(this.userData.id);
-    console.log('GET TRAVELS', this.userData.id)
-    
+
   }
 
+  // ---------------------------------------------------
+  //TODO -- establece la data a los viajes
+  // ---------------------------------------------------
+  setTravelData(travelData: I_FormTravelRequest | null) {
 
 
+    if (travelData === null) {
+
+      this.travels$ = {
+        id: '',
+        origin_coordinate: '',
+        destination_coordinate: '',
+        destination_address: '',
+        origin_address: '',
+        status: '',
+        driver_id: '',
+        traveler_id: '',
+        vehicleType: '',
+        personNumber: '',
+        maxTimeWaiting: '',
+        travelPeferences: ''
+      };
+
+      this.travelsSubject.next(this.travels$);
+
+    } else {
+      this.travels$ = travelData;
+      this.travelsSubject.next(travelData);
+    }
+
+
+  }
+  getTravelData(): Observable<I_FormTravelRequest> {
+
+
+    return this.travelsSubject.asObservable();
+  }
+  // ---------------------------------------------------
+  //TODO -- establece la data a los viajes
+  // ---------------------------------------------------
 
   // ---------------------------------------------------
   //TODO -- Obtiene los viajes con estado 'pending' del usuario
   // ---------------------------------------------------
   getTravels(user_id: string) {
 
+    console.log('entro en getTravels')
 
     // StatusTravel :
     // --> 1 Pendiente
     // --> 2 En curso
     // --> 3 Completado
-    this.tripTravelerService.getTravels(user_id, 'pending').subscribe(
-      {
-        next: (data) => {
+    this.subscription = this.tripTravelerService.getTravels(user_id, 'pending').pipe(
+      take(1)
+    ).subscribe(
 
-          if (data && data.length != 0) {
+      data => {
+        console.log('entro en getTravelsService', data);
 
-            for (let i = 0; i < data.length; i++) {
-              this.travels[i] = {
-                id: data[i].id,
-                origin_coordinate: data[i].origin_coordinate,
-                destination_coordinate: data[i].destination_coordinate,
-                destination_address: data[i].destination_address,
-                origin_address: data[i].origin_address,
-                status: data[i].status,
-                driver_id: data[i].driver_id,
-                traveler_id: data[i].traveler_id,
-                vehicleType: data[i].vehicleType,
-                personNumber: data[i].personNumber,
-                maxTimeWaiting: data[i].maxTimeWaiting,
-                travelPeferences: data[i].travelPeferences,
-                dateCreated: data[i].date_created
-              };
-            }
+        if (data[0] !== undefined)
+          this.setTravelData(data[0]);
+      }
 
-            // -- Asignar valor de las coordenadas del viaje 
-            // --
-            this.coord = [parseFloat(this.travels[0].origin_coordinate.split(',')[0]), parseFloat(this.travels[0].origin_coordinate.split(',')[1])];
+    );
 
-            this.coord_destination = [parseFloat(this.travels[0].destination_coordinate.split(',')[0]), parseFloat(this.travels[0].destination_coordinate.split(',')[1])];
+    this.getTravelData().subscribe(data => {
 
+      if (data !== undefined) {
 
-            if (this.checkCoordinates('origin') && this.checkCoordinates('destination'))
-              this.showMap = true;
+        this.travels$ = data;
+        // -- Asignar valor de las coordenadas del viaje 
+        // --
+        this.coord = [parseFloat(data.origin_coordinate.split(',')[0]), parseFloat(data.origin_coordinate.split(',')[1])];
+
+        this.coord_destination = [parseFloat(data.destination_coordinate.split(',')[0]), parseFloat(data.destination_coordinate.split(',')[1])];
+
+        // -- |1| - comprueba que las coord sean validas
+        // --
+
+        if (this.checkCoordinates('origin') && this.checkCoordinates('destination'))
+          this.showMap = true;
+
+        // --
+        // -- |1| - comprueba que las coord sean validas
 
 
-            const dateCreated = new Date(this.travels[0].dateCreated !== undefined ? this.travels[0].dateCreated : '');
-            // -- obtener el campo tiempo de espera
-            this.time.min = parseInt(this.travels[0].maxTimeWaiting);
-            // -- comprobar que el viaje este vencido
-            if (this.checkTravelExpiration(dateCreated, this.time.min)) {
+        // -- |2| Comprobar expiracion del Viaje
+        // --
 
-              // TODO  cambiar estado del viaje a expired
-              if (this.travels[0].id !== undefined )
-                this.updateTravelStatus('expired', this.travels[0].id);
-            } else{
-              this.setTimer();
-            }
+        // -- asignar valor de viaje fue creado
+        const dateCreated = new Date(data.date_created !== undefined && data.id !== '' ? data.date_created : '');
+        const dateFinish = new Date(data.date_finish !== undefined && data.id !== '' ? data.date_finish : '');
+        // -- asignar valor de campo tiempo de espera
+        this.time.min = parseInt(data.maxTimeWaiting);
+
+
+        // -- comprobar que el viaje este vencido
+        if (data.id !== undefined && data.id !== '')
+          if (this.checkTravelExpiration(dateCreated, dateFinish, this.time.min)) {
+
+            // TODO  volver a publicar el viaje?
+            this.republishTravel(parseInt(data.maxTimeWaiting), data.id); 
+
+          } else {
+            this.setTimer(parseInt(data.maxTimeWaiting), data.id);
           }
+        // -- |2| Comprobar expiracion del Viaje
 
-          // console.log(this.travels)
+      }
 
-        },
-        error: (error) => {
-          console.log(error)
+    });
+
+    //         else {
+    // this.setTravelData(null);
+
+    // }
+
+    // console.log(this.travels)
+
+  }
+
+
+
+  // ---------------------------------------------------
+  //TODO -- Establecer el temporizador
+  // ---------------------------------------------------
+
+  setTimer(minutesExp:number, travelId: string) {
+
+
+    if (travelId != undefined && travelId != '') {
+      this.interval = setInterval(() => {
+
+
+        if (this.time.sec === 0) {
+          if (this.time.min === 0) {
+
+            this.time.min = -1;
+            this.time.sec = 0;
+            this.setTravelData(null);
+            this.stopInterval();
+             
+            // llamar a la funcion para volver a publicar el viaje
+            this.republishTravel(minutesExp, travelId);
+
+          } else {
+
+            this.time.sec = 59;
+            this.time.min--;
+          }
+        } else {
+          this.time.sec--;
         }
+      }, 1000);
+    }
+
+
+  }
+
+
+  async republishTravel(minutesExp:number, travelId: string) {
+
+    if (travelId != undefined && travelId != '') {
+      const shouldRepublish = await this.dataService.showQuestion(
+        'Su viaje ha expirado, desea volver a publicarlo?',
+        '',
+        'warning'
+      );
+
+      if (shouldRepublish) {
+
+        this.updateDateFinish(minutesExp, travelId); 
+        
+      } else {
+
+        this.updateTravelStatus('expired', travelId); 
+
+      }
+    }
+  }
+
+   // ---------------------------------------------------
+  //TODO -- Actualizar tiempo de expirado del viaje con estado 'pending' 
+  // ---------------------------------------------------
+  updateDateFinish(minutesExp: number, id:string) {
+ 
+    const travelData = {
+      maxTimeWaiting: minutesExp
+    };
+
+    this.tripTravelerService.updateTravelDateFinish(travelData, id).pipe(
+      take(1)
+    ).subscribe(
+
+      data => {
+        console.log('entro en updateTravels', data);
+
+        const config = this.dataService.openSnackBar('success', 3);
+        const snackBarRef = this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
+        snackBarRef.afterDismissed().subscribe(() => {
+          
+          window.location.reload();
+          
+        });
+        
+        
       }
 
     );
@@ -164,51 +320,8 @@ export class PendingPageComponent implements OnChanges, OnInit,  AfterViewInit {
   }
 
   // ---------------------------------------------------
-  //TODO -- Establecer el temporizador
-  // ---------------------------------------------------
-
-  setTimer(){
-
-    this.interval = setInterval(async () => {
-
-      if (this.time.sec === 0) {
-
-        if (this.time.min === 0) {
-
-
-          if (await this.dataService.showQuestion('Su viaje ha expirado, desea volver a publicarlo?', '', 'warning')) {
-            this.time.min = parseInt(this.travels[0].maxTimeWaiting);
-          } else {
-
-            this.stopInterval();
-            // --
-            // TODO cambiar estado del viaje a expired
-            // --
-            if (this.travels[0].id !== undefined)
-              this.updateTravelStatus('expired', this.travels[0].id);
-
-
-          }
-
-        } else {
-
-          // -- si los minutos != 0 y los sec = 0 resto 1 min sec = 59
-          this.time.sec = 59;
-          this.time.min--;
-
-        }
-      } else {
-        // -- si los segundos no son 0 resto 1
-        this.time.sec--;
-      }
-
-    }, 1000);
-
-  }
-  // ---------------------------------------------------
   //TODO -- Actualizar estado del viaje con estado 'pending' del usuario a 'expired'
   // ---------------------------------------------------
-
   updateTravelStatus(status: string, id: string) {
 
 
@@ -217,10 +330,63 @@ export class PendingPageComponent implements OnChanges, OnInit,  AfterViewInit {
       status: status
     };
 
-    this.tripTravelerService.updateTravelRequest(travelData, id).subscribe({
+    this.tripTravelerService.updateTravelRequest(travelData, id).pipe(
+      take(1)
+    ).subscribe(
+
+      data => {
+        console.log('entro en updateTravels', data);
+
+        const config = this.dataService.openSnackBar('success', 3);
+        const snackBarRef = this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
+        
+        snackBarRef.afterDismissed().subscribe(() => {
+          
+          window.location.reload();
+          
+        });
+      }
+
+    );
+
+  }
+
+
+
+  // ---------------------------------------------------
+  //TODO -- Cancelar viaje con estado 'pending' 
+  // ---------------------------------------------------
+
+  async cancelTravel(travelId: string) {
+
+    if (travelId !== undefined)
+      if (await this.dataService.showQuestion('Está seguro que desea cancelar el viaje?', '', 'warning')) {
+
+        // TODO cambiar estado del viaje a expired
+        // --
+        this.setTravelData(null);
+        this.stopInterval();
+        this.time.min = -1;
+        this.time.sec = 0;
+
+        this.updateTravelStatus('canceled', travelId);
+ 
+      }
+
+  }
+
+  // ---------------------------------------------------
+  //TODO -- Cancelar viaje con estado 'pending' 
+  // ---------------------------------------------------
+
+  deleteTravel(travelId: string) {
+
+    return this.tripTravelerService.deleteTravelRequest(travelId).pipe(
+      take(1)
+    ).subscribe({
       next: (data: any) => {
 
-        console.log('UPDATE STATUS TRAVEL PENDING PAGE => ', data)
+        console.log('DELETE TRAVEL PENDING PAGE => ', data)
         // this.goToTravelHistory();
         // const config = this.dataService.openSnackBar('success');
         // this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
@@ -240,7 +406,6 @@ export class PendingPageComponent implements OnChanges, OnInit,  AfterViewInit {
     });
 
   }
-
   // TODO ---------------------------------------
   // -- Detener el temporizador
   // 
@@ -269,23 +434,67 @@ export class PendingPageComponent implements OnChanges, OnInit,  AfterViewInit {
   // TODO ---------------------------------------
   // -- comprueba que el viaje no este vencido o expirado
   // 
-  checkTravelExpiration(date: Date | undefined, minutesExp: number): boolean {
+  checkTravelExpiration(date: Date | undefined, date_finish: Date | undefined, minutesExp: number): boolean {
 
-    if (date === undefined) return false;
+    if (date === undefined || date_finish === undefined) return true;
 
-    const dateExpired = date.getTime() + minutesExp * 60000;
+    // Calcula la diferencia en minutos entre la fecha actual y la fecha de finalización
 
-    const dateToday = new Date().getTime();
+    const time = Math.floor((date_finish.getTime() - date.getTime())) / 60000;
+    const dateToday = new Date().getTime(); 
+    const dateExpired = date_finish.getTime();
 
-    console.log('dateExpired ->',dateExpired )
-    console.log('dateToday ->',dateToday )
-    if (dateToday < dateExpired)
-      this.time.min = Math.floor( (dateExpired - dateToday) / 60000);
+    if (dateToday < dateExpired) {
+      this.time.min = Math.floor((dateExpired - dateToday) / 60000);
+      return false;
+    } else {
+      this.time.min = 0;
+      return true;
+    }
+
+    // const time = Math.floor((date_finish.getTime() - date.getTime())) / 60000;
+    // const dateToday = new Date().getTime();
+    // // const time_ = Math.floor((dateExpired - dateToday) / 60000);
+    // if (date_finish.getTime() <= dateToday) {
+
+    //   this.time.min = Math.floor(-1);
+    //   return true;
+    // }
+    // else {
+    //   this.time.min = Math.floor(time);
+    //   return false;
+    // }
+
+    // if (time <= 0) {
+    //   return true;
+    // }
+    // else {
+
+    //   this.time.min = Math.floor(time);
+    //   return false;
+
+    // }
+
+    // // const dateExpired = date.getTime() + minutesExp * 60000;
+    // const dateExpired = date_finish !== undefined ? date_finish.getTime() : (date.getTime() + minutesExp * 60000);
+
+    // const dateToday = new Date().getTime();
+    // const dateNow = date_finish.getTime() - minutesExp * 60000;
+
+    // // console.log('dateExpired ->', dateExpired)
+    // // console.log('dateToday ->', dateToday)
+    // if (dateToday < dateExpired)
+    //   this.time.min = Math.floor((dateExpired - dateToday) / 60000);
     // else
     //   this.time.min = 0;
 
-    return dateToday > dateExpired;
+    // return dateToday > dateExpired;
 
+  }
+
+  reload() {
+
+    window.location.reload();
   }
 
 }

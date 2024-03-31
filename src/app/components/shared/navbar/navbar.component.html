@@ -8,15 +8,32 @@
     <div [class]="'w3-col l12 m12 s12 container-fluid '">
       <div [class]="'w3-col'">
         @if(!isActive){
-        <a [class]="'navbar-brand '" href="#">
-          <!-- <img
-            src="./assets/img/linki.ico"
-            alt=""z
-            [class]="' img-logo-xmd rounded-3 p-1'"
-          /> -->
+           
+          @if(updateAvailable){
 
-          <label class="fw-bolder">{{ titleApp }}</label>
-        </a>
+            <a [class]=" 'border-warning fw-normal w3-animate-fading navbar-brand btn'" (click)="activateUpdate()">
+              <!-- <img
+                src="./assets/img/linki.ico"
+                alt=""z
+                [class]="' img-logo-xmd rounded-3 p-1'"
+              /> -->
+    
+              <label class="fw-bolder">{{ titleApp }}</label>
+            </a>
+
+          }@else { 
+
+            <a [class]="' navbar-brand btn'" (click)="reload()">
+              <!-- <img
+                src="./assets/img/linki.ico"
+                alt=""z
+                [class]="' img-logo-xmd rounded-3 p-1'"
+              /> -->
+    
+              <label class="fw-bolder">{{ titleApp }}</label>
+            </a>
+          }
+       
         }
         <!-- ---------------- -->
         <!-- Verificar tipo de usuario conectado -->

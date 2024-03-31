@@ -12,6 +12,7 @@ import {
   inject,
 } from '@angular/core';
 
+
 import {
   ActivatedRoute,
   Router,
@@ -26,6 +27,7 @@ import { ShareAppService } from '../../../services/share-app.service';
 import { I_UserSessionStorage } from '../../../interface/user.interface';
 import { NavbarTravelerComponent } from '../../../modules/traveler/components/shared/navbar/navbar-traveler.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { LogUpdateService } from '../../../services/workers/log-update.service';
 
 @Component({
   selector: 'app-navbar',
@@ -37,6 +39,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
   _role: string = 'undefined';
   client: any;
+
 
   private _snackBar = inject(MatSnackBar)
 
@@ -59,7 +62,7 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
   titleApp: string = this.appName + ' | ' + this.appVersion;
 
   isActive = false;
-
+  updateAvailable = false;
   pageInit: number = 0;
 
   constructor(
@@ -67,20 +70,52 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     private route: ActivatedRoute,
     private dataService: DataService,
     private sessionService: SessionService,
-    private shareappService: ShareAppService
+    private shareappService: ShareAppService,
+    private ws: LogUpdateService
   ) {
     this.route.queryParams.subscribe((params) => { });
+
+
 
   }
 
   async ngOnInit(): Promise<void> {
+ 
+    
 
 
   }
 
   ngOnChanges(changes: SimpleChanges): void { }
-  ngAfterViewInit() { }
+  ngAfterViewInit() { 
+
+    this.checkForUpdates();
+
+  }
   ngOnDestroy(): void { }
+
+
+  checkForUpdates(): void {
+    this.ws.checkForUpdates().subscribe(updateFound => {
+      
+      if (updateFound) {
+        // Código para instalar la actualización
+        this.updateAvailable = updateFound;
+      }
+
+    });
+  }
+
+  activateUpdate(): void {
+    this.ws.activateUpdate().then(activateUpdate => {
+      
+      if (activateUpdate) {
+        // Código para instalar la actualización
+        this.reloadWithUpdates();        
+      }
+
+    });
+  }
 
   // -----------------------------------------
   // F_ boton menu cuando la vista es telefono
@@ -164,9 +199,9 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
         console.log('Contenido compartido con éxito.');
       },
       () => {
-        const config = this.dataService.openSnackBar('success');
-        this._snackBar.open('Error al compartir el contenido.', 'CLOSE', config);
-        console.error('Error al compartir el contenido.')
+        // const config = this.dataService.openSnackBar('success');
+        // this._snackBar.open('Error al compartir el contenido.', 'CLOSE', config);
+        // console.error('Error al compartir el contenido.')
       }
     );
   }
@@ -178,6 +213,15 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
       },
     });
   }
+
+  reload() {
+    document.location.reload();
+  }
+
+  reloadWithUpdates(){
+    window.location.reload();
+  }
+
 
   get role(): string | undefined {
     return this._role;

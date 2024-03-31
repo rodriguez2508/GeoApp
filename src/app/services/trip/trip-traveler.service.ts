@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { DataService } from '../data/data.service';
 import { StorageService } from '../storage/storage.service';
 import { I_FormTravelRequest } from '../../interface/trip.interface';
-import { Observable, catchError, tap, throwError } from 'rxjs';
+import { Observable, catchError, map, take, tap, throwError } from 'rxjs';
 
 
 const BASE_URL = environment.TRIP_API;
@@ -84,49 +84,83 @@ export class TripTravelerService {
   const url = `${BASE_URL}by_traveler/${user_id}/${status}`;
 
   return this.http.get<any>(url).pipe(
-    tap((data: any) => {
-      if (!data || data.length === 0) {
-        console.log('No data found');
-        // Puedes manejar esto según tus necesidades
-      } else {
-        console.log(data);
-        // Realizar acciones con los datos si es necesario
-      }
+    take(1),
+    
+    map((data: any) => {
+      // Aquí puedes aplicar cualquier transformación que necesites a los datos devueltos por la solicitud
+      return data;
     }),
     catchError((error) => {
       console.error(error);
       return throwError('Error retrieving items');
     })
+
+    // tap((data: any) => {
+    //   if (!data || data.length === 0) {
+    //     console.log('No data found');
+    //     // Puedes manejar esto según tus necesidades
+    //   } else {
+    //     console.log(data);
+    //     // Realizar acciones con los datos si es necesario
+    //   }
+    // }),
+    // catchError((error) => {
+    //   console.error(error);
+    //   return throwError('Error retrieving items');
+    // })
   );
 
 
 
   }
   // ----------------------------------
-  // TODO: funcion para actualizar formulario de solicitud de viaje   
+  // TODO: funcion para actualizar estado de viaje   
   // ----------------------------------
-  updateTravelRequest(data: any, id:string) {
+  updateTravelRequest(data: any, id:string): Observable<any> {
   
-    // "origin_coordinate": "0,0",
-    // "destination_coordinate": "0,0",
-    // "destination_address": "some",
-    // "origin_address": "sdada",
-    // "status": "asdas",  
-    // "driver_id": "asdas",   
-    // "traveler_id": "67e900c9-1240-4e4d-80d5-aa8f9e018934",
-    // "personNumber": "string", 
-    // "maxTimeWaiting": "15",
-    // "travelPeferences": "" 
+    // data => {
+    // "status": "SOME_STATUS_TEXT"  
+    //   
+    // } 
      
 
     const url = BASE_URL + id ; 
 
     return this.http.patch<any>(url, data).pipe(
-
-      tap((data: any) => {
-
-        console.log('Travel Request', data);
+      map((data: any) => {
+        // Aquí puedes aplicar cualquier transformación que necesites a los datos devueltos por la solicitud
+        return data;
       }),
+      // tap((data: any) => {
+
+      //   console.log('Travel Request', data);
+      // }),
+
+
+      catchError(this.handleError)
+    );
+
+  }
+// ----------------------------------
+  // TODO: funcion para actualizar fecha de expiracion de viaje   
+  // ----------------------------------
+  updateTravelDateFinish(data: any, id:string): Observable<any> {
+     
+    // data => {
+    // "maxTimeWaiting": "SOME_NUMBER"  
+    //   
+    // } 
+    const url = BASE_URL+ 'time_finish/' + id ; 
+
+    return this.http.patch<any>(url, data).pipe(
+      map((data: any) => {
+        // Aquí puedes aplicar cualquier transformación que necesites a los datos devueltos por la solicitud
+        return data;
+      }),
+      // tap((data: any) => {
+
+      //   console.log('Travel Request', data);
+      // }),
 
 
       catchError(this.handleError)
@@ -138,11 +172,20 @@ export class TripTravelerService {
   // ----------------------------------
   // TODO: funcion para eliminar formulario de solicitud de viaje   
   // ----------------------------------
-  cancelTravelRequest() {
+  deleteTravelRequest(id:string): Observable<any> {
 
-    const url = BASE_URL + 'cancel';
+    const url = BASE_URL + id ; 
+
+    return this.http.delete<any>(url).pipe(
+
+      tap((data: any) => {
+
+        console.log('Travel Request', data);
+      }),
 
 
+      catchError(this.handleError)
+    );
   }
 
 

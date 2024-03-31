@@ -11,18 +11,18 @@
     "
     style="z-index: 2"
   > -->
-    <!-- @if(!socket_status && location_status){
+    @if(!socket_status){
      
     <label
-      class="panel-error-connection w3-col w3-container border-top border-bottom border-dark bg-danger w3-xlarge _center-h"
+      class="panel-error-connection w3-col w3-container border-top border-bottom border-dark bg-danger w3-large"
     >
-      conectando espere..
-      <span
+      sin conexión, espere..
+      <!-- <span
         class="btn btn-sm btn-primary spinner-border spinner-border-sm"
-      ></span>
+      ></span> -->
     </label>
 
-    } -->
+    }
      @switch (max_count) { @case(0){} @case(-1){
 
     <label
@@ -62,12 +62,13 @@
         @if(viewToShow == 'map'){
         <app-map-page
           (reload_location)="reload_location()"
+          (reload_connection)="reload_socket()"
           [lat]="lat"
           [lon]="lon"
           [zoom]="zoom"
           [width]="'100%'"
           [height]="'87vh'"
-          [socket_status]="socket_status"
+          [connection_status]="status"
           [location_status]="location_status"
           [connected_users]="connected_users"
           [userData]="userData"

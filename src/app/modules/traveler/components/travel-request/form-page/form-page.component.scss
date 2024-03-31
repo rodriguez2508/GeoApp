@@ -89,3 +89,8 @@ input[type="radio"].custom-control-input:not(:checked)
   z-index: 1031 !important;
   position: relative;
 }
+
+
+.rotate-icon {
+  animation: rotate 1s linear;
+}

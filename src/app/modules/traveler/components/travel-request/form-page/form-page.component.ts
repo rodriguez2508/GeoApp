@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -29,6 +29,7 @@ import { PMapRouteComponent } from '../../shared/p-map-route/p-map-route.compone
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { take } from 'rxjs';
 @Component({
   selector: 'app-form-page',
   standalone: true,
@@ -103,7 +104,9 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
     private fb: FormBuilder,
     private tripTravelerService: TripTravelerService,
     private dataService: DataService,
+    private elementRef: ElementRef,
     private openRouteService: OpenRouteService
+
   ) {
     this.route.queryParams.subscribe((params) => {
 
@@ -141,11 +144,13 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
     // -- Verificar las coordenadas y agregarlas a los campos del form
 
-    if (this.checkCoordinates('origin')) this.getAddress(this.coord, 'origin');
+    let coord_true = 0;
 
-    if (this.checkCoordinates('destination')) this.getAddress(this.coord_destination, 'destination');
+    if (this.checkCoordinates('origin')) { this.getAddress(this.coord, 'origin'); coord_true = 1; }
 
-    if (this.checkCoordinates('origin') && this.checkCoordinates('destination')) {
+    if (this.checkCoordinates('destination')) { this.getAddress(this.coord_destination, 'destination'); coord_true = 2; };
+
+    if (coord_true == 2) {
 
       this.showMap = true;
     }
@@ -228,7 +233,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
     return (control: AbstractControl): ValidationErrors | null => {
 
       if (coord === 'origin') {
-         
+
         const x1Coord = this.coord[0];
         const x2Coord = this.coord[1];
 
@@ -236,7 +241,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
           return { coordInvalid: true };
         }
       } else if (coord === 'destination') {
-         
+
         const x1Coord = this.coord_destination[0];
         const x2Coord = this.coord_destination[1];
 
@@ -244,7 +249,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
           return { coordInvalid: true };
         }
       }
-       
+
       return null;
     };
   }
@@ -255,51 +260,43 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // ----------------------------------
   saveTravelRequest() {
 
-    let status = -1;
-
     if (!this.saveTravel.ongoing || !this.saveTravel.pending) {
 
-      this.goToTravelHistory();
-      const config = this.dataService.openSnackBar('success');
-      this._snackBar.open('Aun tiene un viaje pendiente', 'CLOSE', config);
 
+      const config = this.dataService.openSnackBar('success',3);
+      const snackBarRef = this._snackBar.open('Aun tiene viajes pendientes', 'CLOSE', config);
+      this.goToTravelHistory();
+      
+      snackBarRef.afterDismissed().subscribe(() => {
+        
+        this.reload();
+        
+      });
       return;
 
     }
     // origin_address: 
     //   destination_address: string;
 
-    console.log(this.form_request.value)
-    this.tripTravelerService.saveTravelRequest(this.form_request.value, this.userData.id).subscribe({
-      next: (data: any) => {
+    // console.log(this.form_request.value)
+    this.tripTravelerService.saveTravelRequest(this.form_request.value, this.userData.id).pipe(
+      take(1)
+    ).subscribe(
+      data => {
 
-        status = 1;
-        
-        const config = this.dataService.openSnackBar('success');
-        this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
+        const config = this.dataService.openSnackBar('success', 3);
+        const snackBarRef = this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
 
-      },
-      error: (errorData) => {
+        this.goToTravelHistory();
+      
+        snackBarRef.afterDismissed().subscribe(() => {
+          
+          this.reload();
+          
+        });
+      }
+    );
 
-        status = 0;
-        console.log(errorData)
-
-        const config = this.dataService.openSnackBar('danger');
-        this._snackBar.open('Ha ocurrido un error en la solicitud', 'CLOSE', config);
-
-      },
-      complete: () => {
-
-        if(status == -1){}
-        else if(status == 0){}
-        else if(status == 1){
-
-          this.goToTravelHistory();
-        
-        }
-
-      },
-    });
 
 
   }
@@ -315,38 +312,30 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
     // --> 1 Pendiente
     // --> 2 En curso
     // --> 3 Completado
-    this.tripTravelerService.getTravels(user_id, status).subscribe(
-      {
-        next: (data) => {
+    this.tripTravelerService.getTravels(user_id, status).pipe(
+      take(1)
+    ).subscribe(
 
-          if (data && data.length != 0) {
+      data => {
 
-            if (status == 'ongoing') {
-              this.saveTravel.ongoing = false;
-            }
-            if (status == 'pending') {
-              this.saveTravel.pending = false;
-            }
+        if (data && data.length != 0) {
 
+          if (status == 'ongoing') {
+            this.saveTravel.ongoing = false;
+          }
+          if (status == 'pending') {
+            this.saveTravel.pending = false;
           }
 
-          else {
-            if (status == 'ongoing') {
-              this.saveTravel.ongoing = true;
-            }
-            if (status == 'pending') {
-              this.saveTravel.pending = true;
-            }
+        }
+
+        else {
+          if (status == 'ongoing') {
+            this.saveTravel.ongoing = true;
           }
-
-
-
-
-
-        },
-        error: (error) => {
-
-          console.log(error)
+          if (status == 'pending') {
+            this.saveTravel.pending = true;
+          }
         }
       }
 
@@ -373,16 +362,18 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // -- Ir a la ruta del mapa  
   // 
   goToTravelHistory(): void {
-    // window.location.assign(
-    //   '/traveler/travel-request?view=map');
+ 
+    // this.router.navigateByUrl('/traveler/travel-history');
 
-    this.router.navigate(['/traveler/travel-history'], {
-      queryParams: {
-        
-      }
-    });
+    this.router.navigate(['/traveler/travel-history'], { queryParams: {}, replaceUrl: true });
 
-  }
+    // this.router.navigate(['/traveler/travel-history'], {
+    //   queryParams: {
+
+    //   }
+    // });
+
+  } 
 
   // TODO ---------------------------------------
   // -- comprueba que las coordenadas esten en formato correcto
@@ -488,12 +479,11 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
-  checkedAllvehicleType() {
-    this.checkAllvehicleType = !this.checkAllvehicleType;
+  reload() {
+
+    window.location.reload();
+
   }
-  // ----------------------------------
-  // -- para obtener el valor de los campos del form
-  // ----------------------------------
 
   handleRadioChange(event: any) {
     const selectedValue = event.target.value;
@@ -509,6 +499,17 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   }
+
+  f_rotate_btn(icon_class: string) {
+
+    const icon = this.elementRef.nativeElement.querySelector('.' + icon_class);
+    icon.classList.add("rotate-icon");
+
+    setTimeout(() => {
+      icon.classList.remove("rotate-icon");
+    }, 7000); // Remover la clase después de un segundo (1000ms)
+  }
+
 
   public get f(): any {
     return this.form_request.controls;

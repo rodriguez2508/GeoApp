@@ -1,11 +1,12 @@
 {
-  "name": "LINKI | 0.1.15",
-  "short_name": "LINKI | 0.1.15",
+  "name": "LINKI | 0.1.17.5",
+  "short_name": "LINKI | 0.1.17.5",
+  "description": "A progressive web app (LINKI).",
   "theme_color": "#212529",
   "background_color": "#ffc107",
   "display": "standalone",
-  "scope": "./",
-  "start_url": "./",
+  "scope": "/", 
+  "start_url": "/", 
   "icons": [
     {
       "src": "assets/icons/icon-72x72.png",

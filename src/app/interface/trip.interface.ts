@@ -29,6 +29,7 @@ export interface I_FormTravelRequest {
     personNumber: string; 
     maxTimeWaiting: string; 
     travelPeferences: string; 
-    dateCreated?: Date; 
+    date_created?: Date; 
+    date_finish?: Date; 
   }
    

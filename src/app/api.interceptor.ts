@@ -7,7 +7,9 @@ export const apiInterceptor: HttpInterceptorFn = (req, next) => {
     console.log('Interceptor: => ',req.url)
     const apiReq = req.clone({
  
-      setHeaders: {'ngsw-bypass': 'true'},
+      setHeaders: {
+        // 'ngsw-bypass': 'true'
+      },
     });
 
     return next(apiReq);
