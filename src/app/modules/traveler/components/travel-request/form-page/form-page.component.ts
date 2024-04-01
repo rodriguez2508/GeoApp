@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
+import { DataTravelerService } from './../../../../../services/data/data_traveler.service';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -10,7 +11,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-
+import { Location } from '@angular/common';
 import { Coordinate } from 'ol/coordinate';
 
 // -- services
@@ -29,7 +30,7 @@ import { PMapRouteComponent } from '../../shared/p-map-route/p-map-route.compone
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { take } from 'rxjs';
+import { catchError, finalize, firstValueFrom, take, tap, throwError } from 'rxjs';
 @Component({
   selector: 'app-form-page',
   standalone: true,
@@ -101,11 +102,14 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
+    private readonly location: Location,
     private fb: FormBuilder,
     private tripTravelerService: TripTravelerService,
     private dataService: DataService,
     private elementRef: ElementRef,
-    private openRouteService: OpenRouteService
+    private openRouteService: OpenRouteService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private dataTravelerService: DataTravelerService
 
   ) {
     this.route.queryParams.subscribe((params) => {
@@ -258,44 +262,45 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // ----------------------------------
   // TODO: funcion para guardar formulario de solicitud de viaje   
   // ----------------------------------
-  saveTravelRequest() {
+  async saveTravelRequest() {
 
     if (!this.saveTravel.ongoing || !this.saveTravel.pending) {
 
 
-      const config = this.dataService.openSnackBar('success',3);
+      const config = this.dataService.openSnackBar('success', 3);
       const snackBarRef = this._snackBar.open('Aun tiene viajes pendientes', 'CLOSE', config);
-      this.goToTravelHistory();
-      
+      this.reloadComponent(false, '/traveler/travel-history');
+
       snackBarRef.afterDismissed().subscribe(() => {
-        
-        this.reload();
-        
+
       });
+
       return;
 
     }
-    // origin_address: 
-    //   destination_address: string;
 
     // console.log(this.form_request.value)
     this.tripTravelerService.saveTravelRequest(this.form_request.value, this.userData.id).pipe(
-      take(1)
-    ).subscribe(
-      data => {
+      take(1)).subscribe(
+        data => {
 
-        const config = this.dataService.openSnackBar('success', 3);
-        const snackBarRef = this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
+          console.log('saveTravelRequest', data)
 
-        this.goToTravelHistory();
-      
-        snackBarRef.afterDismissed().subscribe(() => {
-          
-          this.reload();
-          
-        });
-      }
-    );
+          this.dataTravelerService.setTravelData(data.msg);
+
+          const config = this.dataService.openSnackBar('success', 3);
+          const snackBarRef = this._snackBar.open('Solicitud realizada.', 'CLOSE', config);
+          this.reloadComponent(false, '/traveler/travel-history');
+          snackBarRef.afterDismissed().subscribe(() => {
+
+
+
+          });
+        }
+      );
+
+
+
 
 
 
@@ -362,10 +367,14 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // -- Ir a la ruta del mapa  
   // 
   goToTravelHistory(): void {
- 
-    // this.router.navigateByUrl('/traveler/travel-history');
 
-    this.router.navigate(['/traveler/travel-history'], { queryParams: {}, replaceUrl: true });
+    // this.router.navigateByUrl('/traveler/travel-history');
+    this.router.navigate(['/traveler/travel-history'], {
+      queryParams: {},
+
+      skipLocationChange: false,
+      replaceUrl: true
+    });
 
     // this.router.navigate(['/traveler/travel-history'], {
     //   queryParams: {
@@ -373,7 +382,26 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
     //   }
     // });
 
-  } 
+  }
+
+  reloadComponent(self:boolean = false, urlToNavegateTo?: string) {
+
+    //
+    console.log('Ruta actual', this.router.url);
+    const url = self? this.router.url: urlToNavegateTo;
+
+    this.router.navigateByUrl('/', {skipLocationChange:true}).then(() => {
+
+      this.router.navigate([`/${url}`]).then(()=>{
+    
+        console.log('Ruta despues de la navegacion', this.router.url);
+         // Actualiza la vista del componente
+         this.changeDetectorRef.detectChanges();
+
+      });
+    }) ;
+  }
+
 
   // TODO ---------------------------------------
   // -- comprueba que las coordenadas esten en formato correcto

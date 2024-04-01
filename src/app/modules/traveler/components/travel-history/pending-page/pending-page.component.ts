@@ -1,5 +1,5 @@
 import { TripTravelerService } from './../../../../../services/trip/trip-traveler.service';
-import { AfterViewInit, Component, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -10,6 +10,7 @@ import { PMapRouteComponent } from '../../shared/p-map-route/p-map-route.compone
 import { Coordinate } from 'ol/coordinate';
 import { DataService } from '../../../../../services/data/data.service';
 import { BehaviorSubject, Observable, take } from 'rxjs';
+import { DataTravelerService } from '../../../../../services/data/data_traveler.service';
 
 @Component({
   selector: 'app-pending-page',
@@ -41,7 +42,6 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   };
 
   travelsSubject = new BehaviorSubject<I_FormTravelRequest>(this.travels$);
-  travelID: string = '';
   subscription: any;
 
   // travels: I_FormTravelRequest[] = [];
@@ -76,7 +76,9 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
     private route: ActivatedRoute,
     private tripTravelerService: TripTravelerService,
     private storageService: StorageService,
-    private dataService: DataService
+    private dataService: DataService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private dataTravelerService: DataTravelerService
   ) {
 
     this.route.queryParams.subscribe((params) => {
@@ -90,11 +92,14 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   }
   ngOnInit(): void {
 
+
+
     this.userData = this.storageService.getUser();
     // this.reload_travels();
 
-    if (this.userData.id != '')
-      this.getTravels(this.userData.id);
+
+    // -- Subscribirse al travelData para obtener viajes
+    this.subscribeTravelData();
 
 
   }
@@ -110,70 +115,52 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   // ---------------------------------------------------
   //TODO -- establece la data a los viajes
   // ---------------------------------------------------
-  setTravelData(travelData: I_FormTravelRequest | null) {
+  // setTravelData(travelData: I_FormTravelRequest | null) {
 
 
-    if (travelData === null) {
+  //   if (travelData === null) {
 
-      this.travels$ = {
-        id: '',
-        origin_coordinate: '',
-        destination_coordinate: '',
-        destination_address: '',
-        origin_address: '',
-        status: '',
-        driver_id: '',
-        traveler_id: '',
-        vehicleType: '',
-        personNumber: '',
-        maxTimeWaiting: '',
-        travelPeferences: ''
-      };
+  //     this.travels$ = {
+  //       id: '',
+  //       origin_coordinate: '',
+  //       destination_coordinate: '',
+  //       destination_address: '',
+  //       origin_address: '',
+  //       status: '',
+  //       driver_id: '',
+  //       traveler_id: '',
+  //       vehicleType: '',
+  //       personNumber: '',
+  //       maxTimeWaiting: '',
+  //       travelPeferences: ''
+  //     };
 
-      this.travelsSubject.next(this.travels$);
+  //     this.travelsSubject.next(this.travels$);
 
-    } else {
-      this.travels$ = travelData;
-      this.travelsSubject.next(travelData);
-    }
-
-
-  }
-  getTravelData(): Observable<I_FormTravelRequest> {
+  //   } else {
+  //     this.travels$ = travelData;
+  //     this.travelsSubject.next(travelData);
+  //   }
 
 
-    return this.travelsSubject.asObservable();
-  }
+  // }
+  // getTravelData(): Observable<I_FormTravelRequest> {
+
+
+  //   return this.travelsSubject.asObservable();
+  // }
   // ---------------------------------------------------
   //TODO -- establece la data a los viajes
   // ---------------------------------------------------
 
-  // ---------------------------------------------------
-  //TODO -- Obtiene los viajes con estado 'pending' del usuario
-  // ---------------------------------------------------
-  getTravels(user_id: string) {
 
-    console.log('entro en getTravels')
+  subscribeTravelData() {
 
-    // StatusTravel :
-    // --> 1 Pendiente
-    // --> 2 En curso
-    // --> 3 Completado
-    this.subscription = this.tripTravelerService.getTravels(user_id, 'pending').pipe(
-      take(1)
-    ).subscribe(
+    this.getTravels(this.userData.id);
 
-      data => {
-        console.log('entro en getTravelsService', data);
+    this.dataTravelerService.getTravelData().subscribe(data => {
 
-        if (data[0] !== undefined)
-          this.setTravelData(data[0]);
-      }
-
-    );
-
-    this.getTravelData().subscribe(data => {
-
+      console.log('subscribeTravelData', data)
       if (data !== undefined) {
 
         this.travels$ = data;
@@ -208,7 +195,7 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
           if (this.checkTravelExpiration(dateCreated, dateFinish, this.time.min)) {
 
             // TODO  volver a publicar el viaje?
-            this.republishTravel(parseInt(data.maxTimeWaiting), data.id); 
+            this.republishTravel(parseInt(data.maxTimeWaiting), data.id);
 
           } else {
             this.setTimer(parseInt(data.maxTimeWaiting), data.id);
@@ -219,12 +206,45 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
     });
 
-    //         else {
-    // this.setTravelData(null);
 
-    // }
 
-    // console.log(this.travels)
+  }
+  // ---------------------------------------------------
+  //TODO -- Obtiene los viajes con estado 'pending' del usuario
+  // ---------------------------------------------------
+  getTravels(user_id: string) {
+
+    console.log('entro en getTravels')
+
+    // StatusTravel :
+    // --> 1 Pendiente
+    // --> 2 En curso
+    // --> 3 Completado
+    this.tripTravelerService.getTravels(user_id, 'pending').pipe(
+      take(1)
+    ).subscribe(
+
+      data => {
+        console.log('entro en getTravelsService', data);
+
+        if (data.length !== 0) {
+          this.dataTravelerService.setTravelData(data[0]);
+        }
+        // else{
+        //   this.dataTravelerService.getTravelData().subscribe(
+
+        //     data => {
+        //       console.log('entro en getTravelsService', data);
+        //       this.setTravelData(data);
+        //     }
+
+        //   );
+        // }
+      }
+
+    );
+
+
 
   }
 
@@ -234,7 +254,7 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   //TODO -- Establecer el temporizador
   // ---------------------------------------------------
 
-  setTimer(minutesExp:number, travelId: string) {
+  setTimer(minutesExp: number, travelId: string) {
 
 
     if (travelId != undefined && travelId != '') {
@@ -246,9 +266,10 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
             this.time.min = -1;
             this.time.sec = 0;
-            this.setTravelData(null);
+            // this.setTravelData(null);
+            this.dataTravelerService.setTravelData(null);
             this.stopInterval();
-             
+
             // llamar a la funcion para volver a publicar el viaje
             this.republishTravel(minutesExp, travelId);
 
@@ -267,7 +288,7 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   }
 
 
-  async republishTravel(minutesExp:number, travelId: string) {
+  async republishTravel(minutesExp: number, travelId: string) {
 
     if (travelId != undefined && travelId != '') {
       const shouldRepublish = await this.dataService.showQuestion(
@@ -278,21 +299,21 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
       if (shouldRepublish) {
 
-        this.updateDateFinish(minutesExp, travelId); 
-        
+        this.updateDateFinish(minutesExp, travelId);
+
       } else {
 
-        this.updateTravelStatus('expired', travelId); 
+        this.updateTravelStatus('expired', travelId);
 
       }
     }
   }
 
-   // ---------------------------------------------------
+  // ---------------------------------------------------
   //TODO -- Actualizar tiempo de expirado del viaje con estado 'pending' 
   // ---------------------------------------------------
-  updateDateFinish(minutesExp: number, id:string) {
- 
+  updateDateFinish(minutesExp: number, id: string) {
+
     const travelData = {
       maxTimeWaiting: minutesExp
     };
@@ -307,12 +328,13 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
         const config = this.dataService.openSnackBar('success', 3);
         const snackBarRef = this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
         snackBarRef.afterDismissed().subscribe(() => {
-          
-          window.location.reload();
-          
+
+          this.reloadComponent(true);
+          // window.location.reload();
+
         });
-        
-        
+
+
       }
 
     );
@@ -339,11 +361,13 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
         const config = this.dataService.openSnackBar('success', 3);
         const snackBarRef = this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
-        
+
         snackBarRef.afterDismissed().subscribe(() => {
-          
-          window.location.reload();
-          
+          this.changeDetectorRef.detectChanges();
+
+          this.reloadComponent(true);
+          // window.location.reload();
+
         });
       }
 
@@ -364,13 +388,15 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
         // TODO cambiar estado del viaje a expired
         // --
-        this.setTravelData(null);
+        // this.setTravelData(null);
+        this.dataTravelerService.setTravelData(null);
+
         this.stopInterval();
         this.time.min = -1;
         this.time.sec = 0;
 
         this.updateTravelStatus('canceled', travelId);
- 
+
       }
 
   }
@@ -441,7 +467,7 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
     // Calcula la diferencia en minutos entre la fecha actual y la fecha de finalización
 
     const time = Math.floor((date_finish.getTime() - date.getTime())) / 60000;
-    const dateToday = new Date().getTime(); 
+    const dateToday = new Date().getTime();
     const dateExpired = date_finish.getTime();
 
     if (dateToday < dateExpired) {
@@ -492,9 +518,22 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
   }
 
-  reload() {
+  reloadComponent(self: boolean, urlToNavegateTo?: string) {
 
-    window.location.reload();
+    //
+    console.log('Ruta actual', this.router.url);
+    const url = self ? this.router.url : urlToNavegateTo;
+
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+
+      this.router.navigate([`/${url}`]).then(() => {
+
+        console.log('Ruta despues de la navegacion', this.router.url);
+
+      });
+    });
+
+
   }
 
 }

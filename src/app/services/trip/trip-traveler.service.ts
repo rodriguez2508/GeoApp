@@ -1,3 +1,4 @@
+import { DataTravelerService } from './../data/data_traveler.service';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -21,8 +22,7 @@ export class TripTravelerService {
   constructor(
     private http: HttpClient,
     private dataService: DataService,
-    private router: Router,
-    private storageService: StorageService
+    private dataTravelerService:DataTravelerService
   ) { }
 
 
@@ -64,8 +64,7 @@ export class TripTravelerService {
 
     return this.http.post<any>(url, travelData).pipe(
 
-      tap((data: any) => {
-
+      tap((data: any) => { 
         console.log('Travel Request', data);
       }),
 
@@ -88,7 +87,17 @@ export class TripTravelerService {
     
     map((data: any) => {
       // Aquí puedes aplicar cualquier transformación que necesites a los datos devueltos por la solicitud
-      return data;
+        if (!data || data.length === 0) {
+        console.log('No data found');
+        return data;
+
+        // Puedes manejar esto según tus necesidades
+      } else {
+        console.log(data);
+        // Realizar acciones con los datos si es necesario
+        return data;
+
+      }
     }),
     catchError((error) => {
       console.error(error);

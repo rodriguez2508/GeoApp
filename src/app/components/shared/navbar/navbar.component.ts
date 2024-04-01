@@ -27,7 +27,7 @@ import { ShareAppService } from '../../../services/share-app.service';
 import { I_UserSessionStorage } from '../../../interface/user.interface';
 import { NavbarTravelerComponent } from '../../../modules/traveler/components/shared/navbar/navbar-traveler.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { LogUpdateService } from '../../../services/workers/log-update.service';
+import { LogUpdateService } from '../../../services/workers/log-update.service'; 
 
 @Component({
   selector: 'app-navbar',
@@ -71,7 +71,9 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     private dataService: DataService,
     private sessionService: SessionService,
     private shareappService: ShareAppService,
-    private ws: LogUpdateService
+    private ws: LogUpdateService,
+    private changeDetectorRef: ChangeDetectorRef,
+
   ) {
     this.route.queryParams.subscribe((params) => { });
 
@@ -214,9 +216,24 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
     });
   }
 
-  reload() {
-    document.location.reload();
+  reloadComponent(self:boolean = true, urlToNavegateTo?: string) {
+
+    //
+    console.log('Ruta actual', this.router.url);
+    const url = self? this.router.url: urlToNavegateTo;
+
+    this.router.navigateByUrl('/', {skipLocationChange:true}).then(() => {
+
+      this.router.navigate([`/${url}`]).then(()=>{
+    
+        console.log('Ruta despues de la navegacion', this.router.url);
+        // Actualiza la vista del componente
+        this.changeDetectorRef.detectChanges();
+      });
+    }) ;
   }
+
+
 
   reloadWithUpdates(){
     window.location.reload();

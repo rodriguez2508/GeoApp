@@ -33,7 +33,7 @@ import { I_UserSessionStorage, I_UserMap } from '../../../../../interface/user.i
 // --
 import { OlMapMarkerService } from '../../../../../services/map/ol-map-marker.service';
 import { OpenRouteService } from '../../../../../services/map/open-route.service';
-import { getCenter, getHeight } from 'ol/extent';
+import { boundingExtent, getCenter, getHeight } from 'ol/extent';
 
 @Component({
   selector: 'app-p-map-route',
@@ -135,21 +135,23 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
 
-    if (('coord_origin' in changes || 'coord_destination' in changes)) {
-
+    if (this.map && ('coord_origin' in changes || 'coord_destination' in changes)) {
 
       console.log('coord in changes', this.coord)
 
       // -- Verifica que las coordenadas de origen y destino existan y sean diferente a CERO
       if (this.checkCoordinates('origin') && this.checkCoordinates('destination')) {
 
-        if (!this.coord || !this.coord_destination || isNaN(this.coord[0]) || isNaN(this.coord[1]) || isNaN(this.coord_destination[0]) || isNaN(this.coord_destination[1])) {
-          console.warn('Invalid coordinates. Cannot fit empty extent.');
-          return; // Exit the function if coordinates are invalid
-        }
-        const coord_origin = fromLonLat(this.coord);
-        const coord_destination = fromLonLat(this.coord_destination);
-
+        const coord_origin = transform(
+          this.coord,
+          'EPSG:4326',
+          'EPSG:3857'
+        );
+        const coord_destination = transform(
+          this.coord_destination,
+          'EPSG:4326',
+          'EPSG:3857'
+        );
 
         // Check for empty extent
         if (coord_origin[0] === coord_destination[0] && coord_origin[1] === coord_destination[1]) {
@@ -165,30 +167,12 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
         this.initMarkerDestination(this.coord_destination);
         // -- trazar la ruta:
         this.drawRoute(this.coord, this.coord_destination);
- 
 
-        const extent = [
-          coord_origin[0],
-          coord_origin[1],
-          coord_destination[0],
-          coord_destination[1]
-        ];
-        // const height = getHeight(extent);
-        const center = getCenter(extent);
- 
-        const resolution = this.map.getView().getResolutionForExtent(extent);
-        console.log('RESOLUTION for EXTENT => ', resolution)
-
-        const resolution_zoom = this.map.getView().getZoomForResolution(resolution);
-        console.log('RESOLUTION for EXTENT => ', resolution_zoom )
-
-        this.map.getView().animate({ center: center, zoom: (resolution_zoom !== undefined?resolution_zoom - 1 : 12) }, { duration: 1000 });
-        // Use projected coordinates for fitting
-        // this.map.getView().fit(extent, { padding: [50, 50, 50, 50] });
-
-
-        // Force change detection after modifying values
-        // this.changeDetectorRef.detectChanges();
+        const extent = boundingExtent([coord_origin, coord_destination]);
+        this.map.getView().fit(extent, {
+          padding: [50, 50, 50, 50], // Ajusta el margen alrededor de los puntos
+          duration: 1000, // Anima la transición del zoom
+        });
 
       }
     }
@@ -204,23 +188,13 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
   private initMap() {
 
 
-    const coord_origin = fromLonLat(this.coord);
-    const coord_destination = fromLonLat(this.coord_destination);
+    let coord_origin = fromLonLat(this.coord);
+    let coord_destination = fromLonLat(this.coord_destination);
 
-    const extent = [
-      coord_origin[0],
-      coord_origin[1],
-      coord_destination[0],
-      coord_destination[1]
-    ];
+    const extent = boundingExtent([coord_origin, coord_destination]);
+  
     // const height = getHeight(extent);
     const center = getCenter(extent);
-
-    const resolution = this.map.getView().getResolutionForExtent(extent);
-    console.log('RESOLUTION for EXTENT => ', resolution)
-
-    const resolution_zoom = this.map.getView().getZoomForResolution(resolution);
-    console.log('RESOLUTION for EXTENT => ', resolution_zoom)
 
     const zoomControl = new Zoom();
     const rotateControl = new Rotate();
@@ -245,10 +219,17 @@ export class PMapRouteComponent implements OnInit, AfterViewInit, OnChanges {
 
         // minZoom: 6,
         // maxZoom: 19,
-        zoom: resolution_zoom,
+        zoom: 6,
       }),
       controls: [rotateControl, scaleLine, zoomControl],
     });
+
+    this.map.getView().fit(extent, {
+      padding: [50, 50, 50, 50], // Ajusta el margen alrededor de los puntos
+      duration: 1000, // Anima la transición del zoom
+    });
+
+
 
   }
 

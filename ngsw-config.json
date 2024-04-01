@@ -41,7 +41,7 @@
         "maxSize": 50,
         "maxAge": "0s",
         "strategy": "freshness",
-        "timeout": "30s"
+        "timeout": "5s"
 
       }
     },
@@ -54,9 +54,9 @@
       "version": 1,
       "cacheConfig": {
         "maxSize": 200,
-        "maxAge": "1d",
+        "maxAge": "7d",
         "strategy": "freshness",
-        "timeout": "30s"
+        "timeout": "1s"
 
       }
     }

@@ -8,7 +8,7 @@ import { Observable, concat, filter, first, interval } from 'rxjs';
 export class LogUpdateService {
 
   update_active: boolean = false;
-  constructor(private swUpdate: SwUpdate) {
+  constructor(private appRef: ApplicationRef, private swUpdate: SwUpdate) {
 
 
 
@@ -26,21 +26,42 @@ export class LogUpdateService {
 
   checkForUpdates(): Observable<boolean> {
     return new Observable<boolean>(observer => {
-      this.swUpdate.checkForUpdate().then(updateFound => {
-        if (updateFound) {
-          console.log('WS => A new version is available.');
-          observer.next(true);
-        } else {
+
+      const appIsStable$ = this.appRef.isStable.pipe(first((isStable) => isStable === true));
+      const everySixHours$ = interval(6 * 60 * 60 * 1000);
+      const everySixHoursOnceAppIsStable$ = concat(appIsStable$, everySixHours$);
+
+      everySixHoursOnceAppIsStable$.subscribe(async () => {
+        try {
+          const updateFound = await this.swUpdate.checkForUpdate();
+          
+          if(updateFound)
+            observer.next(true);
+          else
+            observer.next(false);
+
+          console.log(updateFound ? 'A new version is available.' : 'Already on the latest version.');
+        } catch (err) {
+          console.error('Failed to check for updates:', err);
           observer.next(false);
         }
-        observer.complete();
-      }).catch(err => {
-        console.error('WS => Failed to check for updates:', err);
-        observer.error(true);
       });
+
+      //   this.swUpdate.checkForUpdate().then(updateFound => {
+      //     if (updateFound) {
+      //       console.log('WS => A new version is available.');
+      //       observer.next(true);
+      //     } else {
+      //       observer.next(false);
+      //     }
+      //     observer.complete();
+      //   }).catch(err => {
+      //     console.error('WS => Failed to check for updates:', err);
+      //     observer.error(true);
+      //   });
     });
   }
- 
+
   public async activateUpdate(): Promise<boolean> {
 
 
@@ -53,42 +74,9 @@ export class LogUpdateService {
       return false;
     } catch (err) {
       console.error('WS => Error al instalar la actualización:', err);
-      return true;
+      return false;
     }
   }
 
-    // public async checkForUpdates(): Promise<boolean> {
 
-
-    //   try {
-    //     const updateFound = await this.swUpdate.checkForUpdate();
-    //     if (updateFound) {
-    //       console.log('WS => A new version is available.');
-    //       return true;
-    //     }
-    //     return false;
-    //   } catch (err) {
-    //     console.error('WS => Failed to check for updates:', err);
-    //     return true;
-    //   }
-
-    //   // this.swUpdate.versionUpdates.subscribe(async (evt) => {
-    //   //   // console.log("checkForUpdates LISTEN..", evt.type);
-
-    //   //   try {
-    //   //     const updateFound = await this.swUpdate.checkForUpdate();
-    //   //     if (updateFound) {
-    //   //       console.log('WS => A new version is available.');
-    //   //       return true;
-    //   //       // document.location.reload();
-    //   //     }
-    //   //     return false;
-    //   //   } catch (err) {
-    //   //     console.error('WS => Failed to check for updates:', err);
-    //   //     return true;
-
-    //   //   } 
-    //   // });
-    // }
-
-  }
+}
