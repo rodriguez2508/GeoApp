@@ -1,4 +1,5 @@
-import { LogUpdateService } from './services/workers/log-update.service';
+import { DataTravelerService } from './services/data/data_traveler.service';
+
 import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChildrenOutletContexts, RouterOutlet } from '@angular/router';
@@ -9,28 +10,37 @@ import { DataService } from './services/data/data.service';
 import { SessionService } from './services/session/session.service';
 import { I_UserSessionStorage } from './interface/user.interface';
 import { StorageService } from './services/storage/storage.service';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Observer, Subscription } from 'rxjs';
+
+import { Socket } from 'ngx-socket-io';
+import { SocketioServices } from './services/sockets/socketio.service';
+
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, DataComponent , NavbarComponent ],
+  imports: [CommonModule, RouterOutlet, DataComponent, NavbarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   animations: [
-     
-     
+
+
   ]
 })
-export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
-  
+export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
+
   title = 'Linki';
-  
+
   subscriptionLoggedIn: Subscription;
-  subscriptionUserData: Subscription;
 
   userLoginOn: boolean = false;
-  userData: I_UserSessionStorage = {
+
+
+  // ---------------------------------------------------
+  //TODO -- establece la data del usuario  INICIO
+  // ---------------------------------------------------
+  userData$: I_UserSessionStorage = {
     id: '',
     ci: '',
     name: '',
@@ -41,46 +51,71 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy{
     user_type: ''
   };
  
+  // ---------------------------------------------------
+  //TODO -- establece la data del usuario  FINAL
+  // ---------------------------------------------------
 
-  constructor( 
+  // --------------------------------------------------- 
+  // TODO estado del socket INICIO 
+  // ---------------------------------------------------
+
+  socket_status$: boolean = true; 
+
+  // ---------------------------------------------------
+  // TODO estado del socket FINAL
+  // ---------------------------------------------------
+
+  constructor(
+    
     private dataService: DataService,
-    // private logUpdateService:LogUpdateService
-  ){ 
+    private dataTravelerService: DataTravelerService,
+    protected socketioService: SocketioServices
+
+  ) {
+
+
+    // this.socket.connect();
 
     this.subscriptionLoggedIn = this.dataService.loggedIn$.subscribe(value => {
       this.userLoginOn = value;
     });
-  
-    this.subscriptionUserData = this.dataService.userData$.subscribe(value => {
-      this.userData = value;
-    });
 
-    
-    
+
+
   }
   ngOnInit(): void {
 
-   
-    // this.userData = this.storageService.getUser();
-    // this.userLoginOn = this.storageService.isLoggedIn();
 
-    // console.log( this.userData)
+    // -- Subscribirse al userData para obtener datos de sesion del usuario
+    this.subscribeUserData();
+    
   }
 
   ngAfterViewInit(): void {
-    
-     
-    
+
+    // -- Subscribirse al socketStatusService
+    // this.subscribeSocketStatus();
+
   }
 
   ngOnDestroy() {
-    if (this.subscriptionLoggedIn) {
-      this.subscriptionLoggedIn.unsubscribe();
-    }
-  
-    if (this.subscriptionUserData) {
-      this.subscriptionUserData.unsubscribe();
-    }
-  }
  
+
+  }
+
+  subscribeUserData() {
+
+    this.dataService.getuserData().subscribe(data => {
+
+      console.log('subscribeUserData', data)
+      if (data !== undefined) {
+        this.userData$ = data;
+      }
+
+    });
+
+
+
+  }  
+
 }

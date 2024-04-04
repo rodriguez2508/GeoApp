@@ -95,6 +95,18 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   footerDisplayed = false;
   methodToShowFooter: string = '';
   address: string = '';
+
+
+  // --------------------------------------------------- 
+  // TODO estado del socket INICIO 
+  // ---------------------------------------------------
+
+  socket_status$: boolean = false;
+  // ---------------------------------------------------
+  // TODO estado del socket FINAL
+  // ---------------------------------------------------
+
+
   // ----------------------------------
   // -- Variables
   // ----------------------------------
@@ -141,6 +153,8 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
   ngOnInit(): void {
 
+    // Verificar conexion
+    this.subscribeSocketStatus();
 
   }
 
@@ -190,20 +204,27 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
     this.form_request.markAllAsTouched();
 
-    // Tip: si los datos del formulario son incorrectos
-    if (this.form_request.invalid || this.address_coord == 'Definir su ubicación' || this.address_coord == 'Error de conexión.' || this.address_coord_destination == 'Definir destino' || this.address_coord_destination == 'Error de conexión.') {
+    if (!this.socket_status$) 
+    {
+      this.dataService.showMsj('Por favor, intente en un rato..', 'Sin Conexión!', 'error');
 
-
-      console.log('form is invalid', this.form_request.value);
-
-
-      // const config = this.dataService.openSnackBar('danger');
-      // this._snackBar.open('Por favor, revise el formulario', 'CLOSE', config);
-
-      this.dataService.showMsj('Por favor, revise el formulario.', 'Formulario Incorrecto', 'error');
-
-      return;
+        return;
     }
+
+      // Tip: si los datos del formulario son incorrectos
+      if (this.form_request.invalid || this.address_coord == 'Definir su ubicación' || this.address_coord == 'Error de conexión.' || this.address_coord_destination == 'Definir destino' || this.address_coord_destination == 'Error de conexión.') {
+
+
+        console.log('form is invalid', this.form_request.value);
+
+
+        // const config = this.dataService.openSnackBar('danger');
+        // this._snackBar.open('Por favor, revise el formulario', 'CLOSE', config);
+
+        this.dataService.showMsj('Por favor, revise el formulario.', 'Formulario Incorrecto', 'error');
+
+        return;
+      }
 
     this.saveTravelRequest();
   }
@@ -299,11 +320,6 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
         }
       );
 
-
-
-
-
-
   }
 
 
@@ -384,22 +400,22 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
   }
 
-  reloadComponent(self:boolean = false, urlToNavegateTo?: string) {
+  reloadComponent(self: boolean = false, urlToNavegateTo?: string) {
 
     //
     console.log('Ruta actual', this.router.url);
-    const url = self? this.router.url: urlToNavegateTo;
+    const url = self ? this.router.url : urlToNavegateTo;
 
-    this.router.navigateByUrl('/', {skipLocationChange:true}).then(() => {
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
 
-      this.router.navigate([`/${url}`]).then(()=>{
-    
+      this.router.navigate([`/${url}`]).then(() => {
+
         console.log('Ruta despues de la navegacion', this.router.url);
-         // Actualiza la vista del componente
-         this.changeDetectorRef.detectChanges();
+        // Actualiza la vista del componente
+        this.changeDetectorRef.detectChanges();
 
       });
-    }) ;
+    });
   }
 
 
@@ -537,6 +553,28 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
       icon.classList.remove("rotate-icon");
     }, 7000); // Remover la clase después de un segundo (1000ms)
   }
+
+
+
+  // ---------------------------------------------------
+  // TODO -- SOCKETS
+  // ---------------------------------------------------
+
+  subscribeSocketStatus() {
+
+    this.dataTravelerService.getSocketStatus().subscribe(data => {
+
+      console.log('subscribeSocketStatus', data)
+      if (data !== undefined) {
+        this.socket_status$ = data;
+      }
+
+    });
+
+  }
+  // ---------------------------------------------------
+  // TODO -- SOCKETS
+  // ---------------------------------------------------
 
 
   public get f(): any {

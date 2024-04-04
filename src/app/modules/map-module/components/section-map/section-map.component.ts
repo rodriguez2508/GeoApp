@@ -4,7 +4,7 @@ import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 // --services
 import { GeolocService } from '../../../../services/geolocation/geoloc.service';
 import { DataService } from '../../../../services/data/data.service';
-import { SocketioService } from '../../../../services/socketio.service'; 
+// import { SocketioService } from '../../../../services/sockets/socketio.service'; 
 // --services
 // --components
 import { OlMapComponent } from '../ol-map/ol-map.component';
@@ -46,12 +46,14 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
   
   user_type:string = '';
 
-  constructor(private geolocService: GeolocService, private dataService: DataService, private socketioService: SocketioService) {
+  constructor(private geolocService: GeolocService, private dataService: DataService,
+    //  private socketioService: SocketioService
+     ) {
      
   }
   ngOnDestroy(): void {
 
-    this.socketioService.disconnect();
+    // this.socketioService.disconnect();
 
   }
   ngAfterViewInit(): void {
@@ -69,7 +71,7 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getLocation();
 
 
-    this.socketioService.connect();
+    // this.socketioService.connect();
 
     // -------------------------------------------
     // -- obtener estado del socket 
@@ -116,7 +118,7 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
         let user_:I_UserMap = {id: this.userData.ci, name: this.userData.name, markerColor: 'success', currentPosition: position_ };
 
         // -- Enviar los datos del usuario al servidor
-        this.socketioService.sendUserData(user_);
+        // this.socketioService.sendUserData(user_);
 
         // console.log('Pos.Update -> Latitude: ' + position.coords.latitude + ', Longitude: ' + position.coords.longitude);
       }
@@ -130,24 +132,24 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
   // -------------------------------------------
 
   async getSocketStatus() {
-    this.socketioService.get_socketStatus().subscribe({
-      next: (status: boolean) => {
+    // this.socketioService.get_socketStatus().subscribe({
+    //   next: (status: boolean) => {
 
-        // -- actualiza el socket_status
-        this.socket_status = status;
-        console.log('Socket status updated:', status);
+    //     // -- actualiza el socket_status
+    //     this.socket_status = status;
+    //     console.log('Socket status updated:', status);
  
-      },
-      error: (error: any) => {
-        // Manejar errores al obtener el estado del socket
-        console.error('Error getting socket status:', error);
+    //   },
+    //   error: (error: any) => {
+    //     // Manejar errores al obtener el estado del socket
+    //     console.error('Error getting socket status:', error);
         
-        this.socket_status = false;
-      },
-      complete: () => {
-        // Realizar acciones adicionales cuando el observable se completa, si es necesario
-      },
-    });
+    //     this.socket_status = false;
+    //   },
+    //   complete: () => {
+    //     // Realizar acciones adicionales cuando el observable se completa, si es necesario
+    //   },
+    // });
   }
 
 
@@ -157,25 +159,25 @@ export class SectionMapComponent implements OnInit, AfterViewInit, OnDestroy {
   async getConnectedUsers() {
 
     // Llama al método para obtener la lista de usuarios conectados
-    this.socketioService.getConnectedUsers().subscribe({
-      next: (users: I_UserMap[]) => {
+    // this.socketioService.getConnectedUsers().subscribe({
+    //   next: (users: I_UserMap[]) => {
 
-        // -- Guardar los usuarios conectados
-        this.connected_users = users;
-
-
-        // -- Pintar en el mapa los usuarios conectados
+    //     // -- Guardar los usuarios conectados
+    //     this.connected_users = users;
 
 
-      },
-      error: (error: any) => {
-        this.connected_users = [];
-      },
-      complete: () => {
+    //     // -- Pintar en el mapa los usuarios conectados
 
-        // Realizar acciones cuando el observable se completa, si es necesario
-      },
-    });
+
+    //   },
+    //   error: (error: any) => {
+    //     this.connected_users = [];
+    //   },
+    //   complete: () => {
+
+    //     // Realizar acciones cuando el observable se completa, si es necesario
+    //   },
+    // });
 
   }
 

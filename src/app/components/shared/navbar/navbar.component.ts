@@ -65,6 +65,15 @@ export class NavbarComponent implements AfterViewInit, OnDestroy, OnChanges {
   updateAvailable = false;
   pageInit: number = 0;
 
+  // --------------------------------------------------- 
+  // TODO estado del socket INICIO 
+  // ---------------------------------------------------
+
+  @Input() socket_status: boolean = true;
+
+  // ---------------------------------------------------
+  // TODO estado del socket FINAL
+  // ---------------------------------------------------
   constructor(
     private router: Router,
     private route: ActivatedRoute,

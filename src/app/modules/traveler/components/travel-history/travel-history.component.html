@@ -26,7 +26,10 @@
     <div class="w3-row w3-col set-height-75 tab-content w3-container">
       <div id="pending" class="tab-pane fade show active">
         @if (viewToShow=='pending') {
-          <app-pending-page></app-pending-page>
+          <app-pending-page
+            [socket_status$]="socket_status$"
+            [socket]="socket"
+          ></app-pending-page>
         }  
       
       </div>

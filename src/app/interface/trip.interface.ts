@@ -1,5 +1,5 @@
 // ------------
-// --Interfaz para usuario que inicia sesion
+// --Interfaz Viajes
 // ------------
 
     // "origin_coordinate": "0,0",

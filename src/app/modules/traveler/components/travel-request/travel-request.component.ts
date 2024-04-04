@@ -1,3 +1,4 @@
+
 import { I_Places } from './../../../../interface/places.interface';
 import { AfterViewInit, Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
@@ -17,10 +18,13 @@ import { FooterPageComponent } from './footer-page/footer-page.component';
 // -- Services
 import { GeolocService } from '../../../../services/geolocation/geoloc.service';
 import { DataService } from '../../../../services/data/data.service';
-import { SocketioService } from '../../../../services/socketio.service';
 import { I_UserMap, I_UserSessionStorage } from '../../../../interface/user.interface';
 import { StorageService } from '../../../../services/storage/storage.service';
 import { FavoritesPlacesService } from '../../../../services/map/favorites-places.service';
+import { SocketioServices } from '../../../../services/sockets/socketio.service';
+import { Socket } from 'ngx-socket-io';
+import { environment } from '../../../../../environments/environment';
+import { DataTravelerService } from '../../../../services/data/data_traveler.service';
 // -- Services
 
 @Component({
@@ -61,13 +65,27 @@ export class TravelRequestComponent implements OnInit, AfterViewInit, OnChanges 
   user_type: string = '';
   viewToShow: string = 'map';
 
+
+  // --------------------------------------------------- 
+  // TODO estado del socket INICIO 
+  // ---------------------------------------------------
+
+  socket_status$: boolean = false;
+  socket: any;
+  // ---------------------------------------------------
+  // TODO estado del socket FINAL
+  // ---------------------------------------------------
+
+
   constructor(
+    // private socket:Socket,
+    private socketioService: SocketioServices,
     private router: Router,
     private route: ActivatedRoute,
     private geolocService: GeolocService,
     private dataService: DataService,
+    private dataTravelerService: DataTravelerService,
     private storageService: StorageService,
-    private socketioService: SocketioService,
     private favoritePlacesService: FavoritesPlacesService) {
 
     // obtengo el parametro en la ruta
@@ -83,11 +101,10 @@ export class TravelRequestComponent implements OnInit, AfterViewInit, OnChanges 
     });
 
 
-    this.reload_location();
-    this.reload_socket();
+    // this.reload_location();
 
 
-    
+
   }
   ngOnChanges(changes: SimpleChanges): void {
 
@@ -101,52 +118,42 @@ export class TravelRequestComponent implements OnInit, AfterViewInit, OnChanges 
   }
   ngOnDestroy(): void {
 
-    // this.socket_status = false;
-    // this.location_status = false;
-    // this.socketioService.disconnect();
-
-    // this.geolocService.stopWatchingPosition(); 
-
+    this.disconnectSocket();
+ 
   }
   ngAfterViewInit(): void {
 
-    if (this.viewToShow == 'map') {
-
-      // -------------------------------------------
-      // -- obtener localizacion  
-      // -------------------------------------------
-
-      console.log('COMPROBAR STATUS =>', this.location_status)
-
-      if (!this.location_status) {
-
-        this.getLocation();
-
-      } else {
-        this.reload_location();
-      }
-
-
-
-    }
+  
 
   }
   async ngOnInit() {
-
-    // this.first_iteration = 1;
+ 
     this.userData = this.storageService.getUser();
-
     this.user_type = this.userData.user_type === 'traveler' ? 'Conductor' : 'Viajero';
+
+    // TODO -- Obtener lugares favoritos
 
     this.getFavoritePlaces(this.userData.id);
 
+    // TODO -- Obtener lugares favoritos
+    
+    // ------
+
     // TODO -- Conexion al Socket
-    this.socketioService.connect();
-    this.getSocketStatus();
+
+    this.connectSocket();
+    this.subscribeSocketStatus();
+
+    // TODO -- Conexion a la location
+
     this.geolocService.get_locationStatus().subscribe((value) => {
 
       this.location_status = value;
-    }); 
+    });
+    this.subscribeLocation();
+
+    // TODO -- Conexion a la location
+
 
   }
 
@@ -163,14 +170,35 @@ export class TravelRequestComponent implements OnInit, AfterViewInit, OnChanges 
 
   reload_socket() {
 
-    this.socketioService.disconnect();
-
-    this.socketioService.connect();
+    // this.socketioService.disconnect();
+    this.disconnectSocket();
+    this.connectSocket();
+    // this.socketioService.connect();
   }
 
   // -------------------------------------------
   // TODO -- obtener localizacion del usuario
   // -------------------------------------------
+
+  subscribeLocation() {
+
+    this.getLocation();
+
+    this.dataTravelerService.getLocation().subscribe(data => {
+
+      console.log('subscribeLocation', data)
+      if (data !== undefined) {
+
+        this.lat = data[1];
+        this.lon = data[0];
+        this.coord_origin = data;
+      }
+
+    });
+
+
+
+  }
   async getLocation() {
 
     this.geolocService.startWatchingPosition((position: Coordinate) => {
@@ -179,16 +207,20 @@ export class TravelRequestComponent implements OnInit, AfterViewInit, OnChanges 
 
       if (Math.floor(this.lat * 10000) !== Math.floor(position[1] * 10000) || Math.floor(this.lon * 1000) !== Math.floor(position[0] * 1000)) {
         // if (this.lat != position.coords.latitude || this.lon != position.coords.longitude) {
-        this.lat = position[1];
-        this.lon = position[0];
 
-        let position_ = { lat: this.lat, long: this.lon };
+        // this.lat = position[1];
+        // this.lon = position[0];
 
-        let user_: I_UserMap = {
-          id: this.userData.ci,
-          name: this.userData.name,
-          markerColor: 'success', currentPosition: position_
-        };
+        this.dataTravelerService.setLocation(position);
+
+
+        // let position_ = { lat: this.lat, long: this.lon };
+
+        // let user_: I_UserMap = {
+        //   id: this.userData.ci,
+        //   name: this.userData.name,
+        //   markerColor: 'success', currentPosition: position_
+        // };
 
 
         // -- Enviar los datos del usuario al servidor
@@ -206,62 +238,34 @@ export class TravelRequestComponent implements OnInit, AfterViewInit, OnChanges 
   }
 
 
-  // -------------------------------------------
-  // TODO -- obtener estado del socket 
-  // -------------------------------------------
-
-  async getSocketStatus() {
-
-    this.socketioService.get_socketStatus().subscribe({
-      next: (status: boolean) => {
-
-        this.socket_status = status;
-        this.status = true;
-        console.log('Socket status updated:', status);
-
-      },
-      error: (error: any) => {
-        // Manejar errores al obtener el estado del socket
-        console.error('Error getting socket status:', error);
-
-        this.socket_status = false;
-        this.status = false;
-      },
-      complete: () => {
-
-        // Realizar acciones adicionales cuando el observable se completa, si es necesario
-      },
-    });
-  }
-
 
   // -------------------------------------------
   // TODO -- obtener lista de usuarios conectados
   // -------------------------------------------
-  async getConnectedUsers() {
+  // async getConnectedUsers() {
 
-    // Llama al método para obtener la lista de usuarios conectados
-    this.socketioService.getConnectedUsers().subscribe({
-      next: (users: I_UserMap[]) => {
+  //   // Llama al método para obtener la lista de usuarios conectados
+  //   this.socketioService.getConnectedUsers().subscribe({
+  //     next: (users: I_UserMap[]) => {
 
-        // -- Guardar los usuarios conectados
-        this.connected_users = users;
-
-
-        // -- Pintar en el mapa los usuarios conectados
+  //       // -- Guardar los usuarios conectados
+  //       this.connected_users = users;
 
 
-      },
-      error: (error: any) => {
-        this.connected_users = [];
-      },
-      complete: () => {
+  //       // -- Pintar en el mapa los usuarios conectados
 
-        // Realizar acciones cuando el observable se completa, si es necesario
-      },
-    });
 
-  }
+  //     },
+  //     error: (error: any) => {
+  //       this.connected_users = [];
+  //     },
+  //     complete: () => {
+
+  //       // Realizar acciones cuando el observable se completa, si es necesario
+  //     },
+  //   });
+
+  // }
 
   // ---------------------------------------------------
   // TODO -- Obtiene los lugares favoritos del usuario
@@ -295,5 +299,52 @@ export class TravelRequestComponent implements OnInit, AfterViewInit, OnChanges 
     );
 
   }
+
+
+
+  // ---------------------------------------------------
+  // TODO -- SOCKETS
+  // ---------------------------------------------------
+
+  connectSocket() {
+
+    this.socket = this.socketioService.connectSocket(environment.socketUrl);
+
+    this.socketioService.get_socketStatus(this.socket).subscribe(
+      status => {
+        this.dataTravelerService.setSocketStatus(status);
+      }
+    );
+
+    // this.dataTravelerService.setSocketStatus(true);
+
+  }
+
+  subscribeSocketStatus() {
+
+    this.dataTravelerService.getSocketStatus().subscribe(data => {
+
+      console.log('subscribeSocketStatus', data)
+      if (data !== undefined) {
+        this.socket_status$ = data;
+      }
+
+    });
+
+
+
+  }
+  disconnectSocket() {
+    if (this.socket) {
+
+      this.socketioService.disconnectSocket(this.socket);
+      this.dataTravelerService.setSocketStatus(false);
+
+    }
+  } 
+  // ---------------------------------------------------
+  // TODO -- SOCKETS
+  // ---------------------------------------------------
+
 
 }

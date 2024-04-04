@@ -185,7 +185,8 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngAfterViewInit(): void {
-
+    
+    this.centerMap();
   }
 
   ngOnDestroy(): void { }
@@ -202,21 +203,13 @@ export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
     // Controla los cambios en las coordenadas y usuarios activos
     // --------------------
     if (this.map && this.location_status) {
-
-      // if (!this.hasAddedTu) {
-        
-      // //   this.client.name = ' (Tú)';
-      // //   this.client.markerColor = 'success';
-      // //   this.initMarker([0,0], this.client);
-      //   this.centerMap();
-      //   this.hasAddedTu = true;
-      // }
+ 
       if ('lat' in changes || 'lon' in changes) {
         // Si cambia alguna de las propiedades lat, lon, o zoom, actualiza el mapa
         this.coord = [this.lon, this.lat];
 
 
-        if (!this.hasAddedTu && this.lon != DEFAULT_LON) {
+        if (!this.hasAddedTu && this.lon != 0) {
         
             this.client.name = ' (Tú)';
             this.client.markerColor = 'success';

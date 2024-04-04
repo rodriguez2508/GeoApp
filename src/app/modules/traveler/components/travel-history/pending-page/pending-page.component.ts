@@ -1,5 +1,5 @@
 import { TripTravelerService } from './../../../../../services/trip/trip-traveler.service';
-import { AfterViewInit, ChangeDetectorRef, Component, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -11,6 +11,9 @@ import { Coordinate } from 'ol/coordinate';
 import { DataService } from '../../../../../services/data/data.service';
 import { BehaviorSubject, Observable, take } from 'rxjs';
 import { DataTravelerService } from '../../../../../services/data/data_traveler.service';
+import { I_Offers } from '../../../../../interface/offers';
+import { SocketioServices } from '../../../../../services/sockets/socketio.service';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-pending-page',
@@ -26,6 +29,11 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
   title_page: string = '';
 
+
+  // ---------------------------------------------------
+  //TODO -- establece la data a los viajes  INICIO
+  //  las funciones estan en el archivo data_traveler.service.ts
+  // --------------------------------------------------- 
   travels$: I_FormTravelRequest = {
     id: '',
     origin_coordinate: '',
@@ -41,11 +49,33 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
     travelPeferences: ''
   };
 
-  travelsSubject = new BehaviorSubject<I_FormTravelRequest>(this.travels$);
-  subscription: any;
+  // travelsSubject = new BehaviorSubject<I_FormTravelRequest>(this.travels$);
 
-  // travels: I_FormTravelRequest[] = [];
-  userData: I_UserSessionStorage = {
+  // ---------------------------------------------------
+  //TODO -- establece la data a los viajes  FINAL
+  //  las funciones estan en el archivo data_traveler.service.ts
+  // --------------------------------------------------- 
+
+
+  // ---------------------------------------------------
+  //TODO -- establece la data a las ofertas INICIO
+  //  las funciones estan en el archivo data_traveler.service.ts
+  // --------------------------------------------------- 
+  offers$: I_Offers[] = [];
+
+  // offersSubject = new BehaviorSubject<I_Offers[]>(this.offers$);
+
+  // ---------------------------------------------------
+  //TODO -- establece la data a las ofertas FINAL
+  //  las funciones estan en el archivo data_traveler.service.ts
+  // --------------------------------------------------- 
+
+
+  // ---------------------------------------------------
+  //TODO -- establece la data del usuario  INICIO 
+  //  las funciones estan en el archivo data_traveler.service.ts
+  // --------------------------------------------------- 
+  userData$: I_UserSessionStorage = {
     id: '',
     ci: '',
     name: '',
@@ -55,6 +85,12 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
     phone: '',
     user_type: ''
   };
+
+  // userDataSubject = new BehaviorSubject<I_UserSessionStorage>(this.userData$);
+  // --------------------------------------------------
+  //TODO -- establece la data del usuario  FINAL
+  // ---------------------------------------------------
+
 
   // -- para mostrar el mapa con la ruta si existen las 2 coordenadas (origen y destino )
   showMap = false;
@@ -71,7 +107,21 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   time: { min: number, sec: number } = { min: -1, sec: 59 };
 
 
+  // --------------------------------------------------- 
+  // TODO estado del socket INICIO 
+  // ---------------------------------------------------
+
+  @Input() socket_status$: boolean = false;
+  @Input() socket: any;
+  // ---------------------------------------------------
+  // TODO estado del socket FINAL
+  // ---------------------------------------------------
+
+
+
+
   constructor(
+    private socketioService: SocketioServices,
     private router: Router,
     private route: ActivatedRoute,
     private tripTravelerService: TripTravelerService,
@@ -94,9 +144,8 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
 
 
-    this.userData = this.storageService.getUser();
-    // this.reload_travels();
-
+    // -- Subscribirse al userData para obtener datos de sesion del usuario
+    this.subscribeUserData();
 
     // -- Subscribirse al travelData para obtener viajes
     this.subscribeTravelData();
@@ -112,58 +161,41 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
   }
 
-  // ---------------------------------------------------
-  //TODO -- establece la data a los viajes
-  // ---------------------------------------------------
-  // setTravelData(travelData: I_FormTravelRequest | null) {
+  // TODO se subscribe a la funcion para obtener los datos del usuario
+  // -----------------------------------------
+
+  subscribeUserData() {
+
+    this.dataService.getuserData().subscribe(data => {
+
+      console.log('subscribeUserData', data)
+      if (data !== undefined) {
+        this.userData$ = data;
+      }
+
+    });
 
 
-  //   if (travelData === null) {
 
-  //     this.travels$ = {
-  //       id: '',
-  //       origin_coordinate: '',
-  //       destination_coordinate: '',
-  //       destination_address: '',
-  //       origin_address: '',
-  //       status: '',
-  //       driver_id: '',
-  //       traveler_id: '',
-  //       vehicleType: '',
-  //       personNumber: '',
-  //       maxTimeWaiting: '',
-  //       travelPeferences: ''
-  //     };
+  }
 
-  //     this.travelsSubject.next(this.travels$);
-
-  //   } else {
-  //     this.travels$ = travelData;
-  //     this.travelsSubject.next(travelData);
-  //   }
-
-
-  // }
-  // getTravelData(): Observable<I_FormTravelRequest> {
-
-
-  //   return this.travelsSubject.asObservable();
-  // }
-  // ---------------------------------------------------
-  //TODO -- establece la data a los viajes
-  // ---------------------------------------------------
-
-
+  // TODO se subscribe a la funcion para obtener los viajes del usuario
+  // -----------------------------------------
   subscribeTravelData() {
 
-    this.getTravels(this.userData.id);
+    this.getTravels(this.userData$.id);
 
-    this.dataTravelerService.getTravelData().subscribe(data => {
+    this.dataTravelerService.getTravelData().subscribe(async data => {
 
       console.log('subscribeTravelData', data)
       if (data !== undefined) {
 
         this.travels$ = data;
+
+        // -- abrir conexion del socket para las ofertas 
+        this.subscribeOffers();
+
+
         // -- Asignar valor de las coordenadas del viaje 
         // --
         this.coord = [parseFloat(data.origin_coordinate.split(',')[0]), parseFloat(data.origin_coordinate.split(',')[1])];
@@ -195,7 +227,7 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
           if (this.checkTravelExpiration(dateCreated, dateFinish, this.time.min)) {
 
             // TODO  volver a publicar el viaje?
-            this.republishTravel(parseInt(data.maxTimeWaiting), data.id);
+            await this.republishTravel(parseInt(data.maxTimeWaiting), data.id);
 
           } else {
             this.setTimer(parseInt(data.maxTimeWaiting), data.id);
@@ -229,17 +261,8 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
         if (data.length !== 0) {
           this.dataTravelerService.setTravelData(data[0]);
+
         }
-        // else{
-        //   this.dataTravelerService.getTravelData().subscribe(
-
-        //     data => {
-        //       console.log('entro en getTravelsService', data);
-        //       this.setTravelData(data);
-        //     }
-
-        //   );
-        // }
       }
 
     );
@@ -247,8 +270,6 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
 
   }
-
-
 
   // ---------------------------------------------------
   //TODO -- Establecer el temporizador
@@ -266,8 +287,6 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
             this.time.min = -1;
             this.time.sec = 0;
-            // this.setTravelData(null);
-            this.dataTravelerService.setTravelData(null);
             this.stopInterval();
 
             // llamar a la funcion para volver a publicar el viaje
@@ -299,10 +318,15 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
       if (shouldRepublish) {
 
+        this.time.sec = 59;
+        this.time.min = minutesExp;
         this.updateDateFinish(minutesExp, travelId);
 
       } else {
 
+        this.time.sec = 59;
+        this.time.min = -1;
+        this.dataTravelerService.setTravelData(null);
         this.updateTravelStatus('expired', travelId);
 
       }
@@ -313,6 +337,13 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   //TODO -- Actualizar tiempo de expirado del viaje con estado 'pending' 
   // ---------------------------------------------------
   updateDateFinish(minutesExp: number, id: string) {
+
+    // Verificar conexion al servidor
+    if (!this.socket_status$) {
+      this.dataService.showMsj('Por favor, intente en un rato..', 'Sin Conexión!', 'error');
+
+      return;
+    }
 
     const travelData = {
       maxTimeWaiting: minutesExp
@@ -329,8 +360,9 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
         const snackBarRef = this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
         snackBarRef.afterDismissed().subscribe(() => {
 
+          this.changeDetectorRef.detectChanges();
+
           this.reloadComponent(true);
-          // window.location.reload();
 
         });
 
@@ -346,8 +378,12 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   // ---------------------------------------------------
   updateTravelStatus(status: string, id: string) {
 
+    // Verificar conexion al servidor
+    if (!this.socket_status$) {
+      this.dataService.showMsj('Por favor, intente en un rato..', 'Sin Conexión!', 'error');
 
-
+      return;
+    }
     const travelData = {
       status: status
     };
@@ -383,6 +419,13 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
   async cancelTravel(travelId: string) {
 
+    // Verificar conexion al servidor
+    if (!this.socket_status$) {
+      this.dataService.showMsj('Por favor, intente en un rato..', 'Sin Conexión!', 'error');
+
+      return;
+    }
+
     if (travelId !== undefined)
       if (await this.dataService.showQuestion('Está seguro que desea cancelar el viaje?', '', 'warning')) {
 
@@ -406,6 +449,7 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   // ---------------------------------------------------
 
   deleteTravel(travelId: string) {
+
 
     return this.tripTravelerService.deleteTravelRequest(travelId).pipe(
       take(1)
@@ -432,8 +476,8 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
     });
 
   }
-  // TODO ---------------------------------------
-  // -- Detener el temporizador
+  // TODO -- Detener el temporizador
+  // -- 
   // 
   stopInterval() {
 
@@ -474,50 +518,16 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
       this.time.min = Math.floor((dateExpired - dateToday) / 60000);
       return false;
     } else {
-      this.time.min = 0;
+      this.time.min = -1;
       return true;
     }
 
-    // const time = Math.floor((date_finish.getTime() - date.getTime())) / 60000;
-    // const dateToday = new Date().getTime();
-    // // const time_ = Math.floor((dateExpired - dateToday) / 60000);
-    // if (date_finish.getTime() <= dateToday) {
-
-    //   this.time.min = Math.floor(-1);
-    //   return true;
-    // }
-    // else {
-    //   this.time.min = Math.floor(time);
-    //   return false;
-    // }
-
-    // if (time <= 0) {
-    //   return true;
-    // }
-    // else {
-
-    //   this.time.min = Math.floor(time);
-    //   return false;
-
-    // }
-
-    // // const dateExpired = date.getTime() + minutesExp * 60000;
-    // const dateExpired = date_finish !== undefined ? date_finish.getTime() : (date.getTime() + minutesExp * 60000);
-
-    // const dateToday = new Date().getTime();
-    // const dateNow = date_finish.getTime() - minutesExp * 60000;
-
-    // // console.log('dateExpired ->', dateExpired)
-    // // console.log('dateToday ->', dateToday)
-    // if (dateToday < dateExpired)
-    //   this.time.min = Math.floor((dateExpired - dateToday) / 60000);
-    // else
-    //   this.time.min = 0;
-
-    // return dateToday > dateExpired;
 
   }
 
+  // TODO ---------------------------------------
+  // -- recarga el componente o redirige a otra ruta
+  // 
   reloadComponent(self: boolean, urlToNavegateTo?: string) {
 
     //
@@ -535,5 +545,68 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
 
   }
+
+
+  // ---------------------------------------------------
+  // TODO -- Obtener OFERTAS
+  // ---------------------------------------------------
+
+  getOffers() {
+    if (this.socket != undefined || this.socket != null)
+      this.socket.on('listen-offers', (data: I_Offers) => {
+        this.offers$.push(data); // Agrega la oferta recibida al arreglo de ofertas
+      });
+
+  }
+  // ---------------------------------------------------
+  // TODO -- Obtener OFERTAS
+  // ---------------------------------------------------
+
+  // ---------------------------------------------------
+  // TODO -- SOCKETS
+  // ---------------------------------------------------
+
+  // subscribeSocketStatus() {
+
+  //   this.dataTravelerService.getSocketStatus().subscribe(data => {
+
+  //     console.log('subscribeSocketStatus', data)
+  //     if (data !== undefined) {
+  //       this.socket_status$ = data;
+  //     }
+
+  //   });
+
+
+
+  // } 
+
+  // --para escuchar el evento 'listen-offers':
+
+  subscribeOffers() {
+
+
+    if (!this.travels$ || this.travels$.id === '') {
+      return;
+    }
+
+    this.getOffers();
+
+    this.dataTravelerService.getOffers().subscribe(data => {
+
+      console.log('subscribeOffers', data)
+      if (data !== undefined && data.length != 0) {
+        this.offers$ = data;
+      }
+
+    });
+
+  }
+
+  // ---------------------------------------------------
+  // TODO -- SOCKETS
+  // ---------------------------------------------------
+
+
 
 }

@@ -2,9 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 
-import { MapRoutingModule } from './map-routing.module';
-import { SOCKET_SERVICE, socketsFactory } from '../../models/socket.service.token';
-
+import { MapRoutingModule } from './map-routing.module'; 
 @NgModule({
   declarations: [],
   imports: [
