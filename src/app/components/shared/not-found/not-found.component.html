@@ -1,0 +1,21 @@
+<div class="text-danger centrar-position w3-row w3-col w3-section">
+  <div class="container">
+    <i class="fas fa-4x fa-exclamation-triangle icon"></i>
+    <h2 class="border border-0 border-bottom border-danger">
+      La página no ha sido encontrada
+    </h2>
+
+    <button
+      (click)="goBackByUrl()"
+      [classList]="' me-2 w3-right btn btn-warning text-dark'"
+    >
+      Ir Atrás
+    </button>
+    <button
+      (click)="goHomeByUrl()" 
+      [classList]="' me-2 w3-right btn border border-warning text-dark'"
+    >
+      Inicio
+    </button>
+  </div>
+</div>

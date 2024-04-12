@@ -102,7 +102,7 @@ export class TravelHistoryComponent implements OnChanges, OnInit, AfterViewInit,
 
   connectSocket() {
 
-    this.socket = this.socketioService.connectSocket(environment.socketUrl);
+    this.socket = this.socketioService.connectSocket(environment.socketUrl+'/status');
     
     this.socketioService.get_socketStatus(this.socket).subscribe(
       status => {

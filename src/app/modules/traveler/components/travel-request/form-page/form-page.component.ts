@@ -30,7 +30,7 @@ import { PMapRouteComponent } from '../../shared/p-map-route/p-map-route.compone
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { catchError, finalize, firstValueFrom, take, tap, throwError } from 'rxjs';
+import { Observable, catchError, finalize, firstValueFrom, lastValueFrom, map, of, take, tap, throwError } from 'rxjs';
 @Component({
   selector: 'app-form-page',
   standalone: true,
@@ -38,7 +38,7 @@ import { catchError, finalize, firstValueFrom, take, tap, throwError } from 'rxj
   templateUrl: './form-page.component.html',
   styleUrl: './form-page.component.scss',
 })
-export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
+export class FormPageComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   // ----------------------------------
   // -- Variables
   // ----------------------------------
@@ -91,7 +91,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
       pending: false
     };
 
-
+  subTravels: any;
   footerDisplayed = false;
   methodToShowFooter: string = '';
   address: string = '';
@@ -138,6 +138,11 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
     this.form_request = this.f_createRequestForm();
   }
+  ngOnDestroy(): void {
+
+    if (this.subTravels) this.subTravels.unsubscribe();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
 
     if ('coord' in changes || 'coord_destination' in changes) {
@@ -173,17 +178,12 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
       this.showMap = true;
     }
 
-
-    // -- verificar que existan viajes en curso
-    if (this.userData.id != '') {
-      this.getTravels(this.userData.id, 'ongoing');
-      this.getTravels(this.userData.id, 'pending');
-    }
+    this.hasTravel();
 
 
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
 
     const coord_origin = `${this.coord[0]},${this.coord[1]}`;
     const coord_destination = `${this.coord_destination[0]},${this.coord_destination[1]}`;
@@ -204,27 +204,28 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
     this.form_request.markAllAsTouched();
 
-    if (!this.socket_status$) 
-    {
+    if (!this.socket_status$) {
       this.dataService.showMsj('Por favor, intente en un rato..', 'Sin Conexión!', 'error');
 
-        return;
+      return;
     }
 
-      // Tip: si los datos del formulario son incorrectos
-      if (this.form_request.invalid || this.address_coord == 'Definir su ubicación' || this.address_coord == 'Error de conexión.' || this.address_coord_destination == 'Definir destino' || this.address_coord_destination == 'Error de conexión.') {
 
 
-        console.log('form is invalid', this.form_request.value);
+    // Tip: si los datos del formulario son incorrectos
+    if (this.form_request.invalid || this.address_coord == 'Definir su ubicación' || this.address_coord == 'Error de conexión.' || this.address_coord_destination == 'Definir destino' || this.address_coord_destination == 'Error de conexión.') {
 
 
-        // const config = this.dataService.openSnackBar('danger');
-        // this._snackBar.open('Por favor, revise el formulario', 'CLOSE', config);
+      console.log('form is invalid', this.form_request.value);
 
-        this.dataService.showMsj('Por favor, revise el formulario.', 'Formulario Incorrecto', 'error');
 
-        return;
-      }
+      // const config = this.dataService.openSnackBar('danger');
+      // this._snackBar.open('Por favor, revise el formulario', 'CLOSE', config);
+
+      this.dataService.showMsj('Por favor, revise el formulario.', 'Formulario Incorrecto', 'error');
+
+      return;
+    }
 
     this.saveTravelRequest();
   }
@@ -285,7 +286,9 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
   // ----------------------------------
   async saveTravelRequest() {
 
-    if (!this.saveTravel.ongoing || !this.saveTravel.pending) {
+
+
+    if (this.saveTravel.pending) {
 
 
       const config = this.dataService.openSnackBar('success', 3);
@@ -294,74 +297,69 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
       snackBarRef.afterDismissed().subscribe(() => {
 
+        return;
       });
 
-      return;
 
     }
 
     // console.log(this.form_request.value)
-    this.tripTravelerService.saveTravelRequest(this.form_request.value, this.userData.id).pipe(
-      take(1)).subscribe(
+    this.subTravels = this.tripTravelerService.saveTravelRequest(this.form_request.value, this.userData.id).pipe(
+      take(1),
+      tap(
         data => {
-
-          console.log('saveTravelRequest', data)
-
-          this.dataTravelerService.setTravelData(data.msg);
 
           const config = this.dataService.openSnackBar('success', 3);
           const snackBarRef = this._snackBar.open('Solicitud realizada.', 'CLOSE', config);
-          this.reloadComponent(false, '/traveler/travel-history');
           snackBarRef.afterDismissed().subscribe(() => {
 
-
+            this.dataTravelerService.setTravelData(data);
 
           });
         }
-      );
+      ),
+      finalize(
+        () => {
+          
+          this.reloadComponent(false, '/traveler/travel-history');
+        }
+      )
+    ).subscribe();
 
   }
 
+  hasTravel() {
 
-  // ---------------------------------------------------
-  //TODO -- Obtiene los viajes del usuario
-  // ---------------------------------------------------
-  getTravels(user_id: string, status: string = 'ongoing') {
+    // const hasOngoingTravel = await lastValueFrom(this.getTravels(user_id, status));
 
-
-    // StatusTravel :
-    // --> 1 Pendiente
-    // --> 2 En curso
-    // --> 3 Completado
-    this.tripTravelerService.getTravels(user_id, status).pipe(
-      take(1)
-    ).subscribe(
-
-      data => {
-
-        if (data && data.length != 0) {
-
-          if (status == 'ongoing') {
-            this.saveTravel.ongoing = false;
-          }
-          if (status == 'pending') {
+    this.dataTravelerService.getTravelData().pipe(
+      take(1),
+      tap(
+        dataTravel => {
+          console.log(dataTravel.id)
+          if (dataTravel.id != '') this.saveTravel.pending = true;
+          else
             this.saveTravel.pending = false;
-          }
 
         }
+      ))
+      .subscribe();
 
-        else {
-          if (status == 'ongoing') {
-            this.saveTravel.ongoing = true;
-          }
-          if (status == 'pending') {
-            this.saveTravel.pending = true;
-          }
-        }
-      }
+    // dataTravelerService.unsubscribe(); 
+  }
+  // ---------------------------------------------------
+  //TODO -- Obtiene los viajes del usuario por estado para asignar TRUE cuando exista el estado
+  // ---------------------------------------------------
+  getTravels(user_id: string, status: string = 'ongoing'): Observable<boolean> {
 
+    return this.tripTravelerService.getTravels(user_id, status).pipe(
+      take(1), // Solo necesitamos la primera emisión
+      map(dataTravel => dataTravel.length > 0), // Comprueba si hay viajes
+      catchError(error => {
+        console.error('Error obtaining travels:', error);
+        return of(false); // Devuelve false en caso de error
+      })
     );
-
   }
 
   // TODO ---------------------------------------
@@ -410,6 +408,7 @@ export class FormPageComponent implements OnInit, AfterViewInit, OnChanges {
 
       this.router.navigate([`/${url}`]).then(() => {
 
+        window.location.reload();
         console.log('Ruta despues de la navegacion', this.router.url);
         // Actualiza la vista del componente
         this.changeDetectorRef.detectChanges();

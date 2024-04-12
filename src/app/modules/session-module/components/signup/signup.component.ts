@@ -14,6 +14,7 @@ import { SessionService } from '../../../../services/session/session.service';
 import { DataService } from '../../../../services/data/data.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../../../environments/environment';
+import { switchMap } from 'rxjs';
 // -- Services
 
 declare var google: any;
@@ -122,29 +123,33 @@ export class SignupComponent implements OnInit, AfterViewInit {
   // TODO funcion para registrarse sesion  
   // ---------------------------------- 
   f_signup() {
-
-
+  
     this.sessionService.signup(this.form_register.value).subscribe({
       next: (response: any) => {
 
-        const config = this.dataService.openSnackBar('success');
-        this._snackBar.open('Se ha completado su petición.', 'CLOSE', config);
+        // const config = this.dataService.openSnackBar('success');
+        // const snackBarRef = this._snackBar.open('Se ha completado su petición, espere..', 'CLOSE', config);
+        // snackBarRef.afterDismissed().subscribe(() => {
 
-        if (response.user_type == 'traveler') return this.goToTravelerView();
-        else if (response.user_type == 'driver') return this.goToDriverView();
-        else if (response.user_type == 'admin') return this.goToTravelerView();
+           
 
-        return;
+        // });
+
+        this.f_signin();
+        
       },
       error: (error: any) => {
 
         const config = this.dataService.openSnackBar('success');
-        this._snackBar.open('Ha ocurrido un error en su petición..', 'CLOSE', config);
+        const snackBarRef = this._snackBar.open('No se pudo realizar su solicitud.', 'CLOSE', config);
 
+        
         console.error('Error getting Registrarse:', error);
 
       },
       complete: () => {
+        
+        ;
         // Realizar acciones adicionales cuando el observable se completa, si es necesario
       },
     });
@@ -152,6 +157,61 @@ export class SignupComponent implements OnInit, AfterViewInit {
 
   }
 
+  f_signin() {
+    // Tip: si los datos del formulario son incorrectos
+     
+    const userData: {
+      user_type: string,
+      user_name: string,
+      password: string,
+    } = {
+      user_type: this.form_register.value.user_type,
+      user_name: this.form_register.value.email,
+      password: this.form_register.value.password,
+    };
+
+    // this.dataService.showMsjInData('procesando..', 'warning', '');
+
+    this.sessionService.signin(userData).subscribe({
+      next: (data: any) => {
+
+        // -- mostrar mensaje en la pantalla
+        // this.dataService.showMsjInData('Credenciales Verificadas, espere ...', 'success', '');
+
+        const config = this.dataService.openSnackBar('success');
+        const snackBarRef = this._snackBar.open('Se ha completado su petición, espere..', 'CLOSE', config);
+
+        snackBarRef.afterDismissed().subscribe(() => {
+
+
+          const user = this.storageService.decodeToken(data.token);
+          // const user = this.storageService.getUser();
+          // console.log(user)
+
+          if (user.user_type == 'traveler') this.reloadComponent(false, '/traveler/travel-request');
+          else if (user.user_type == 'driver') this.reloadComponent(false, '/driver/offers-request');
+          else if (user.user_type == 'admin') this.reloadComponent(true);
+
+
+        });
+
+
+
+      },
+      error: (errorData) => {
+
+        console.log(errorData)
+
+        const config = this.dataService.openSnackBar('danger');
+        this._snackBar.open('Ha ocurrido un error al iniciar la sesión, dirígase a la sección Iniciar sesión e introduzca sus datos.', 'CLOSE', config);
+
+      },
+      complete: () => {
+
+      },
+    });
+
+  }
 
   // ------------------------------------------
   // TODO para iniciar sesion con goolge
@@ -252,22 +312,27 @@ export class SignupComponent implements OnInit, AfterViewInit {
 
 
 
-  goToTravelerView() {
+   // TODO ---------------------------------------
+  // -- recarga el componente o redirige a otra ruta
+  // 
+  reloadComponent(self: boolean, urlToNavegateTo?: string) {
 
-    return this.router.navigate(['/traveler/travel-request'], {
-      queryParams: {
+    //
+    console.log('Ruta actual', this.router.url);
+    const url = self ? this.router.url : urlToNavegateTo;
 
-      },
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+
+      this.router.navigate([`/${url}`]).then(() => {
+
+        window.location.reload();
+        console.log('Ruta despues de la navegacion', this.router.url);
+
+      });
     });
-  }
-  goToDriverView() {
 
-    return this.router.navigate(['/traveler/travel-request'], {
-      queryParams: {
 
-      },
-    });
-  }
+  } 
   goToSignIn() {
     return this.router.navigate(['/session/signin'], { queryParams: { role: '' } });
   }

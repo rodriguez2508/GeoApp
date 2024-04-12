@@ -1,0 +1,70 @@
+<section class="w3-row w3-col mt-15">
+  <!-- Cambio aqui -->
+  @if(viewToShow == 'map' && (!location_status)){
+
+  <!-- <div
+    [class]="
+      (!location_status
+        ? 'panel-error-connection-gps set-height-87'
+        : 'panel-error-connection-') +
+      ' align-content-between w-100 position-absolute '
+    "
+    style="z-index: 2"
+  > -->
+    @if(!socket_offer){
+     
+    <label
+      class="panel-error-connection w3-col w3-container border-top border-bottom border-dark bg-danger w3-large"
+    >
+      sin conexión, espere..
+       
+    </label>
+
+    }
+     @switch (max_count) { @case(0){} @case(-1){
+
+    <label
+      class="panel-error-connection w3-col w3-container border-top border-bottom border-dark text-white w3-xlarge text-center rounded-3"
+      (click)="reload_location()"
+    >
+      Hmm, parece que tenemos problemas para detectar tu ubicación. ¿Podrías
+      verificar que tu GPS esté habilitado? <br />
+      <a class="btn btn-warning text-text-dark fw-bold">Reintentar <i class="fa fa-rotate-back"></i></a>
+      
+    </label>
+
+    } @default{
+ 
+
+    } } 
+
+  }
+
+  <!-- -------------- -->
+  <!-- content page -->
+  <!-- -------------- -->
+   
+      <div class="w3-row w3-col set-height-s-87 border border-dark">
+        <!-- -------------- -->
+        <!-- Body page -->
+        <!-- -------------- -->
+        @if(viewToShow == 'map'){
+        <app-map-page
+          (reload_location)="reload_location()"
+          (reload_connection)="reload_socket()"
+          [lat]="lat"
+          [lon]="lon"
+          [zoom]="zoom"
+          [width]="'100%'"
+          [height]="'87vh'"
+          [connection_status]="socket_offer$"
+          [location_status]="location_status"
+          [connected_users]="connected_users"
+          [userData]="userData"
+          [favoriteMarkers]="favoriteMarkers"
+        ></app-map-page>
+        } 
+        
+      </div>
+     
+</section>

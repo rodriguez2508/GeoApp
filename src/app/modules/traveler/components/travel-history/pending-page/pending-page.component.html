@@ -14,8 +14,7 @@
     </div>
     }@else {
 
-    <ul class="w3-row w3-col w3-ul"> 
-
+    <ul class="w3-row w3-col w3-ul">
       <li
         class="w3-col button align-items-center border-bottom border-white mb-1 bg-dark bg-opacity-75"
       >
@@ -30,14 +29,20 @@
             title="Tiempo restante para que expire el viaje"
           >
             <i class="fa fa-stopwatch fa-2x me-1 w3-center"></i>
-            Faltan 
-            <strong> 
-              @if(time.min >= 0 && time.sec >= 0){ 
-                {{ time.min  }}:{{time.sec}} 
-              } @else {--:--} </strong> minutos
+            Faltan
+            <strong>
+              @if(time.min >= 0 && time.sec >= 0){
+              {{ time.min }}:{{ time.sec }} } @else {--:--}
+            </strong>
+            minutos
           </p>
 
-          <button (click)="cancelTravel(travels$.id !== undefined ? travels$.id : '')" class="w3-col l2 m2 s2 btn text-center text-danger"> <i class="fa fa-2x fa-trash "></i> </button> 
+          <button
+            (click)="cancelTravel(travels$.id !== undefined ? travels$.id : '')"
+            class="w3-col l2 m2 s2 btn text-center text-danger"
+          >
+            <i class="fa fa-2x fa-trash"></i>
+          </button>
         </div>
 
         <!-- -------------- -->
@@ -52,7 +57,7 @@
             <strong>{{ travels$.destination_address }}</strong>
           </p>
         </div>
-      </li> 
+      </li>
     </ul>
 
     <!-- Mapa con la ruta origen destino -->
@@ -80,19 +85,31 @@
     </div>
 
     }
-  
 
+    <!--TODO  -->
+    <!-- OFERTAS DE CONDUCTORES -->
+    <!--  -->
+    @if(offers$.length == 0 && travels$.id != ''){
 
-  <!--TODO  -->
-  <!-- OFERTAS DE CONDUCTORES -->
-  <!--  -->
+    <div class="w3-row w3-col w3-section ">
+      <mat-accordion class="w3-row w3-col">
+        <mat-expansion-panel
+          class="w3-row w3-col"
+          (opened)="panelOpenState = true"
+          (closed)="panelOpenState = false"
+        >
+          <mat-expansion-panel-header class="w3-row w3-col">
+            <mat-panel-title class=""> Self aware panel </mat-panel-title>
 
-    <div class="w3-row w3-col">
-
-      
+            <mat-panel-description class="w3-row w3-col">
+              Currently I am {{ panelOpenState ? "open" : "closed" }}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <p>I'm visible because I am open</p>
+        </mat-expansion-panel>
+      </mat-accordion>
     </div>
 
-  }
+    } }
   </div>
-
 </section>

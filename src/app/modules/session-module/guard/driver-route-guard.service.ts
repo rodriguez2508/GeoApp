@@ -16,7 +16,7 @@ import { StorageService } from '../../../services/storage/storage.service';
 @Injectable({
   providedIn: 'root'
 })
-export class PublicRouteGuardService {
+export class DriverRouteGuardService {
 
   constructor(
     private storageService: StorageService,
@@ -36,37 +36,28 @@ export class PublicRouteGuardService {
     | UrlTree {
     // Aquí va la lógica de tu guard de ruta
 
-    if (!Boolean(this.sessionService.isAuthenticated())) {
-
-      return true;
-    }
-
     const user = this.storageService.getUser();
-    this.dataService.setLoggedIn(true);
-    this.dataService.setuserData(user);
+
+    // console.log(user)
+    if (user.user_type == 'driver') return true;
+
 
     // console.log(user)
     if (user.user_type == 'traveler') return this.goToTravelerView();
-    else if (user.user_type == 'driver') return this.goToDriverView();
-    else if (user.user_type == 'admin') return this. goToTravelerView();
+    if (user.user_type == 'admin') return this.goToTravelerView();
 
-    return this.router.navigate(['/traveler/travel-request']);
+    return false;
+
   }
-
 
   goToTravelerView() {
 
-    return this.router.navigate(['../traveler/travel-request'], { relativeTo: this.route });
-    
-    // this.router.navigate(['/traveler/travel-request'], {
-    //   queryParams: {
-
-    //   },
-    // });
+    return this.router.navigate(['/traveler/travel-request'], { });
+ 
   }
-  goToDriverView() {
+  goToAdminView() {
 
-    return this.router.navigate(['../driver/offers-request'], { relativeTo: this.route });
-     
+    return this.router.navigate(['/public/not_found'], { });
+ 
   }
 }

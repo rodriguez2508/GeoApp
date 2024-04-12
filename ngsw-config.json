@@ -41,15 +41,14 @@
         "maxSize": 50,
         "maxAge": "0s",
         "strategy": "freshness",
-        "timeout": "5s"
+        "timeout": "0u"
 
       }
     },
     {
       "name": "app-performance",
       "urls": [
-        "https://geoloc-app.onrender.com/traveler/*travel-request*",
-        "https://geoloc-app.onrender.com/traveler/*travel-history*"
+        "https://geoloc-app.onrender.com/traveler/*travel-request*"
       ],
       "version": 1,
       "cacheConfig": {

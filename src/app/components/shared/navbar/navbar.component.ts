@@ -28,11 +28,12 @@ import { I_UserSessionStorage } from '../../../interface/user.interface';
 import { NavbarTravelerComponent } from '../../../modules/traveler/components/shared/navbar/navbar-traveler.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LogUpdateService } from '../../../services/workers/log-update.service'; 
+import { NavbarDriverComponent } from '../../../modules/driver/components/shared/navbar/navbar-driver.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, NavbarTravelerComponent],
+  imports: [RouterLink, RouterLinkActive, NavbarTravelerComponent, NavbarDriverComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
 })

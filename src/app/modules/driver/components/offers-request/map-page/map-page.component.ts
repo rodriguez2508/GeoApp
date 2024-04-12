@@ -1,0 +1,711 @@
+ 
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
+
+// -- Openlayers
+import 'ol/ol.css';
+import Map from 'ol/Map';
+import View from 'ol/View';
+import TileLayer from 'ol/layer/Tile';
+import XYZ from 'ol/source/XYZ';
+import { OSM, Vector } from 'ol/source';
+import * as Proj from 'ol/proj';
+import { Coordinate, toStringHDMS } from 'ol/coordinate';
+import {
+  defaults as defaultControls,
+  Control,
+  ZoomToExtent,
+  Zoom,
+  ZoomSlider,
+  Rotate,
+  MousePosition,
+  FullScreen,
+  OverviewMap,
+  ScaleLine,
+} from 'ol/control';
+import { fromLonLat, toLonLat, transform } from 'ol/proj';
+
+import { Feature, Overlay } from 'ol';
+import VectorSource from 'ol/source/Vector';
+import VectorLayer from 'ol/layer/Vector';
+import { Stroke, Style } from 'ol/style';
+import { LineString } from 'ol/geom';
+import { getCenter } from 'ol/extent';
+
+// -- Openlayers
+// --interfaces
+import { I_DestinationMarker } from '../../../../../interface/marker.interface';
+import {
+  I_UserMap,
+  I_UserSessionStorage,
+} from '../../../../../interface/user.interface';
+// --interfaces
+
+// -- services
+import { OlMapMarkerService } from '../../../../../services/map/ol-map-marker.service';
+import { DataService } from '../../../../../services/data/data.service';
+import { OpenRouteService } from '../../../../../services/map/open-route.service';
+// -- services
+// -- constant
+import {
+  DEFAULT_HEIGHT,
+  DEFAULT_LAT,
+  DEFAULT_LOCATION_STATUS,
+  DEFAULT_LON,
+  DEFAULT_SOCKET_STATUS,
+  DEFAULT_WIDTH,
+  DEFAULT_ZOOM } from './../../../../traveler/data/data-map';
+// -- constant
+import { FooterPageComponent } from '../footer-page/footer-page.component';
+import { ActivatedRoute, Router } from '@angular/router';
+import { I_Places } from '../../../../../interface/places.interface';
+import { StorageService } from '../../../../../services/storage/storage.service';
+
+@Component({
+  selector: 'app-map-page',
+  standalone: true,
+  imports: [FooterPageComponent],
+  templateUrl: './map-page.component.html',
+  styleUrl: './map-page.component.scss',
+})
+export class MapPageComponent implements OnInit, AfterViewInit, OnChanges {
+  @Input() lat: number = 0;
+  @Input() lon: number = 0;
+  @Input() zoom: number = DEFAULT_ZOOM;
+  @Input() connection_status: boolean = true;
+  @Input() location_status: boolean = DEFAULT_LOCATION_STATUS;
+  @Input() width: string | number = DEFAULT_WIDTH;
+  @Input() height: string | number = DEFAULT_HEIGHT;
+
+  @Input() favoriteMarkers: I_Places[] = [];
+
+  @Output() movestart = new EventEmitter<any>();
+  @Output() moveend = new EventEmitter<any>();
+  @Output() reload_location = new EventEmitter<void>();
+  @Output() reload_connection = new EventEmitter<void>();
+
+  // --
+  coord: Coordinate = [DEFAULT_LON, DEFAULT_LAT];
+  coord_destination: Coordinate = [0, 0];
+
+  // ------------------
+  // -- Marcadores
+  // ------------------
+  lineRoute: Feature = new Feature();
+  markers: Feature[] = [];
+  private vectorSource = new VectorSource();
+  private vectorLayer = new VectorLayer();
+  // ------------------
+  // -- Marcadores
+  // ------------------
+
+  // --
+
+  map: Map = new Map();
+
+  @Input() userData: I_UserSessionStorage = {
+    id: '',
+    ci: '',
+    name: '',
+    email: '',
+    exp: 0,
+    iat: 0,
+    phone: '',
+    user_type: ''
+  };
+  @Input() connected_users: I_UserMap[] = [];
+  client: I_UserMap = {
+    id: '',
+    name: '',
+    markerColor: '',
+    currentPosition: {
+      long: 0,
+      lat: 0,
+    }
+  };
+
+
+  // Agregar el control ZoomToExtent al mapa
+  extent = [this.coord[0]- 1000, this.coord[1] - 1000, this.coord[0] + 1000, this.coord[1] + 1000];
+  center = getCenter(this.extent);
+
+  private movestartListener: any; // Mantén una referencia al oyente del evento para poder eliminarlo más tarde
+  private moveendtListener: any; // Mantén una referencia al oyente del evento para poder eliminarlo más tarde
+
+  private mapEl: any;
+  private popupEl: any;
+  private hasAddedTu: boolean = false;
+
+  footerDisplayed = false;
+  methodToShowFooter: string = '';
+
+  address: string = 'buscando..';
+  distance: string = '0';
+
+  // --
+  connected_TravelerUsers: I_UserMap[] = [];
+  connected_DriverUsers: I_UserMap[] = [];
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private elementRef: ElementRef,
+    private markerService: OlMapMarkerService,
+    private storageService: StorageService,
+    private openRouteService: OpenRouteService
+  ) {
+
+  }
+
+  ngOnInit(): void {
+
+    this.userData = this.storageService.getUser();
+
+    // this.client = {
+    //   id: this.userData.ci,
+    //   name: ' (Tú)',
+    //   markerColor: 'success',
+    //   currentPosition: { lat: 0, long: 0 }
+    // };
+
+    this.mapEl = this.elementRef.nativeElement.querySelector('#map');
+
+    // -- inicializa el mapa
+    this.setSize();
+    this.initMap();
+  }
+
+  ngAfterViewInit(): void {
+    
+    this.centerMap();
+  }
+
+  ngOnDestroy(): void { }
+
+  // --------------------------------------------
+  // -- se activa si cambia la latitud y longitud
+  // --------------------------------------------
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('client' in changes) {
+      
+    }
+
+    // --------------------
+    // Controla los cambios en las coordenadas y usuarios activos
+    // --------------------
+    if (this.map && this.location_status) {
+ 
+      if ('lat' in changes || 'lon' in changes) {
+        // Si cambia alguna de las propiedades lat, lon, o zoom, actualiza el mapa
+        this.coord = [this.lon, this.lat];
+
+
+        if (!this.hasAddedTu && this.lon != 0) {
+        
+            this.client.name = ' (Tú)';
+            this.client.markerColor = 'warning';
+          //   this.initMarker([0,0], this.client);
+            this.centerMap();
+            this.hasAddedTu = true;
+          }
+        console.log('COORD CLIENT update');
+
+        // Actualiza tus marcadores
+
+        if( this.lon !== DEFAULT_LON)
+          this.initMarker(this.coord, this.client);
+
+      } else if ('connected_users' in changes) {
+        // console.log('connected_user update', this.connected_DriverUsers)
+
+        // ESTA LINEA NO ESTABA => this.getAndUpdateConnectedTravelerUsers();
+        // ESTA LINEA NO ESTABA => this.getAndUpdateConnectedDriverUsers();
+
+        // // Eliminar los marcadores que no están en this.connected_users
+        // const indexToRemove = this.markers.findIndex(
+        //   (marker) =>
+        //     !this.connected_DriverUsers.some(
+        //       (user) => user.id === marker.get('client').id
+        //     )
+        // );
+
+        // if (
+        //   indexToRemove !== -1 &&
+        //   this.markers[indexToRemove].get('client').id != 'destination' &&
+        //   this.markers[indexToRemove].get('client').id != this.client.id
+        // )
+        //   this.clearMarker(this.markers[indexToRemove].get('client').id);
+
+        // this.setMarkersForConnectedUsers();
+      }
+    }
+  }
+
+  // --------------------------------------------
+  // -- Inicializar el mapa
+  // --------------------------------------------
+
+  private initMap() {
+    // this.vectorSource.addFeatures(this.markers);
+
+    // this.vectorLayer = new VectorLayer({
+    //   source: this.vectorSource,
+    // });
+
+    // ----------------------------------
+    // controles
+    // ----------------------------------
+
+    const zoomToExtentControl = new ZoomToExtent({
+      extent: this.extent,
+    });
+    const zoomControl = new Zoom();
+    const rotateControl = new Rotate();
+    const scaleLine = new ScaleLine();
+
+    // ----------------------------------
+    // controles
+    // ----------------------------------
+    this.map = new Map({
+      target: this.mapEl,
+      layers: [
+        new TileLayer({
+          source: new OSM(),
+        }),
+        this.vectorLayer,
+      ],
+      view: new View({
+        // projection: 'EPSG:4326',
+        center: Proj.fromLonLat(this.center),
+        minZoom: 6,
+        maxZoom: 19,
+        zoom: this.zoom,
+      }),
+      controls: [rotateControl, scaleLine],
+    });
+
+    //  ------------------------------
+    // EVENTO CLICK
+    //  ------------------------------
+    // this.map.on('singleclick', (event) => {
+    //   // console.log(`Has hecho clic en las coordenadas (${event.coordinate[0]}, ${event.coordinate[1]}).`);
+
+    //   //  -- Inicializa el marcador destino
+    //   this.coord_destination = transform(
+    //     event.coordinate,
+    //     'EPSG:3857',
+    //     'EPSG:4326'
+    //   );
+    //   this.initMarkerDestination(this.coord_destination);
+
+    //   // console.log('name street', this.openRouteService.getStreetInformation(coord_destination))
+
+    //   if (this.location_status) {
+    //     this.showFooterOnMap();
+
+    //     if (this.footerDisplayed && this.connection_status && this.location_status) {
+    //       this.getAddress(this.coord_destination);
+    //     }
+    //     // const startPoint = [this.lon, this.lat];
+    //     // const endPoint = coord_destination;
+    //     // this.drawRoute(startPoint, endPoint);
+    //     // this.updateMarkers();
+    //   }
+    // });
+
+    //  ------------------------------
+    // EVENTO CLICK
+    //  ------------------------------
+  }
+
+
+  centerMap() {
+    // this.map.getView().setCenter(Proj.fromLonLat([this.lon, this.lat]));
+    // Función de callback para centrar el mapa en las coordenadas actuales
+    const coordinate: Coordinate = transform(
+      this.coord,
+      'EPSG:4326',
+      'EPSG:3857'
+    );
+    this.map.getView().animate({ center: coordinate, zoom: 15 }, { duration: 1000 });
+  }
+
+  // --------------------------------------------
+  // -- Establecer tamaño del mapa
+  // --------------------------------------------
+  private setSize() {
+    if (this.mapEl) {
+      const styles = this.mapEl.style;
+      styles.height = coerceCssPixelValue(this.height) || DEFAULT_HEIGHT;
+      styles.width = coerceCssPixelValue(this.width) || DEFAULT_WIDTH;
+    }
+  }
+
+  // --------------------------------------------
+  // --------------------------------------------
+  // -- DRAW EN EL MAPA
+  // --------------------------------------------
+  // --------------------------------------------
+
+  private drawRoute(startPoint: Coordinate, endPoint: Coordinate) {
+    this.openRouteService.getRoute(startPoint, endPoint).subscribe({
+      next: (response: any) => {
+        const coordinates = response.features[0].geometry.coordinates;
+        console.log(response);
+
+        const styleLine = new Style({
+          stroke: new Stroke({
+            color: '#FF0000', // Color Rojo
+            width: 5, // Ancho Grueso
+          }),
+        });
+
+        this.lineRoute = new Feature({
+          geometry: new LineString(coordinates).transform(
+            'EPSG:4326',
+            'EPSG:3857'
+          ),
+        });
+
+        this.lineRoute.setStyle(styleLine);
+
+        this.updateMarkers(this.lineRoute);
+      },
+      error: (error: any) => {
+        // Manejar errores al obtener el estado del socket
+        console.error('Error en la solicitud a GraphHopper:', error);
+      },
+      complete: () => {
+        // Realizar acciones adicionales cuando el observable se completa, si es necesario
+      },
+    });
+  }
+
+  private getAddress(coord: Coordinate) {
+    this.openRouteService.getStreetInformation(coord).subscribe({
+      next: (response: any) => {
+
+        // console.log(response.address);
+        // console.log(response.address.road);
+
+        let road = response.address.road;
+        let town = response.address.town;
+        let neighbourhood = response.address.neighbourhood;
+        let suburb = response.address.suburb;
+        let city = response.address.city;
+        let state = response.address.state;
+
+        const address = `${road === undefined ? '' : road + ','} ${town === undefined ? '' : town + ','} ${neighbourhood === undefined ? '' : neighbourhood + ','
+          } ${city === undefined ? '' : city}  ${state === undefined ? '' : state}`;
+
+        // const distance = response.features[0]?.properties?.distance;
+
+        // console.log(response.features)
+        this.address = address;
+        // this.distance = distance;
+
+      },
+      error: (error: any) => {
+        // Manejar errores al obtener el estado del socket
+        // console.error('Error en la solicitud a ORS:', error);
+        this.address = 'Error de conexión.';
+        this.distance = '0';
+      },
+      complete: () => {
+        // Realizar acciones adicionales cuando el observable se completa, si es necesario
+      },
+    });
+  }
+  // --------------------------------------------
+  // --------------------------------------------
+  // -- DRAW EN EL MAPA
+  // --------------------------------------------
+  // --------------------------------------------
+
+  // --------------------------------------------
+  // --------------------------------------------
+  // -- popupEl EN EL MAPA
+  // --------------------------------------------
+  // --------------------------------------------
+  initPopup() {
+    this.popupEl = this.elementRef.nativeElement.querySelector('#popup');
+    this.popupEl.style.borderRadius = '10px';
+    this.popupEl.style.padding = '10px';
+    this.popupEl.style.display = 'none';
+  }
+
+  // --------------------------------------------
+  // --------------------------------------------
+  // -- popupEl EN EL MAPA
+  // --------------------------------------------
+  // --------------------------------------------
+
+  // --------------------------------------------
+  // --------------------------------------------
+  // -- MARCADORES EN EL MAPA
+  // --------------------------------------------
+  // --------------------------------------------
+
+  // --------------------------------------------
+  // -- inicializar marcador en el mapa
+  // --------------------------------------------
+  public initMarker(
+    coord: Coordinate,
+    client: I_UserMap | I_DestinationMarker,
+    type: string = ''
+  ) {
+    // Asegúrate de que el servicio y el mapa estén disponibles
+    if (this.markerService && this.map) {
+      // Buscar el índice del marcador que se va a actualizar
+      const indexToUpdate = this.markers.findIndex(
+        (marker) => marker.get('client').id === client.id
+      );
+
+      // -- el marcador NO existe en el array
+      if (indexToUpdate === -1) {
+        this.markers = this.markerService.initMarker(
+          this.markers,
+          coord,
+          client
+        );
+      }
+      // -- el marcador existe en el array
+      else {
+        this.markers = this.markerService.updateMarkers(
+          this.markers,
+          coord,
+          client
+        );
+
+        // this.vectorSource.refresh();
+      }
+
+      this.updateMarkers();
+    }
+  }
+
+  // -- Inicializa el marcador destino
+  initMarkerDestinationStart(coord: Coordinate) {
+    let destination: I_DestinationMarker = {
+      id: 'destination_start',
+      name: '',
+      markerColor: 'success',
+      currentPosition: {
+        lat: coord[1],
+        long: coord[0],
+      }
+    };
+
+    this.initMarker(coord, destination);
+  }
+
+  // -- Inicializa el marcador destino
+  initMarkerDestinationEnd(coord: Coordinate) {
+    let destination: I_DestinationMarker = {
+      id: 'destination_end',
+      name: '',
+      markerColor: 'danger',
+      currentPosition: {
+        lat: coord[1],
+        long: coord[0],
+      }
+    };
+
+    this.initMarker(coord, destination);
+  }
+
+  updateMarkers(feature: Feature = new Feature()) {
+    const vectorSource = new VectorSource({
+      features: [feature],
+    });
+
+    vectorSource.addFeatures(this.markers);
+
+    this.vectorLayer.getSource()?.clear();
+    this.vectorLayer.getSource()?.refresh();
+
+    this.vectorLayer = new VectorLayer({
+      source: vectorSource,
+    });
+
+    this.map.addLayer(this.vectorLayer);
+
+    // this.vectorSource.refresh();
+    this.map.render();
+  }
+  // --------------------------------------------
+  // -- Remover marcador en el mapa
+  // --------------------------------------------
+  public clearMarker(clientId: string): void {
+    // Asegúrate de que el servicio y el mapa estén disponibles
+    if (this.markerService && this.map) {
+      // Buscar el índice del marcador que se va a actualizar
+      const indexToUpdate = this.markers.findIndex(
+        (marker) => marker.get('client').id === clientId
+      );
+
+      // -- el marcador NO existe en el array
+      if (indexToUpdate !== -1) {
+        this.markers = this.markerService.removeMarker(this.markers, clientId);
+
+        this.updateMarkers();
+      } else {
+        // this.clearMarker(clientId);
+      }
+    }
+  }
+
+  // Función para pintar marcadores para todos los usuarios conectados
+  public setMarkersForConnectedUsers() {
+    // Asegúrate de tener datos en connected_users y de que el servicio y el mapa estén disponibles
+    if (
+      this.connected_DriverUsers.length > 0 &&
+      this.markerService &&
+      this.map
+    ) {
+      this.connected_DriverUsers.forEach((user: I_UserMap) => {
+        // Verifica si la posición actual está presente en el usuario antes de intentar pintar el marcador
+        if (user.currentPosition.lat && user.currentPosition.long) {
+          const coord: Coordinate = [
+            user.currentPosition.long,
+            user.currentPosition.lat,
+          ];
+
+          this.markers = this.markers.filter((marker) => {
+            return this.connected_DriverUsers.some(
+              (user) => user.id === marker.get('client').id
+            );
+          });
+
+          this.initMarker(this.coord, this.client);
+
+          let client: I_UserMap = {
+            id: user.id,
+            name: user.name,
+            markerColor: 'warning',
+            currentPosition: {
+              lat: this.coord[1],
+              long: this.coord[0]
+            }
+          };
+
+          // if (this.client.id == client.id) {
+
+          // }
+          // else {
+
+          this.initMarker(coord, client);
+
+          // }
+        }
+      });
+    }
+  }
+
+  // --------------------------------------------
+  // --------------------------------------------
+  // -- MARCADORES EN EL MAPA
+  // --------------------------------------------
+  // --------------------------------------------
+
+  // --------------------------------------------
+  // --------------------------------------------
+  // -- FOOTER
+  // --------------------------------------------
+  // --------------------------------------------
+
+  showFooterOnMap() {
+    this.footerDisplayed = !this.footerDisplayed;
+    if (!this.footerDisplayed) {
+      this.clearMarker('destination');
+      this.address = 'Buscando...';
+      // this.distance = '0';
+      this.coord_destination = [0, 0];
+    }
+    this.methodToShowFooter = 'map';
+  }
+
+  getConnectedUsersByType(userType: string): I_UserMap[] {
+    // return this.connected_users.filter(
+    //   (user: I_UserMap) => user. === userType
+    // );
+    return this.connected_users;
+  }
+
+  getAndUpdateConnectedTravelerUsers(): void {
+    this.connected_TravelerUsers = this.getConnectedUsersByType('traveler');
+  }
+
+  getAndUpdateConnectedDriverUsers(): void {
+    this.connected_DriverUsers = this.getConnectedUsersByType('driver');
+  }
+
+  // --------------------------------------------
+  // --------------------------------------------
+  // -- FOOTER
+  // --------------------------------------------
+  // --------------------------------------------
+
+  goToFavoritesPlaces(): void {
+
+    this.router.navigate(['/traveler/favorites-places'], {
+      queryParams: {
+
+      },
+    });
+  }
+
+  reloadWithParams() {
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        view: 'form',
+        lon: this.coord[0],
+        lat: this.coord[1],
+        lon_d: this.coord_destination[0],
+        lat_d: this.coord_destination[1]
+      }
+    });
+  }
+
+  f_reload_location() {
+    this.reload_location.emit();
+  } 
+  
+  f_reload_connection() {
+    this.reload_connection.emit();
+  }
+
+  f_rotate_btn(icon_class:string) {
+
+    const icon = this.elementRef.nativeElement.querySelector('.'+icon_class);
+    icon.classList.add("rotate-icon");
+  
+    setTimeout(() => {
+      icon.classList.remove("rotate-icon");
+    }, 1000); // Remover la clase después de un segundo (1000ms)
+  }
+}
+
+// --------------------------------------------
+// -- Propiedades de estilos necesarias para pintar el mapa
+// --------------------------------------------
+const cssUnitsPattern = /([A-Za-z%]+)$/;
+
+function coerceCssPixelValue(value: any): string {
+  if (value == null) {
+    return '';
+  }
+
+  return cssUnitsPattern.test(value) ? value : `${value}px`;
+}

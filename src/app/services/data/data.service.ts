@@ -129,7 +129,7 @@ export class DataService {
     Swal.fire(title, message, icon as SweetAlertIcon);
   }
 
-  async showQuestion(message: string, title: string = '', icon: string): Promise<boolean> {
+  async showQuestion(message: string, title: string = '', icon: string): Promise<boolean | undefined>  {
     // Swal.fire(title, message, icon as SweetAlertIcon);
 
     return await Swal.fire({
@@ -142,10 +142,11 @@ export class DataService {
       if (result.isConfirmed) {
         // Acción a realizar si el usuario confirma
         return true;
-      } else {
+      } else if (result.isDenied){
         // Acción a realizar si el usuario niega
         return false;
-      }
+      } 
+      return undefined;
     });
 
 

@@ -3,7 +3,7 @@ import { environment } from '../../../environments/environment';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, finalize, map, tap, throwError } from 'rxjs';
 
 // -- módulo que para generar ID
 import { v4 as uuidv4 } from 'uuid';
@@ -136,21 +136,16 @@ export class SessionService {
       return throwError(() => new Error('Contraseñas no coinciden.'));
     }
     // -- Verificar que las datos sean correctas 
+ 
 
     return this.http.post<any>(url, userData).pipe(
-
-      tap((data: any) => {
-        // -- guardar token
-        this.storageService.f_setToken(data.token);
-
-        const decodedToken = this.storageService.decodeToken(data.token); // Decodifica el token
-
-        this.storageService.saveUser(decodedToken);
-
-      }),
-
-      catchError(this.handleError)
+      tap(data => {}), // Transforma la respuesta en un array vacío si no hay datos
+      catchError(this.handleError),
+      finalize(() => {
+        console.log('Petición completada');
+      })
     );
+
 
   }
 

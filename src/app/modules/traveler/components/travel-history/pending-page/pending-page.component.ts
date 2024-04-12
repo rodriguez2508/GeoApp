@@ -2,23 +2,27 @@ import { TripTravelerService } from './../../../../../services/trip/trip-travele
 import { AfterViewInit, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { Coordinate } from 'ol/coordinate';
+import { BehaviorSubject, Observable, Subscription, catchError, finalize, map, switchMap, take, tap } from 'rxjs';
 
+import { PMapRouteComponent } from '../../shared/p-map-route/p-map-route.component';
+
+import { I_Offers } from '../../../../../interface/offers.interface';
 import { I_UserSessionStorage } from '../../../../../interface/user.interface';
 import { I_FormTravelRequest } from '../../../../../interface/trip.interface';
+
 import { StorageService } from '../../../../../services/storage/storage.service';
-import { PMapRouteComponent } from '../../shared/p-map-route/p-map-route.component';
-import { Coordinate } from 'ol/coordinate';
 import { DataService } from '../../../../../services/data/data.service';
-import { BehaviorSubject, Observable, take } from 'rxjs';
 import { DataTravelerService } from '../../../../../services/data/data_traveler.service';
-import { I_Offers } from '../../../../../interface/offers';
 import { SocketioServices } from '../../../../../services/sockets/socketio.service';
 import { environment } from '../../../../../../environments/environment';
+
 
 @Component({
   selector: 'app-pending-page',
   standalone: true,
-  imports: [PMapRouteComponent],
+  imports: [PMapRouteComponent, MatExpansionModule],
   templateUrl: './pending-page.component.html',
   styleUrl: './pending-page.component.scss'
 })
@@ -28,7 +32,7 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   private _snackBar = inject(MatSnackBar);
 
   title_page: string = '';
-
+  panelOpenState = false;
 
   // ---------------------------------------------------
   //TODO -- establece la data a los viajes  INICIO
@@ -48,7 +52,8 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
     maxTimeWaiting: '',
     travelPeferences: ''
   };
-
+  private subTravels$: any;
+  private subTravels: any;
   // travelsSubject = new BehaviorSubject<I_FormTravelRequest>(this.travels$);
 
   // ---------------------------------------------------
@@ -62,6 +67,8 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   //  las funciones estan en el archivo data_traveler.service.ts
   // --------------------------------------------------- 
   offers$: I_Offers[] = [];
+  private subOffers: any;
+  private subOffersSocket: any;
 
   // offersSubject = new BehaviorSubject<I_Offers[]>(this.offers$);
 
@@ -85,7 +92,7 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
     phone: '',
     user_type: ''
   };
-
+  private subUserData: any;
   // userDataSubject = new BehaviorSubject<I_UserSessionStorage>(this.userData$);
   // --------------------------------------------------
   //TODO -- establece la data del usuario  FINAL
@@ -113,6 +120,7 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
   @Input() socket_status$: boolean = false;
   @Input() socket: any;
+  socket_offer: any;
   // ---------------------------------------------------
   // TODO estado del socket FINAL
   // ---------------------------------------------------
@@ -139,26 +147,35 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   }
   ngOnDestroy(): void {
 
+    if (this.subTravels$) this.subTravels$.unsubscribe();
+    if (this.subTravels) this.subTravels.unsubscribe();
+    if (this.subOffers) this.subOffers.unsubscribe();
+    if (this.subOffersSocket) this.subOffersSocket.unsubscribe();
+    if (this.subUserData) this.subUserData.unsubscribe();
+    if (this.interval) this.stopInterval();
   }
   ngOnInit(): void {
 
-
+    this.changeDetectorRef.detectChanges();
 
     // -- Subscribirse al userData para obtener datos de sesion del usuario
-    this.subscribeUserData();
+    if (this.userData$.id == '')
+      this.subscribeUserData();
+ 
 
-    // -- Subscribirse al travelData para obtener viajes
-    this.subscribeTravelData();
+     // if (this.userData$.id != '' && this.socket_status$ == true)
+      this.getTravels(this.userData$.id);
 
 
   }
   ngOnChanges(changes: SimpleChanges): void {
 
+
   }
 
   ngAfterViewInit(): void {
-
-
+ 
+    this.subscribeTravelData();
   }
 
   // TODO se subscribe a la funcion para obtener los datos del usuario
@@ -166,14 +183,17 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
   subscribeUserData() {
 
-    this.dataService.getuserData().subscribe(data => {
+    this.subUserData = this.dataService.getuserData().pipe(
+      tap(
+        data => {
 
-      console.log('subscribeUserData', data)
-      if (data !== undefined) {
-        this.userData$ = data;
-      }
-
-    });
+          // console.log('subscribeUserData', data)
+          if (data !== undefined) {
+            this.userData$ = data;
+          }
+        }
+      )
+    ).subscribe();
 
 
 
@@ -183,60 +203,76 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   // -----------------------------------------
   subscribeTravelData() {
 
-    this.getTravels(this.userData$.id);
+    this.subTravels$ = this.dataTravelerService.getTravelData().pipe(
+      tap(
+        async data => {
 
-    this.dataTravelerService.getTravelData().subscribe(async data => {
+          // console.log('subscribeTravelData', data)
 
-      console.log('subscribeTravelData', data)
-      if (data !== undefined) {
+          this.travels$ = data;
 
-        this.travels$ = data;
+          if (data.id !== undefined && data.id !== '') {
 
-        // -- abrir conexion del socket para las ofertas 
-        this.subscribeOffers();
+            // -- |1| Comprobar expiracion del Viaje
+            // --
+
+            // -- asignar valor de viaje fue creado
+            const dateCreated = new Date(data.date_created !== undefined && data.id !== '' ? data.date_created : '');
+            const dateFinish = new Date(data.date_finish !== undefined && data.id !== '' ? data.date_finish : '');
+            // -- asignar valor de campo tiempo de espera
+            this.time.min = parseInt(data.maxTimeWaiting);
+
+            console.log('dateCreated', dateCreated)
+            console.log('dateFinish', dateFinish)
+
+            const travelExpirated = this.checkTravelExpiration(dateCreated, dateFinish, this.time.min);
+
+            console.log('se actualizo el TIME => ', this.time.min)
+            if (!this.interval || this.interval == null)
+              this.setTimer(parseInt(data.maxTimeWaiting), data.id);
+
+            if (!travelExpirated) {
+
+              this.travels$ = data;
+              // -- Asignar valor de las coordenadas7y del viaje 
+              // --
+              this.coord = [parseFloat(data.origin_coordinate.split(',')[0]), parseFloat(data.origin_coordinate.split(',')[1])];
+
+              this.coord_destination = [parseFloat(data.destination_coordinate.split(',')[0]), parseFloat(data.destination_coordinate.split(',')[1])];
+
+              // -- |3| - comprueba que las coord sean validas
+              // --
+
+              if (this.checkCoordinates('origin') && this.checkCoordinates('destination'))
+                this.showMap = true;
+
+              // --
+              // -- |3| - comprueba que las coord sean validas
 
 
-        // -- Asignar valor de las coordenadas del viaje 
-        // --
-        this.coord = [parseFloat(data.origin_coordinate.split(',')[0]), parseFloat(data.origin_coordinate.split(',')[1])];
+              // -- ABRIR SOCKET PARA LAS OFERTAS SI HAY VIAEJS PENDIENTES
+              if (this.socket_offer === undefined) {
+                this.connectSocket();
 
-        this.coord_destination = [parseFloat(data.destination_coordinate.split(',')[0]), parseFloat(data.destination_coordinate.split(',')[1])];
+                // -- enviar data del viaje por socket
+                this.sendTravelSocket(this.travels$);
 
-        // -- |1| - comprueba que las coord sean validas
-        // --
-
-        if (this.checkCoordinates('origin') && this.checkCoordinates('destination'))
-          this.showMap = true;
-
-        // --
-        // -- |1| - comprueba que las coord sean validas
-
-
-        // -- |2| Comprobar expiracion del Viaje
-        // --
-
-        // -- asignar valor de viaje fue creado
-        const dateCreated = new Date(data.date_created !== undefined && data.id !== '' ? data.date_created : '');
-        const dateFinish = new Date(data.date_finish !== undefined && data.id !== '' ? data.date_finish : '');
-        // -- asignar valor de campo tiempo de espera
-        this.time.min = parseInt(data.maxTimeWaiting);
-
-
-        // -- comprobar que el viaje este vencido
-        if (data.id !== undefined && data.id !== '')
-          if (this.checkTravelExpiration(dateCreated, dateFinish, this.time.min)) {
-
-            // TODO  volver a publicar el viaje?
-            await this.republishTravel(parseInt(data.maxTimeWaiting), data.id);
-
-          } else {
-            this.setTimer(parseInt(data.maxTimeWaiting), data.id);
+                // -- abrir conexion del socket para las ofertas 
+                this.subscribeOffers();
+              }
+            }
           }
-        // -- |2| Comprobar expiracion del Viaje
 
-      }
+          // -- CERRAR SOCKET PARA LAS OFERTAS SI NO HAY VIAEJS PENDIENTES
+          if (this.travels$.id == '') {
 
-    });
+            if (this.socket_offer)
+              this.disconnectSocket();
+
+          }
+        }
+      )
+    ).subscribe();
 
 
 
@@ -244,31 +280,31 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   // ---------------------------------------------------
   //TODO -- Obtiene los viajes con estado 'pending' del usuario
   // ---------------------------------------------------
+
   getTravels(user_id: string) {
+    this.subTravels = this.tripTravelerService.getTravels(user_id, 'pending').pipe(
+      take(1),
+      tap((dataTravel: string | any[]) => {
+        if (dataTravel.length !== 0) {
 
-    console.log('entro en getTravels')
-
-    // StatusTravel :
-    // --> 1 Pendiente
-    // --> 2 En curso
-    // --> 3 Completado
-    this.tripTravelerService.getTravels(user_id, 'pending').pipe(
-      take(1)
-    ).subscribe(
-
-      data => {
-        console.log('entro en getTravelsService', data);
-
-        if (data.length !== 0) {
-          this.dataTravelerService.setTravelData(data[0]);
+          const data = dataTravel[0]; 
+           
+          this.dataTravelerService.setTravelData(data);
+          
+        } else {
+          this.dataTravelerService.setTravelData(null);
+        }
+      }),
+      finalize(
+        () => {
 
         }
-      }
-
-    );
-
-
-
+      ),
+      catchError(error => {
+        console.error(error);
+        return [];
+      })
+    ).subscribe();
   }
 
   // ---------------------------------------------------
@@ -278,19 +314,20 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
   setTimer(minutesExp: number, travelId: string) {
 
 
-    if (travelId != undefined && travelId != '') {
-      this.interval = setInterval(() => {
+    if (travelId != undefined && travelId != '' && !this.interval) {
+
+
+      this.interval = setInterval(async () => {
 
 
         if (this.time.sec === 0) {
           if (this.time.min === 0) {
 
-            this.time.min = -1;
-            this.time.sec = 0;
+
             this.stopInterval();
 
             // llamar a la funcion para volver a publicar el viaje
-            this.republishTravel(minutesExp, travelId);
+            await this.republishTravel(minutesExp, travelId);
 
           } else {
 
@@ -305,28 +342,45 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
 
   }
+  // TODO -- Detener el temporizador
+  // -- 
+  // 
+  stopInterval() {
 
+    this.time.min = -1;
+    this.time.sec = -1;
+    clearInterval(this.interval);
+    this.interval = null;
+  }
 
   async republishTravel(minutesExp: number, travelId: string) {
 
     if (travelId != undefined && travelId != '') {
-      const shouldRepublish = await this.dataService.showQuestion(
+
+      const question = await this.dataService.showQuestion(
         'Su viaje ha expirado, desea volver a publicarlo?',
         '',
         'warning'
       );
+      if (question) {
 
-      if (shouldRepublish) {
+        const dateCreated = new Date();
+        const dateFinish = new Date(dateCreated.getTime() + minutesExp * 60000);
 
-        this.time.sec = 59;
-        this.time.min = minutesExp;
+        this.travels$.date_created = dateCreated;
+        this.travels$.date_finish = dateFinish;
+        this.interval = undefined;
+
+        this.dataTravelerService.setTravelData(this.travels$);
+
         this.updateDateFinish(minutesExp, travelId);
 
-      } else {
 
-        this.time.sec = 59;
-        this.time.min = -1;
+      }
+      else if (!question) {
+
         this.dataTravelerService.setTravelData(null);
+
         this.updateTravelStatus('expired', travelId);
 
       }
@@ -346,30 +400,36 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
     }
 
     const travelData = {
-      maxTimeWaiting: minutesExp
+      maxTimeWaiting: minutesExp,
+      status: 'pending'
     };
 
     this.tripTravelerService.updateTravelDateFinish(travelData, id).pipe(
-      take(1)
-    ).subscribe(
+      take(1),
+      tap(
+        data => {
+          console.log('entro en updateDateFinish', data);
 
-      data => {
-        console.log('entro en updateTravels', data);
+          const config = this.dataService.openSnackBar('success', 3);
+          const snackBarRef = this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
+          snackBarRef.afterDismissed().subscribe(() => {
 
-        const config = this.dataService.openSnackBar('success', 3);
-        const snackBarRef = this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
-        snackBarRef.afterDismissed().subscribe(() => {
+            this.reloadComponent(true);
+            this.dataTravelerService.setTravelData(this.travels$);
+            this.changeDetectorRef.detectChanges();
 
-          this.changeDetectorRef.detectChanges();
+          });
 
+
+        }
+      ),
+      finalize(
+        () => {
+          console.log('Petición completada')
           this.reloadComponent(true);
-
-        });
-
-
-      }
-
-    );
+        }
+      )
+    ).subscribe();
 
   }
 
@@ -389,25 +449,33 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
     };
 
     this.tripTravelerService.updateTravelRequest(travelData, id).pipe(
-      take(1)
-    ).subscribe(
+      take(1),
+      tap(
 
-      data => {
-        console.log('entro en updateTravels', data);
+        data => {
+          console.log('entro en updateTravels', data);
 
-        const config = this.dataService.openSnackBar('success', 3);
-        const snackBarRef = this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
+          const config = this.dataService.openSnackBar('success', 3);
+          const snackBarRef = this._snackBar.open('Solicitud realizada con éxito', 'CLOSE', config);
 
-        snackBarRef.afterDismissed().subscribe(() => {
-          this.changeDetectorRef.detectChanges();
+          snackBarRef.afterDismissed().subscribe(() => {
 
+            if (status == 'expired' || status == 'canceled') {
+              this.disconnectSocket();
+            }
+            this.dataTravelerService.setTravelData(null);
+            // window.location.reload();
+
+          });
+        }
+      ),
+      finalize(
+        () => {
+          console.log('Petición completada')
           this.reloadComponent(true);
-          // window.location.reload();
-
-        });
-      }
-
-    );
+        }
+      )
+    ).subscribe();
 
   }
 
@@ -430,14 +498,8 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
       if (await this.dataService.showQuestion('Está seguro que desea cancelar el viaje?', '', 'warning')) {
 
         // TODO cambiar estado del viaje a expired
-        // --
-        // this.setTravelData(null);
-        this.dataTravelerService.setTravelData(null);
-
+        // -- 
         this.stopInterval();
-        this.time.min = -1;
-        this.time.sec = 0;
-
         this.updateTravelStatus('canceled', travelId);
 
       }
@@ -476,14 +538,7 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
     });
 
   }
-  // TODO -- Detener el temporizador
-  // -- 
-  // 
-  stopInterval() {
 
-    clearInterval(this.interval);
-
-  }
 
   // TODO ---------------------------------------
   // -- comprueba que las coordenadas esten en formato correcto
@@ -516,9 +571,12 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
     if (dateToday < dateExpired) {
       this.time.min = Math.floor((dateExpired - dateToday) / 60000);
+      this.time.sec = 59;
       return false;
     } else {
-      this.time.min = -1;
+
+      this.time.min = 0;
+      this.time.sec = 3;
       return true;
     }
 
@@ -538,6 +596,7 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
       this.router.navigate([`/${url}`]).then(() => {
 
+        window.location.reload();
         console.log('Ruta despues de la navegacion', this.router.url);
 
       });
@@ -546,53 +605,74 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
 
   }
 
-
-  // ---------------------------------------------------
-  // TODO -- Obtener OFERTAS
-  // ---------------------------------------------------
-
-  getOffers() {
-    if (this.socket != undefined || this.socket != null)
-      this.socket.on('listen-offers', (data: I_Offers) => {
-        this.offers$.push(data); // Agrega la oferta recibida al arreglo de ofertas
-      });
-
-  }
-  // ---------------------------------------------------
-  // TODO -- Obtener OFERTAS
-  // ---------------------------------------------------
-
   // ---------------------------------------------------
   // TODO -- SOCKETS
   // ---------------------------------------------------
 
-  // subscribeSocketStatus() {
 
-  //   this.dataTravelerService.getSocketStatus().subscribe(data => {
+  connectSocket() {
 
-  //     console.log('subscribeSocketStatus', data)
-  //     if (data !== undefined) {
-  //       this.socket_status$ = data;
-  //     }
+    console.log('SOCKET OFFER CONECTADO!')
+    this.socket_offer = this.socketioService.connectSocket(environment.socketUrl + '/offer');
 
-  //   });
+    this.socketioService.get_socketStatus(this.socket_offer).subscribe(
+      status => {
+        this.dataTravelerService.setSocketStatus(status);
+      }
+    );
+
+  }
+
+  disconnectSocket() {
+    if (this.socket_offer) {
+
+      this.socketioService.disconnectSocket(this.socket_offer);
+      this.dataTravelerService.setSocketStatus(false);
+
+    }
+  }
+  // ---------------------------------------------------
+  // TODO --  Enviar Travel INICIO
+  // ---------------------------------------------------
+  // Método para emitir un evento con los datos del viaje
+  sendTravelSocket(travel: I_FormTravelRequest) {
+
+    if (travel.id != undefined && travel.id != '')
+      try {
+        if (this.socket_offer != undefined && this.socket_offer != null)
+
+          console.log('SOCKET sendTravelSocket!', travel)
+
+        this.socket_offer.emit('send-travel', travel);
+
+      } catch (error) {
+
+        console.error('Error al enviar el viaje:', error);
+
+      }
 
 
 
-  // } 
+  }
 
-  // --para escuchar el evento 'listen-offers':
+  // ---------------------------------------------------
+  // TODO -- Enviar Travel FIN
+  // ---------------------------------------------------
+
+  // ---------------------------------------------------
+  // TODO -- Obtener OFERTAS
+  // ---------------------------------------------------
 
   subscribeOffers() {
-
-
     if (!this.travels$ || this.travels$.id === '') {
       return;
     }
 
-    this.getOffers();
+    // -- abrir y subscribirse al socket de ofertas
+    this.subscribeOffersSocket();
 
-    this.dataTravelerService.getOffers().subscribe(data => {
+    // -- subscribirse a las ofertas en la app
+    this.subOffers = this.dataTravelerService.getOffers().subscribe(data => {
 
       console.log('subscribeOffers', data)
       if (data !== undefined && data.length != 0) {
@@ -602,6 +682,33 @@ export class PendingPageComponent implements OnChanges, OnInit, AfterViewInit, O
     });
 
   }
+
+  // -- subscribirse al metodo para obtener ofertas
+  subscribeOffersSocket() {
+
+    this.subOffersSocket = this.onOffersSocket().subscribe((offersList: any) => {
+      // Actualizar la interfaz con la lista de viajes
+      console.log(offersList);
+
+      this.dataTravelerService.setOffers(offersList);
+    });
+
+  }
+  // -- obtener ofertas por socket
+  onOffersSocket() {
+    if (this.socket_offer != undefined && this.socket_offer != null)
+      return this.socket_offer.fromEvent('listen-offers');
+    // this.socket.on('listen-offers', (data: I_Offers) => {
+    //   this.offers$.push(data); // Agrega la oferta recibida al arreglo de ofertas
+    // });
+    return [];
+
+  }
+
+
+  // ---------------------------------------------------
+  // TODO -- Obtener OFERTAS
+  // ---------------------------------------------------
 
   // ---------------------------------------------------
   // TODO -- SOCKETS

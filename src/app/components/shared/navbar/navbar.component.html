@@ -44,7 +44,7 @@
 
         }@else if (userData.user_type == 'driver') {
 
-        <i class="fa fa-driver fa-1x text-white"></i>
+        <i class="fa fa-car-side fa-1x text-white"></i>
 
         }@else if (userData.user_type == 'admin') { } @else {
         <i class="fa fa-user fa-1x text-white"></i>
@@ -267,7 +267,18 @@
   <!-- -------- NAVBAR Traveler -->
   <!-- -------- -->
 
-  }@else if(userData.user_type == 'driver'){ }
+  }@else if(userData.user_type == 'driver'){ 
+
+     <!-- -------- -->
+  <!-- -------- NAVBAR Traveler -->
+  <!-- -------- -->
+  <app-navbar-driver></app-navbar-driver>
+  <!-- -------- -->
+  <!-- -------- NAVBAR Traveler -->
+  <!-- -------- -->
+
+
+  }
 </header>
 
 }

@@ -1,0 +1,157 @@
+<div class="w3-row w3-col">
+  <div id="map" class="map">
+    <!-- <div class="position-absolute popover text-white bg-dark" id="popup"></div> -->
+
+    <!-- TODO CUANDO NO EXISTE UBICACION-->
+    <!--  -->
+    <!-- ------------------------------ -->
+    @if(!location_status && !footerDisplayed){
+
+    <!-- BOTON PARA MOSTRAR TU UBICACION ... -->
+    <button
+      id="btn_centerPosition"
+      (click)="f_reload_location()"
+      (click)="f_rotate_btn('rotate_location')"
+      [class]="
+        'w3-black border border-danger border-3 btn position-absolute text-danger w3-round-xxlarge'
+      "
+      type="button"
+    >
+      Reconectar
+      <i [class]="'rotate_location fa fa-location-crosshairs w3-xlarge p-1 text-danger'"></i>
+    </button>
+
+     
+    } @else if(location_status && !footerDisplayed){
+
+    <!-- TODO CUANDO HAY CONEXION AL GPS-->
+    <!--  -->
+    <!-- ------------------------------ -->
+
+    <!-- BOTON PARA CENTRAR... -->
+    <button
+      id="btn_centerPosition"
+      [class]="
+        'btn position-absolute bg-dark w3-round-xxlarge text-white border border-secondary'
+      "
+      type="button"
+      (click)="centerMap()"
+    >
+      <i [class]="'fa fa-location-crosshairs w3-xlarge p-1'"></i>
+    </button>
+    <!-- ... -->
+
+     }
+    <!-- TODO CUANDO HAY CONEXION AL GPS-->
+    <!--  -->
+    <!-- ------------------------------ -->
+  </div>
+
+  @if(!connection_status ){
+
+  <!-- TODO CUANDO NO HAY CONEXION AL SERVIDOR-->
+  <!--  -->
+  <!-- ------------------------------ -->
+
+  <!-- BOTON PARA IR AL FORMULARIO DE VIAJE... -->
+  <!-- <button 
+  (click)="f_rotate_btn('rotate_connection')" 
+  (click)="f_reload_connection()" 
+  type="button"
+  id="btn_navigation"
+  class="w3-black border border-danger border-3 btn position-absolute text-danger w3-round-xxlarge"
+>
+  <i class="rotate_connection fa fa-route w3-xlarge text-danger"></i>
+</button> -->
+
+  <!-- BOTON PARA MOSTRAR CONDUCTORES ACTIVOS... -->
+  <!-- <button
+    class="w3-black border border-danger border-3 btn position-absolute text-danger w3-round-xxlarge"
+    id="btn_show_drivers"
+  >
+    <i class="fa fa-car-on w3-xlarge text-danger"></i>
+  </button> -->
+
+  <!-- BOTON PARA MOSTRAR FAVORITOS... -->
+  <!-- <button
+    id="btn_markers"
+    type="button"
+    class="w3-black border border-danger border-3 btn position-absolute text-danger w3-round-xxlarge"
+  >
+    <i class="fa fa-folder w3-xlarge text-danger"></i>
+  </button> -->
+
+  } @else if(connection_status && !footerDisplayed){
+
+  <!-- TODO CUANDO HAY CONEXION AL SERVIDOR-->
+  <!--  -->
+  <!-- ------------------------------ -->
+
+  @if(location_status){
+    <!-- BOTON PARA IR AL FORMULARIO DE VIAJE... -->
+    <!-- <button
+      id="btn_navigation"
+      (click)="reloadWithParams()"
+      type="button"
+      class="btn btn-md position-absolute bg-dark text-warning border border-warning"
+    >
+      <i class="fa fa-route w3-xlarge"></i>
+    </button> -->
+    } @else{
+
+    <!-- BOTON PARA IR AL FORMULARIO DE VIAJE... -->
+    <!-- <button 
+      type="button"
+      id="btn_navigation"
+      class="w3-black border border-danger border-3 btn position-absolute text-danger w3-round-xxlarge"
+    >
+      <i class="fa fa-route w3-xlarge text-danger"></i>
+    </button> -->
+
+    }
+
+  <!-- BOTON PARA MOSTRAR CONDUCTORES ACTIVOS... -->
+  <!-- <button
+    class="btn btn-md position-absolute bg-dark text-white border border-secondary"
+    id="btn_show_drivers"
+  >
+    <i class="fa fa-car-on w3-xlarge"></i>
+    @switch (connected_DriverUsers.length) { @case (0) {
+    <span
+      class="w3-badge position- text-white fw-bold border border-danger bg-transparent"
+      style="bottom: 27px !important"
+      >{{ connected_DriverUsers.length }}</span
+    >
+    } @default {
+    <span
+      class="w3-badge position-absolute text-dark fw-bold border border-danger bg-danger"
+      style="bottom: 27px !important"
+      >{{ connected_DriverUsers.length }}</span
+    >
+    } }
+  </button> -->
+
+  <!-- BOTON PARA MOSTRAR FAVORITOS... -->
+  <!-- <button
+    id="btn_markers"
+    (click)="goToFavoritesPlaces()"
+    type="button"
+    class="btn btn-md position-absolute text-white bg-dark border border-warning"
+  >
+    <i class="fa fa-folder w3-xlarge"></i>
+  </button> -->
+
+  } @if(footerDisplayed && location_status && connection_status ){
+
+  <app-footer-page
+    (panelDisplayed)="showFooterOnMap()"
+    [connected_users]="connected_users"
+    [methodToShowFooter]="methodToShowFooter"
+    [address]="address"
+    [distance]="distance"
+    [coord]="coord"
+    [coord_destination]="coord_destination"
+  ></app-footer-page>
+
+  }
+</div>

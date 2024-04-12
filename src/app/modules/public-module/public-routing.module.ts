@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
+import { NotfoundComponent } from './notfound/notfound.component';
 
 
 const routes: Routes = [
@@ -9,17 +10,22 @@ const routes: Routes = [
     path: '',
     children: [
       {
-        path: 'home', 
+        path: 'home',
         component: HomeComponent
       },
-      
-    {
-      path: '',
-      redirectTo: 'public/home',
-      pathMatch: 'full'
-  },
+
+      {
+        path: 'not_found',
+        component: NotfoundComponent
+      },
+
+      {
+        path: '',
+        redirectTo: 'public/home',
+        pathMatch: 'full'
+      },
     ]
-  } 
+  }
 
 
 ];

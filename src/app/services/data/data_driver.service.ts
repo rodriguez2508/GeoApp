@@ -15,7 +15,7 @@ import { I_Offers } from '../../interface/offers.interface';
 @Injectable({
   providedIn: 'root'
 })
-export class DataTravelerService {
+export class DataDriverService {
 
 
   // ---------------------------------------------------
@@ -134,30 +134,30 @@ export class DataTravelerService {
   // ---------------------------------------------------
   //TODO -- establece la status del socket INICIO
   // ---------------------------------------------------
-  socketStatus$: boolean = false;
+  socketOffer$: boolean = false;
 
-  socketStatusSubject = new BehaviorSubject<boolean>(this.socketStatus$);
+  socketOfferSubject = new BehaviorSubject<boolean>(this.socketOffer$);
 
-  setSocketStatus(socketStatusData: boolean | null) {
+  setSocketOffer(socketOfferData: boolean | null) {
 
 
-    if (socketStatusData === null) {
+    if (socketOfferData === null) {
 
-      this.socketStatus$ = false;
+      this.socketOffer$ = false;
 
-      this.socketStatusSubject.next(this.socketStatus$);
+      this.socketOfferSubject.next(this.socketOffer$);
 
     } else {
-      this.socketStatus$ = socketStatusData;
-      this.socketStatusSubject.next(socketStatusData);
+      this.socketOffer$ = socketOfferData;
+      this.socketOfferSubject.next(socketOfferData);
     }
 
 
   }
-  getSocketStatus(): Observable<boolean> {
+  getSocketOffer(): Observable<boolean> {
 
 
-    return this.socketStatusSubject.asObservable();
+    return this.socketOfferSubject.asObservable();
   }
   // ---------------------------------------------------
   //TODO -- establece la status del socket FINAL

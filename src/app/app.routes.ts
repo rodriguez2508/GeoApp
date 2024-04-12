@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { SessionGuardService } from './modules/session-module/guard/session-guard.service';
+import { TravelerRouteGuardService } from './modules/session-module/guard/traveler-route-guard.service';
 import { PublicRouteGuardService } from './modules/session-module/guard/public-route-guard.service';
+import { DriverRouteGuardService } from './modules/session-module/guard/driver-route-guard.service';
 
 export const routes: Routes = [
 
@@ -11,11 +13,11 @@ export const routes: Routes = [
         loadChildren: () => import('./modules/public-module/public.module').then((m) => m.PublicModule)
     },
 
-    {
-        path: 'map',
-        canActivate: [SessionGuardService],
-        loadChildren: () => import('./modules/map-module/map.module').then((m) => m.MapModule)
-    },
+    // {
+    //     path: 'map',
+    //     canActivate: [SessionGuardService],
+    //     loadChildren: () => import('./modules/map-module/map.module').then((m) => m.MapModule)
+    // },
 
     {
         path: 'session',
@@ -26,20 +28,25 @@ export const routes: Routes = [
 
     {
         path: 'traveler',
-        canActivate: [SessionGuardService],
+        canActivate: [SessionGuardService, TravelerRouteGuardService],
         loadChildren: () => import('./modules/traveler/traveler.module').then((m) => m.TravelerModule)
     },
 
+    {
+        path: 'driver',
+        canActivate: [SessionGuardService, DriverRouteGuardService],
+        loadChildren: () => import('./modules/driver/driver.module').then((m) => m.DriverModule)
+    },
 
 
     {
         path: '',
-        redirectTo: 'session/signin',
+        redirectTo: 'public/home',
         pathMatch: 'full'
     },
     // {
     //     path: '**',
-    //     redirectTo: 'session/signin',
+    //     redirectTo: 'public/not_found',
     //     pathMatch: 'full'
     // },
 

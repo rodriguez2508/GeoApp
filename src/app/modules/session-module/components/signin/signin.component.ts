@@ -148,10 +148,11 @@ export class SigninComponent implements OnInit, AfterViewInit {
 
           const user = this.storageService.decodeToken(data.token);
           // const user = this.storageService.getUser();
-          console.log(user)
-          if (user.user_type == 'traveler') this.goToTravelerView();
-          else if (user.user_type == 'driver') this.goToDriverView();
-          else if (user.user_type == 'admin') this.goToTravelerView();
+          // console.log(user)
+
+          if (user.user_type == 'traveler') this.reloadComponent(false, '/traveler/travel-request');
+          else if (user.user_type == 'driver') this.reloadComponent(false, '/driver/offers-request');
+          else if (user.user_type == 'admin') this.reloadComponent(true);
 
 
         });
@@ -197,9 +198,9 @@ export class SigninComponent implements OnInit, AfterViewInit {
             const user = this.storageService.decodeToken(data.token);
             // const user = this.storageService.getUser();
             console.log(user)
-            if (user.user_type == 'traveler') this.goToTravelerView();
-            else if (user.user_type == 'driver') this.goToDriverView();
-            else if (user.user_type == 'admin') this.goToTravelerView();
+            if (user.user_type == 'traveler') this.reloadComponent(false, '/traveler/travel-request');
+            else if (user.user_type == 'driver') this.reloadComponent(false, '/driver/offers-request');
+            else if (user.user_type == 'admin') this.reloadComponent(false, '/traveler/travel-request');
 
 
           });
@@ -311,22 +312,28 @@ export class SigninComponent implements OnInit, AfterViewInit {
   }
 
 
-  goToTravelerView(): void {
 
-    this.router.navigate(['/traveler/travel-request'], {
-      queryParams: {
+   // TODO ---------------------------------------
+  // -- recarga el componente o redirige a otra ruta
+  // 
+  reloadComponent(self: boolean, urlToNavegateTo?: string) {
 
-      },
+    //
+    console.log('Ruta actual', this.router.url);
+    const url = self ? this.router.url : urlToNavegateTo;
+
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+
+      this.router.navigate([`/${url}`]).then(() => {
+
+        window.location.reload();
+        console.log('Ruta despues de la navegacion', this.router.url);
+
+      });
     });
-  }
-  goToDriverView(): void {
 
-    this.router.navigate(['/traveler/travel-request'], {
-      queryParams: {
 
-      },
-    });
-  }
+  }  
   // -----------------------------
   // TODO 
   // -----------------------------

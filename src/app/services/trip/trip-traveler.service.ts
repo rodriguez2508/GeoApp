@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { DataService } from '../data/data.service';
 import { StorageService } from '../storage/storage.service';
 import { I_FormTravelRequest } from '../../interface/trip.interface';
-import { Observable, catchError, map, take, tap, throwError } from 'rxjs';
+import { Observable, catchError, finalize, map, switchMap, take, tap, throwError } from 'rxjs';
 
 
 const BASE_URL = environment.TRIP_API;
@@ -22,7 +22,7 @@ export class TripTravelerService {
   constructor(
     private http: HttpClient,
     private dataService: DataService,
-    private dataTravelerService:DataTravelerService
+    private dataTravelerService: DataTravelerService,
   ) { }
 
 
@@ -30,149 +30,79 @@ export class TripTravelerService {
   // ----------------------------------
   // TODO: funcion para guardar formulario de solicitud de viaje   
   // ----------------------------------
-  saveTravelRequest(dataForm: any, user_id:string): Observable<any> {
+  saveTravelRequest(dataForm: any, user_id: string): Observable<any> {
 
-    // "origin_coordinate": "0,0",
-    // "destination_coordinate": "0,0",
-    // "destination_address": "some",
-    // "origin_address": "sdada",
-    // "status": "asdas",  
-    // "driver_id": "asdas",   
-    // "traveler_id": "67e900c9-1240-4e4d-80d5-aa8f9e018934",
-    // "personNumber": "string", 
-    // "maxTimeWaiting": "15",
-    // "travelPeferences": "" 
-
-    console.log(dataForm)
+    console.log('saveTravelRequest', dataForm)
     const travelData: I_FormTravelRequest = {
       origin_coordinate: dataForm.placeOrigin,
       destination_coordinate: dataForm.placeDestination,
-      
       origin_address: dataForm.origin_address,
       destination_address: dataForm.destination_address,
-      
       status: 'pending',
       traveler_id: user_id,
-      driver_id: "",
+      driver_id: '',
       personNumber: dataForm.personNumber,
       maxTimeWaiting: dataForm.maxTimeWaiting,
-      travelPeferences: dataForm.travelPeferences,
+      travelPeferences: dataForm.travelPeferences
     };
- 
 
-    const url = BASE_URL ; 
+
+    const url = BASE_URL;
 
     return this.http.post<any>(url, travelData).pipe(
-
-      tap((data: any) => { 
-        console.log('Travel Request', data);
-      }),
-
-
+      switchMap(() => this.getTravels(user_id, 'pending')),
+      tap(data => data || []),
       catchError(this.handleError)
     );
 
 
-  } 
-   // ----------------------------------
+  }
+  // ----------------------------------
   // TODO: funcion para obtener Viajes realizados   
   // ----------------------------------
-  getTravels(user_id:string, status:string = 'all'): Observable<any> { 
+  getTravels(user_id: string, status: string = 'all'): Observable<any> {
+    const url = `${BASE_URL}by_traveler/${user_id}/${status}`;
 
-
-  const url = `${BASE_URL}by_traveler/${user_id}/${status}`;
-
-  return this.http.get<any>(url).pipe(
-    take(1),
-    
-    map((data: any) => {
-      // Aquí puedes aplicar cualquier transformación que necesites a los datos devueltos por la solicitud
-        if (!data || data.length === 0) {
-        console.log('No data found');
-        return data;
-
-        // Puedes manejar esto según tus necesidades
-      } else {
-        console.log(data);
-        // Realizar acciones con los datos si es necesario
-        return data;
-
-      }
-    }),
-    catchError((error) => {
-      console.error(error);
-      return throwError('Error retrieving items');
-    })
-
-    // tap((data: any) => {
-    //   if (!data || data.length === 0) {
-    //     console.log('No data found');
-    //     // Puedes manejar esto según tus necesidades
-    //   } else {
-    //     console.log(data);
-    //     // Realizar acciones con los datos si es necesario
-    //   }
-    // }),
-    // catchError((error) => {
-    //   console.error(error);
-    //   return throwError('Error retrieving items');
-    // })
-  );
-
-
-
+    return this.http.get<any>(url).pipe(
+      map(data => data || []), // Transforma la respuesta en un array vacío si no hay datos
+      catchError(this.handleError),
+      finalize(() => {
+        console.log('Petición completada');
+      })
+    );
   }
   // ----------------------------------
   // TODO: funcion para actualizar estado de viaje   
   // ----------------------------------
-  updateTravelRequest(data: any, id:string): Observable<any> {
-  
-    // data => {
-    // "status": "SOME_STATUS_TEXT"  
-    //   
-    // } 
-     
-
-    const url = BASE_URL + id ; 
+  updateTravelRequest(data: any, id: string): Observable<any> {
+    const url = `${BASE_URL}${id}`;
 
     return this.http.patch<any>(url, data).pipe(
-      map((data: any) => {
-        // Aquí puedes aplicar cualquier transformación que necesites a los datos devueltos por la solicitud
-        return data;
-      }),
-      // tap((data: any) => {
-
-      //   console.log('Travel Request', data);
-      // }),
-
-
-      catchError(this.handleError)
+      map(data => data || []), // Transforma la respuesta en un array vacío si no hay datos
+      catchError(this.handleError),
+      finalize(() => {
+        console.log('Petición completada');
+      })
     );
-
   }
-// ----------------------------------
+  // ----------------------------------
   // TODO: funcion para actualizar fecha de expiracion de viaje   
   // ----------------------------------
-  updateTravelDateFinish(data: any, id:string): Observable<any> {
-     
-    // data => {
-    // "maxTimeWaiting": "SOME_NUMBER"  
-    //   
-    // } 
-    const url = BASE_URL+ 'time_finish/' + id ; 
+  updateTravelDateFinish(data: any, id: string): Observable<any> {
+
+    const url = BASE_URL + 'time_finish/' + id;
 
     return this.http.patch<any>(url, data).pipe(
-      map((data: any) => {
-        // Aquí puedes aplicar cualquier transformación que necesites a los datos devueltos por la solicitud
-        return data;
+      map(data => data || []), // Transforma la respuesta en un array vacío si no hay datos
+
+      catchError((error: HttpErrorResponse) => {
+        console.error(error);
+        const errorMessage = error.message || 'Error updating travels';
+        return throwError(() => errorMessage);
       }),
-      // tap((data: any) => {
-
-      //   console.log('Travel Request', data);
-      // }),
-
-
-      catchError(this.handleError)
+      finalize(() => {
+        console.log('Petición completada');
+      })
     );
 
   }
@@ -181,9 +111,9 @@ export class TripTravelerService {
   // ----------------------------------
   // TODO: funcion para eliminar formulario de solicitud de viaje   
   // ----------------------------------
-  deleteTravelRequest(id:string): Observable<any> {
+  deleteTravelRequest(id: string): Observable<any> {
 
-    const url = BASE_URL + id ; 
+    const url = BASE_URL + id;
 
     return this.http.delete<any>(url).pipe(
 
@@ -191,9 +121,11 @@ export class TripTravelerService {
 
         console.log('Travel Request', data);
       }),
-
-
-      catchError(this.handleError)
+      catchError((error: HttpErrorResponse) => {
+        console.error(error);
+        const errorMessage = error.message || 'Error deleting travels';
+        return throwError(() => errorMessage);
+      }),
     );
   }
 
